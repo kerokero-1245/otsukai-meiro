@@ -13,7 +13,9 @@ export type SoundName =
   | 'tap' // ボタン反応「ぽん」
   | 'move' // 1マス移動「てくてく」
   | 'blocked' // 動けないとき やさしい「?」
-  | 'clear'; // ゴール到達 ファンファーレ
+  | 'clear' // ゴール到達 ファンファーレ
+  | 'star' // ⭐ゲットの瞬間「きらっ」
+  | 'fanfare'; // ぜんぶ できたね! の大きな祝福
 
 // 1音のパラメータ（周波数・長さ・波形）。
 interface Note {
@@ -32,6 +34,20 @@ const TONES: Record<SoundName, Note[]> = {
     { freq: 659, dur: 0.13, type: 'sine' }, // ミ
     { freq: 784, dur: 0.13, type: 'sine' }, // ソ
     { freq: 1047, dur: 0.3, type: 'sine' }, // 高いド
+  ],
+  // ⭐ゲットの「きらっ」。高めの2音を軽くはねさせる（強すぎない）。
+  star: [
+    { freq: 988, dur: 0.09, type: 'sine' }, // シ
+    { freq: 1319, dur: 0.22, type: 'sine' }, // 高いミ
+  ],
+  // ぜんぶ できたね! の大きな祝福。上がっていくやさしいアルペジオ。
+  fanfare: [
+    { freq: 523, dur: 0.14, type: 'sine' }, // ド
+    { freq: 659, dur: 0.14, type: 'sine' }, // ミ
+    { freq: 784, dur: 0.14, type: 'sine' }, // ソ
+    { freq: 1047, dur: 0.14, type: 'sine' }, // 高いド
+    { freq: 1319, dur: 0.14, type: 'sine' }, // 高いミ
+    { freq: 1568, dur: 0.36, type: 'sine' }, // 高いソ
   ],
 };
 
