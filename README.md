@@ -7,7 +7,7 @@
 
 ## 状態
 
-**実装中（Webファースト）。** フェーズ1「タップで即1マス動く」モードの MVP を実装中。
+**フェーズ1（タップで即1マス動く）実装済み・Webファースト。** タイトル → レベルえらび → プレイ → 祝福（ついたね!）まで遊べる。同梱レベル5個（2×2→3×3、障害物を段階的に導入）。おとなモード（写真・声の差し替え）はフェーズ2。
 
 配布は **Webファースト**: Expo の web ビルドを URL で配布し、ブラウザで開いて「ホーム画面に追加」すれば全画面で遊べる。ネイティブアプリ（App Store 等）は同じコードから後日。詳細は DESIGN.md §0。
 
@@ -23,4 +23,53 @@
 
 ## 動かし方
 
-準備中（Expo 雛形の導入後に追記）。
+前提: **Node 20.20.0**（macOS 既定の v16 では Expo が動かない）。nvm なら `nvm use`（`.nvmrc` に 20.20.0）。
+
+```sh
+npm install          # 初回のみ
+npm start            # Expo を起動 → ターミナルで w を押すと Web が開く
+```
+
+- `w` … ブラウザで開く（Webファースト。まずはこれ）
+- `i` / `a` … iOS シミュレータ / Android エミュレータ（任意）
+- 実機は Expo Go アプリで QR を読み取り（任意）
+
+ショートカット: `npm run web`（`w` を押さず直接 Web 起動）。
+
+### Web ビルド（配布用の静的サイト書き出し）
+
+```sh
+npx expo export --platform web      # dist/ に静的ファイルを書き出す
+```
+
+`dist/` を GitHub Pages 等に載せ、URL を配布 → ブラウザで開き「ホーム画面に追加」で全画面起動（DESIGN §0）。
+
+### 遊び方（フェーズ1）
+
+タイトルの「あそぶ」→ カードでレベルを選ぶ → ◀▲▼▶ をタップしてアバターを1マスずつ動かし、ゴール（りんご・おうち等）へ。壁や障害物の向きを押すとキャラが首をかしげるだけ（罰・ゲームオーバー無し）。ゴールで「ついたね!」の祝福。
+※ タイトル右下の歯車を **3秒長押し** すると、おとなモード（現在は準備中スタブ）に入る。
+
+## 画面・ファイル構成
+
+```
+App.tsx                     文字ヘッダ無しの最小ステートルーター（title→select→play→otona）
+src/
+  theme.ts                  配色・フォント・余白の基準値（4歳向け）
+  types.ts                  Level / Coord / Direction / Route など（DESIGN §7 準拠）
+  data/levels.json          同梱レベル定義（5個）
+  data/levels.ts            レベル読み込み・次レベル取得
+  game/maze.ts              move / canMove / isGoal など盤面の純粋関数
+  audio/sounds.ts           効果音（web は Web Audio で合成、native は無音スタブ）
+  components/
+    MazeGrid.tsx            盤面（タイル・障害物・ゴール・アバター）
+    DirPad.tsx              ◀▲▼▶ の巨大方向パッド
+    Avatar.tsx              アバター（絵文字バッジ）
+    Confetti.tsx            紙吹雪
+    ClearOverlay.tsx        ゴール祝福オーバーレイ
+    BigButton.tsx           共通の大ボタン
+  screens/
+    TitleScreen.tsx         タイトル（あそぶ / 親ゲート）
+    LevelSelectScreen.tsx   レベルえらび（横スクロール）
+    PlayScreen.tsx          プレイ本体（①タップモード）
+    OtonaScreen.tsx         おとなモード（フェーズ2のスタブ）
+```
