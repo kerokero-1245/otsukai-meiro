@@ -2,6 +2,13 @@
 
 4歳の姪っ子のための知育アプリ。マス目の上でアバターを動かしてゴール（りんご・おうち）まで届ける、超やさしいプログラミング体験。プログラミング的思考（順序立て・試行錯誤）の下地を遊びとして届けることを狙う。絵本「ルビィのぼうけん」の延長、小学校プログラミング教育（2020年度〜必修）への接続を意識。
 
+## 公開URL
+
+**▶ https://kerokero-1245.github.io/otsukai-meiro/**
+
+ブラウザで開いてそのまま遊べる。スマホなら「ホーム画面に追加」で全画面起動。
+`main` に push すると GitHub Actions（[.github/workflows/deploy.yml](.github/workflows/deploy.yml)）が Web を書き出して自動デプロイする。
+
 - 企画（厳選5案の比較）: [docs/IDEAS.md](docs/IDEAS.md)
 - 設計（画面・データモデル・ロードマップ）: [docs/DESIGN.md](docs/DESIGN.md)
 
@@ -39,10 +46,16 @@ npm start            # Expo を起動 → ターミナルで w を押すと Web 
 ### Web ビルド（配布用の静的サイト書き出し）
 
 ```sh
-npx expo export --platform web      # dist/ に静的ファイルを書き出す
+npx expo export --platform web      # dist/ に静的ファイルを書き出す（ルート配信用）
 ```
 
 `dist/` を GitHub Pages 等に載せ、URL を配布 → ブラウザで開き「ホーム画面に追加」で全画面起動（DESIGN §0）。
+
+GitHub Pages はサブパス（`/otsukai-meiro/`）配信のため、CI では `EXPO_BASE_URL=/otsukai-meiro` を渡して書き出す。この環境変数を [app.config.js](app.config.js) が `experiments.baseUrl` に反映し、**ビルド時のみ**アセットのベースパスを付ける（ローカルの `npm start` には影響しない）。手元でサブパス配信を再現するなら:
+
+```sh
+EXPO_BASE_URL=/otsukai-meiro npx expo export --platform web
+```
 
 ### 遊び方（フェーズ1）
 

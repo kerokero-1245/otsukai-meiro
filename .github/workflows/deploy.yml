@@ -1,0 +1,64 @@
+name: Web を GitHub Pages へデプロイ
+
+# main への push で Expo Web を書き出し、GitHub Pages へ公開する。
+# 手動実行（workflow_dispatch）も可能。
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# GitHub Pages へのデプロイに必要な権限（標準構成）。
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 進行中のデプロイをキャンセルせず、直列に実行する。
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: チェックアウト
+        uses: actions/checkout@v4
+
+      - name: Node 20 を用意
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: 依存関係をインストール
+        run: npm ci
+
+      - name: Pages 設定
+        uses: actions/configure-pages@v5
+
+      - name: Web を書き出し（サブパス /otsukai-meiro/ 前提）
+        # EXPO_BASE_URL は app.config.js が experiments.baseUrl に反映する。
+        # これによりビルド時のみサブパスが適用され、ローカル開発には影響しない。
+        env:
+          EXPO_BASE_URL: /otsukai-meiro
+        run: npx expo export --platform web
+
+      - name: Jekyll 無効化（_expo などアンダースコア始まりを配信するため）
+        run: touch dist/.nojekyll
+
+      - name: 成果物をアップロード
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Pages へデプロイ
+        id: deployment
+        uses: actions/deploy-pages@v4
