@@ -33,13 +33,30 @@ export default function PlayScreen({ levelId, onHome, onNext }: Props) {
   const level = getLevel(levelId);
   const { width, height } = useWindowDimensions();
 
-  // --- 盤面・ボタンの寸法（画面サイズに合わせる。縦持ち前提で中央寄せ）---
+  // --- 盤面・ボタンの寸法 ---
+  // 縦を「上段ヘッダー＋めいろ＋方向パッド」で必ず収める。
+  // 以前は maxBoardH = height*0.46 と最小64pxの固定寸法だったため、背の低い（横長でない）
+  // ウィンドウでは盤がはみ出し、RN Web の View 既定 overflow:visible により上のヘッダーへ
+  // 覆いかぶさって文言が隠れていた。ここでヘッダー/パッドのぶんを差し引いた高さに収める。
   const cols = level?.cols ?? 1;
   const rows = level?.rows ?? 1;
-  const maxBoardW = Math.min(width, 460) - space.md * 2;
-  const maxBoardH = height * 0.46;
-  const cell = Math.max(64, Math.floor(Math.min(maxBoardW / cols, maxBoardH / rows, 120)));
-  const dirSize = Math.max(64, Math.min(Math.floor((Math.min(width, 460) - space.md * 2) / 3.4), 100));
+
+  const contentW = Math.min(width, 480) - space.md * 2; // 横に使える幅（frame の左右パディングぶん）
+  const availH = Math.max(height - (space.lg + space.md), 320); // 縦に使える高さ（frame の上下パディングぶん）
+  const HEADER_H = 64; // 上段（おうち＋ゴール案内）にみておく高さ
+  const GAP = space.md; // 盤と方向パッドのあいだの最小余白
+
+  // 方向パッド: 幅と「高さの持ちぶん」の両方から1辺を決める（背の低い画面では小さくする）。
+  const bodyH = Math.max(availH - HEADER_H, 200);
+  const padBudget = Math.min(bodyH * 0.42, 340); // 方向パッド帯に割り当てる高さの上限
+  const dirByH = Math.floor((padBudget - space.md) / 3.3); // 3行＋行間＋下パディングぶん
+  const dirByW = Math.floor(contentW / 3.4);
+  const dirSize = Math.max(52, Math.min(dirByH, dirByW, 100));
+  const padAreaH = Math.ceil(dirSize * 3.3) + space.md; // 実際に方向パッド帯が占める高さの見積り
+
+  // めいろのマス: 残り高さと幅の小さいほうに収める。下限も小さめにして絶対にあふれさせない。
+  const boardBudgetH = Math.max(bodyH - padAreaH - GAP, rows * 44);
+  const cell = Math.max(44, Math.floor(Math.min(contentW / cols, boardBudgetH / rows, 116)));
 
   // --- アバターの状態（論理位置は ref、見た目は Animated 値で駆動）---
   const start = level?.start ?? { x: 0, y: 0 };
@@ -127,7 +144,9 @@ export default function PlayScreen({ levelId, onHome, onNext }: Props) {
           <Text style={styles.homeGlyph}>🏠</Text>
         </Pressable>
         <View style={styles.banner}>
-          <Text style={styles.bannerLabel}>ここまで いこう</Text>
+          <Text style={styles.bannerLabel} numberOfLines={1}>
+            ここまで いこう
+          </Text>
           <Text style={styles.bannerGoal}>{level.goalEmoji}</Text>
         </View>
         <View style={styles.homeBtn} />
