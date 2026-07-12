@@ -57,9 +57,14 @@ export default function App() {
       break;
   }
 
+  // レベルえらびだけは横スクロールのカルーセルなので、広い画面では全カードを
+  // 見せたい（480pxの枠に閉じ込めない）。そのため select のときだけ横方向の最大幅を
+  // 外し、画面いっぱいに広げる（横の余白は画面側で持つ）。他画面は従来どおり中央寄せ・480px上限。
+  const fullBleed = route.name === 'select';
+
   return (
     <View style={styles.root}>
-      <View style={styles.frame}>{screen}</View>
+      <View style={[styles.frame, fullBleed && styles.frameFull]}>{screen}</View>
       <StatusBar style="dark" />
     </View>
   );
@@ -78,5 +83,10 @@ const styles = StyleSheet.create({
     paddingTop: space.lg,
     paddingBottom: space.md,
     paddingHorizontal: space.md,
+  },
+  // フルブリード（レベルえらび）: 横の最大幅と横パディングを外す。縦の余白は維持。
+  frameFull: {
+    maxWidth: 9999,
+    paddingHorizontal: 0,
   },
 });
