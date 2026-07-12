@@ -59,7 +59,7 @@ EXPO_BASE_URL=/otsukai-meiro npx expo export --platform web
 
 ### 遊び方（フェーズ1）
 
-タイトルの「あそぶ」→ カードでレベルを選ぶ → ◀▲▼▶ をタップしてアバターを1マスずつ動かし、ゴール（りんご・おうち等）へ。壁や障害物の向きを押すとキャラが首をかしげるだけ（罰・ゲームオーバー無し）。ゴールで「ついたね!」の祝福。
+タイトルの「あそぶ」→ カードで**むずかしさ**を選ぶ → その難易度の迷路が**その場でランダム生成**される → ◀▲▼▶ をタップしてアバターを1マスずつ動かし、ゴール（りんご・おうち等、毎回ランダム）へ。壁や障害物の向きを押すとキャラが首をかしげるだけ（罰・ゲームオーバー無し）。ゴールで「ついたね!」の祝福。「もういちど」で同じ難易度の**新しい迷路**に挑戦（さんすうドリルのように何度でも）。
 ※ タイトル右下の歯車を **3秒長押し** すると、おとなモード（現在は準備中スタブ）に入る。
 
 ## 画面・ファイル構成
@@ -68,10 +68,11 @@ EXPO_BASE_URL=/otsukai-meiro npx expo export --platform web
 App.tsx                     文字ヘッダ無しの最小ステートルーター（title→select→play→otona）
 src/
   theme.ts                  配色・フォント・余白の基準値（4歳向け）
-  types.ts                  Level / Coord / Direction / Route など（DESIGN §7 準拠）
-  data/levels.json          同梱レベル定義（5個）
-  data/levels.ts            レベル読み込み・次レベル取得
+  types.ts                  Template / Level / Coord / Direction / Route など（DESIGN §7 準拠）
+  data/templates.json       むずかしさテンプレート定義（5個。カード＝難易度の型）
+  data/templates.ts         テンプレート読み込み・次テンプレート取得
   game/maze.ts              move / canMove / isGoal など盤面の純粋関数
+  game/generate.ts          テンプレートから迷路をランダム生成（BFS検証つき・詰み無し保証）
   audio/sounds.ts           効果音（web は Web Audio で合成、native は無音スタブ）
   components/
     MazeGrid.tsx            盤面（タイル・障害物・ゴール・アバター）
