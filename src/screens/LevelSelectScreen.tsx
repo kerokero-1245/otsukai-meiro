@@ -7,13 +7,24 @@ import { colors, font, radius, space } from '../theme';
 import { LEVELS } from '../data/levels';
 import { Level } from '../types';
 import { playSound } from '../audio/sounds';
+import { allCleared, isCleared } from '../progress';
 
 interface Props {
   onPick: (levelId: string) => void;
   onBack: () => void;
 }
 
-function LevelCard({ level, index, onPick }: { level: Level; index: number; onPick: (id: string) => void }) {
+function LevelCard({
+  level,
+  index,
+  cleared,
+  onPick,
+}: {
+  level: Level;
+  index: number;
+  cleared: boolean;
+  onPick: (id: string) => void;
+}) {
   return (
     <Pressable
       onPress={() => {
@@ -21,12 +32,19 @@ function LevelCard({ level, index, onPick }: { level: Level; index: number; onPi
         onPick(level.id);
       }}
       accessibilityRole="button"
-      accessibilityLabel={level.title}
+      accessibilityLabel={cleared ? `${level.title}（クリアずみ）` : level.title}
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
     >
       <View style={styles.numberBadge}>
         <Text style={styles.numberText}>{index + 1}</Text>
       </View>
+
+      {/* クリア済みのごほうび⭐（未クリアは何も出さない ＝「まだ無い」を意識させない）。 */}
+      {cleared ? (
+        <View style={styles.starBadge} pointerEvents="none">
+          <Text style={styles.starBadgeGlyph}>⭐</Text>
+        </View>
+      ) : null}
 
       <View style={styles.goalCircle}>
         <Text style={styles.goalEmoji}>{level.goalEmoji}</Text>
@@ -46,13 +64,18 @@ function LevelCard({ level, index, onPick }: { level: Level; index: number; onPi
 }
 
 export default function LevelSelectScreen({ onPick, onBack }: Props) {
+  // 全部⭐が揃っていれば、控えめな王冠をそっと添える（減点・失敗表示は無し）。
+  const crowned = allCleared();
   return (
     <View style={styles.root}>
       <View style={styles.header}>
         <Pressable onPress={onBack} hitSlop={12} style={styles.backBtn} accessibilityLabel="もどる">
           <Text style={styles.backGlyph}>◀️</Text>
         </Pressable>
-        <Text style={styles.prompt}>どれで あそぶ?</Text>
+        <View style={styles.promptRow}>
+          {crowned ? <Text style={styles.crown}>👑</Text> : null}
+          <Text style={styles.prompt}>どれで あそぶ?</Text>
+        </View>
         <View style={styles.backBtn} />
       </View>
 
@@ -62,7 +85,13 @@ export default function LevelSelectScreen({ onPick, onBack }: Props) {
         contentContainerStyle={styles.scroll}
       >
         {LEVELS.map((level, i) => (
-          <LevelCard key={level.id} level={level} index={i} onPick={onPick} />
+          <LevelCard
+            key={level.id}
+            level={level}
+            index={i}
+            cleared={isCleared(level.id)}
+            onPick={onPick}
+          />
         ))}
       </ScrollView>
     </View>
@@ -86,6 +115,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   backGlyph: {
+    fontSize: 26,
+  },
+  promptRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: space.xs,
+  },
+  crown: {
     fontSize: 26,
   },
   prompt: {
@@ -117,6 +154,27 @@ const styles = StyleSheet.create({
   cardPressed: {
     opacity: 0.85,
     transform: [{ scale: 0.98 }],
+  },
+  starBadge: {
+    position: 'absolute',
+    top: space.sm,
+    right: space.sm,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.goalHalo,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: colors.white,
+    shadowColor: '#00000055',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  starBadgeGlyph: {
+    fontSize: 26,
   },
   numberBadge: {
     width: 40,
