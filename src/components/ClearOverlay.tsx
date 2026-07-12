@@ -1,9 +1,14 @@
 // ゴール到達の祝福オーバーレイ。写真ズーム風の拡大＋紙吹雪＋「ついたね!」＋次の行動ボタン。
+// ここに「⭐ゲット!」の瞬間を統合（ぽんっ＋効果音）。クリア=⭐なので、何手で着いたかは問わない。
 // 罰やスコアは出さない（§4）。ボタンは大きく、絵文字＋ひらがなで示す。
+//
+// 全レベルに⭐が揃った瞬間（justCompletedAll）だけは、ボタンを出さずに ⭐ゲットの余韻のあと
+// 自動で「ぜんぶ できたね! がんばりカード」へ進む（onCelebrateAll）。4歳が確実に大祝福に辿り着けるように。
 
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { colors, font, space } from '../theme';
+import { playSound } from '../audio/sounds';
 import BigButton from './BigButton';
 import Confetti from './Confetti';
 
@@ -12,12 +17,25 @@ interface Props {
   onReplay: () => void;
   onNext?: () => void; // 次のレベルが無ければ undefined（ボタンを出さない）
   onHome: () => void;
+  justCompletedAll?: boolean; // このクリアで全5レベルの⭐が初めて揃った
+  onCelebrateAll?: () => void; // ↑のとき「がんばりカード」へ進む
 }
 
-export default function ClearOverlay({ goalEmoji, onReplay, onNext, onHome }: Props) {
+export default function ClearOverlay({
+  goalEmoji,
+  onReplay,
+  onNext,
+  onHome,
+  justCompletedAll = false,
+  onCelebrateAll,
+}: Props) {
   // ゴールをぽんっと大きく見せる（写真ズームの代わり）。
   const scale = useRef(new Animated.Value(0.3)).current;
   const opacity = useRef(new Animated.Value(0)).current;
+  // ⭐ゲットのスタンプ（ゴールに少し遅れてぽんっと付く）。
+  const starScale = useRef(new Animated.Value(0)).current;
+  const advancedRef = useRef(false);
+
   useEffect(() => {
     Animated.parallel([
       Animated.spring(scale, {
@@ -33,7 +51,36 @@ export default function ClearOverlay({ goalEmoji, onReplay, onNext, onHome }: Pr
         useNativeDriver: false,
       }),
     ]).start();
-  }, [scale, opacity]);
+
+    // ⭐ゲットの瞬間: ゴールが出たあとに星がぽんっと弾む＋「きらっ」。
+    const starDelay = setTimeout(() => {
+      playSound('star');
+      Animated.spring(starScale, {
+        toValue: 1,
+        friction: 4,
+        tension: 120,
+        useNativeDriver: false,
+      }).start();
+    }, 360);
+
+    return () => clearTimeout(starDelay);
+  }, [scale, opacity, starScale]);
+
+  // 全部そろった瞬間だけ、⭐ゲットの余韻ののち自動で大祝福（がんばりカード）へ。
+  useEffect(() => {
+    if (!justCompletedAll || !onCelebrateAll) return;
+    const t = setTimeout(() => {
+      if (advancedRef.current) return;
+      advancedRef.current = true;
+      onCelebrateAll();
+    }, 1900);
+    return () => clearTimeout(t);
+  }, [justCompletedAll, onCelebrateAll]);
+
+  const starRotate = starScale.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['-40deg', '0deg'],
+  });
 
   return (
     <View style={styles.root} pointerEvents="box-none">
@@ -43,17 +90,33 @@ export default function ClearOverlay({ goalEmoji, onReplay, onNext, onHome }: Pr
       <Animated.View style={[styles.card, { opacity, transform: [{ scale }] }]}>
         <View style={styles.zoomCircle}>
           <Text style={styles.goalEmoji}>{goalEmoji}</Text>
+          {/* ⭐ゲットのスタンプ（右上にぽんっ） */}
+          <Animated.View
+            style={[
+              styles.starStamp,
+              { transform: [{ scale: starScale }, { rotate: starRotate }] },
+            ]}
+            pointerEvents="none"
+          >
+            <Text style={styles.starGlyph}>⭐</Text>
+          </Animated.View>
         </View>
         <Text style={styles.headline}>ついたね!</Text>
+        <Animated.Text style={[styles.starGot, { opacity: starScale }]}>
+          ⭐ゲット!
+        </Animated.Text>
       </Animated.View>
 
-      <View style={styles.buttons}>
-        <BigButton emoji="🔁" label="もういちど" onPress={onReplay} color={colors.button} />
-        {onNext ? (
-          <BigButton emoji="👉" label="つぎへ" onPress={onNext} color={colors.play} pressedColor={colors.playPressed} />
-        ) : null}
-        <BigButton emoji="🏠" label="おうちへ" onPress={onHome} />
-      </View>
+      {/* 全部そろった瞬間はボタンを出さず自動で大祝福へ。それ以外は次の行動ボタン。 */}
+      {justCompletedAll ? null : (
+        <View style={styles.buttons}>
+          <BigButton emoji="🔁" label="もういちど" onPress={onReplay} color={colors.button} />
+          {onNext ? (
+            <BigButton emoji="👉" label="つぎへ" onPress={onNext} color={colors.play} pressedColor={colors.playPressed} />
+          ) : null}
+          <BigButton emoji="🏠" label="おうちへ" onPress={onHome} />
+        </View>
+      )}
     </View>
   );
 }
@@ -99,6 +162,21 @@ const styles = StyleSheet.create({
   goalEmoji: {
     fontSize: 104,
   },
+  starStamp: {
+    position: 'absolute',
+    top: -10,
+    right: -10,
+    width: 72,
+    height: 72,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  starGlyph: {
+    fontSize: 64,
+    textShadowColor: '#00000055',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
   headline: {
     marginTop: space.md,
     fontSize: font.huge,
@@ -107,6 +185,15 @@ const styles = StyleSheet.create({
     textShadowColor: '#00000088',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 6,
+  },
+  starGot: {
+    marginTop: space.xs,
+    fontSize: font.big,
+    fontWeight: '900',
+    color: '#FFE270',
+    textShadowColor: '#00000088',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 5,
   },
   buttons: {
     width: '100%',

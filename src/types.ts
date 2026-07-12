@@ -39,4 +39,5 @@ export type Route =
   | { name: 'title' }
   | { name: 'select' }
   | { name: 'play'; levelId: string }
+  | { name: 'ganbari' } // 全5レベルの⭐が揃ったときの「ぜんぶ できたね! がんばりカード」
   | { name: 'otona' };

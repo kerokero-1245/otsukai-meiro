@@ -18,6 +18,7 @@ import { getLevel, getNextLevelId } from '../data/levels';
 import { Coord, Direction } from '../types';
 import { canMove, isGoal, move } from '../game/maze';
 import { playSound } from '../audio/sounds';
+import { allCleared, hasCelebratedAll, markCleared } from '../progress';
 import MazeGrid from '../components/MazeGrid';
 import DirPad from '../components/DirPad';
 import ClearOverlay from '../components/ClearOverlay';
@@ -27,9 +28,10 @@ interface Props {
   levelId: string;
   onHome: () => void;
   onNext: (nextLevelId: string) => void;
+  onCelebrateAll: () => void; // 全5レベルの⭐が初めて揃った → がんばりカードへ
 }
 
-export default function PlayScreen({ levelId, onHome, onNext }: Props) {
+export default function PlayScreen({ levelId, onHome, onNext, onCelebrateAll }: Props) {
   const level = getLevel(levelId);
   const { width, height } = useWindowDimensions();
 
@@ -65,6 +67,8 @@ export default function PlayScreen({ levelId, onHome, onNext }: Props) {
   const avatarTilt = useRef(new Animated.Value(0)).current;
   const animatingRef = useRef(false);
   const [arrived, setArrived] = useState(false);
+  // このクリアで全5レベルの⭐が初めて揃ったか（＝がんばりカードへ自動で進む）。
+  const [completedAll, setCompletedAll] = useState(false);
 
   // 画面リサイズ時、アニメ中でなければアバターを論理位置に合わせ直す。
   useEffect(() => {
@@ -79,6 +83,7 @@ export default function PlayScreen({ levelId, onHome, onNext }: Props) {
     avatarPos.setValue({ x: start.x * cell, y: start.y * cell });
     avatarTilt.setValue(0);
     setArrived(false);
+    setCompletedAll(false);
   }, [start, cell, avatarPos, avatarTilt]);
 
   // 動けないときの「首をかしげる」演出。
@@ -116,6 +121,10 @@ export default function PlayScreen({ levelId, onHome, onNext }: Props) {
         animatingRef.current = false;
         posRef.current = next;
         if (isGoal(level, next)) {
+          // クリア=⭐（何手で着いたかは問わない）。既にクリア済みなら剥奪・変化なし。
+          markCleared(level.id);
+          // このクリアで全部そろい、まだ大祝福を見せていなければ「がんばりカード」へ。
+          setCompletedAll(allCleared() && !hasCelebratedAll());
           playSound('clear');
           setArrived(true);
         }
@@ -177,6 +186,8 @@ export default function PlayScreen({ levelId, onHome, onNext }: Props) {
           }}
           onNext={nextId ? () => onNext(nextId) : undefined}
           onHome={onHome}
+          justCompletedAll={completedAll}
+          onCelebrateAll={onCelebrateAll}
         />
       ) : null}
     </View>
