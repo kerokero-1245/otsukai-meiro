@@ -1,0 +1,80 @@
+[
+  {
+    "id": "level-01",
+    "title": "りんごまで いこう",
+    "cols": 2,
+    "rows": 2,
+    "start": { "x": 0, "y": 1 },
+    "goal": { "x": 1, "y": 0 },
+    "obstacles": [],
+    "mode": "tap",
+    "maxSteps": 2,
+    "goalImage": null,
+    "goalVoice": null,
+    "goalEmoji": "🍎",
+    "avatarEmoji": "🐥"
+  },
+  {
+    "id": "level-02",
+    "title": "おうちへ かえろう",
+    "cols": 2,
+    "rows": 2,
+    "start": { "x": 0, "y": 0 },
+    "goal": { "x": 1, "y": 1 },
+    "obstacles": [],
+    "mode": "tap",
+    "maxSteps": 2,
+    "goalImage": null,
+    "goalVoice": null,
+    "goalEmoji": "🏠",
+    "avatarEmoji": "🐥"
+  },
+  {
+    "id": "level-03",
+    "title": "ケーキやさんへ",
+    "cols": 3,
+    "rows": 3,
+    "start": { "x": 0, "y": 2 },
+    "goal": { "x": 2, "y": 0 },
+    "obstacles": [],
+    "mode": "tap",
+    "maxSteps": 4,
+    "goalImage": null,
+    "goalVoice": null,
+    "goalEmoji": "🍰",
+    "avatarEmoji": "🐥"
+  },
+  {
+    "id": "level-04",
+    "title": "きの むこうの りんご",
+    "cols": 3,
+    "rows": 3,
+    "start": { "x": 0, "y": 2 },
+    "goal": { "x": 2, "y": 2 },
+    "obstacles": [{ "x": 1, "y": 2 }],
+    "mode": "tap",
+    "maxSteps": 4,
+    "goalImage": null,
+    "goalVoice": null,
+    "goalEmoji": "🍎",
+    "avatarEmoji": "🐥"
+  },
+  {
+    "id": "level-05",
+    "title": "みちを まわって おうちへ",
+    "cols": 3,
+    "rows": 3,
+    "start": { "x": 0, "y": 0 },
+    "goal": { "x": 2, "y": 2 },
+    "obstacles": [
+      { "x": 1, "y": 0 },
+      { "x": 1, "y": 1 }
+    ],
+    "mode": "tap",
+    "maxSteps": 5,
+    "goalImage": null,
+    "goalVoice": null,
+    "goalEmoji": "🏠",
+    "avatarEmoji": "🐥"
+  }
+]
