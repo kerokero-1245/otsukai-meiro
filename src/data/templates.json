@@ -1,0 +1,47 @@
+[
+  {
+    "id": "level-01",
+    "label": "ちいさな めいろ",
+    "cols": 2,
+    "rows": 2,
+    "obstacleMin": 0,
+    "obstacleMax": 0,
+    "minSteps": 2
+  },
+  {
+    "id": "level-02",
+    "label": "ちょっと おおきい",
+    "cols": 3,
+    "rows": 2,
+    "obstacleMin": 0,
+    "obstacleMax": 1,
+    "minSteps": 3
+  },
+  {
+    "id": "level-03",
+    "label": "きの ある めいろ",
+    "cols": 3,
+    "rows": 3,
+    "obstacleMin": 1,
+    "obstacleMax": 1,
+    "minSteps": 4
+  },
+  {
+    "id": "level-04",
+    "label": "きが おおい めいろ",
+    "cols": 3,
+    "rows": 3,
+    "obstacleMin": 2,
+    "obstacleMax": 2,
+    "minSteps": 4
+  },
+  {
+    "id": "level-05",
+    "label": "おおきな めいろ",
+    "cols": 4,
+    "rows": 4,
+    "obstacleMin": 2,
+    "obstacleMax": 3,
+    "minSteps": 5
+  }
+]

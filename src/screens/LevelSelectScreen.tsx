@@ -23,8 +23,8 @@ import {
   View,
 } from 'react-native';
 import { colors, font, radius, space } from '../theme';
-import { LEVELS } from '../data/levels';
-import { Level } from '../types';
+import { TEMPLATES } from '../data/templates';
+import { Coord, Template } from '../types';
 import { playSound } from '../audio/sounds';
 import { allCleared, isCleared } from '../progress';
 
@@ -37,16 +37,69 @@ interface Props {
 const H_PAD = space.md; // カルーセル左右の内側パディング（片側）
 const GAP = space.md; // カード間の間隔
 const CARD_MAX = 240; // カードの最大幅（大きすぎ防止）
-const CARD_MIN = 188; // ゴールの円(128)＋左右余白が収まる最小幅
+const CARD_MIN = 188; // ミニめいろ＋左右余白が収まる最小幅
+const PREVIEW_MAX = 132; // ミニめいろ（プレビュー）の最大辺
+
+// カードのプレビュー用の障害物マスを決める（見た目のヒント。実際に遊ぶ迷路は毎回生成される）。
+// スタート(0,0)とゴール(cols-1,rows-1)は避け、内側から count 個を等間隔にサンプルする。
+function previewObstacles(cols: number, rows: number, count: number): Coord[] {
+  const avail: Coord[] = [];
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      if (x === 0 && y === 0) continue;
+      if (x === cols - 1 && y === rows - 1) continue;
+      avail.push({ x, y });
+    }
+  }
+  const chosen: Coord[] = [];
+  for (let i = 0; i < count && i < avail.length; i++) {
+    chosen.push(avail[Math.floor(((i + 1) * avail.length) / (count + 1))]);
+  }
+  return chosen;
+}
+
+// カードの「ミニめいろ」。マス目の大きさ＝むずかしさ、🌳＝障害物、🐥→🎁 の位置関係で
+// 「どこから どこまで」を4歳にも一目で伝える（実プレイのゴール絵文字は毎回ランダム）。
+function MazePreview({ template }: { template: Template }) {
+  const { cols, rows, obstacleMax } = template;
+  const cellPx = Math.max(20, Math.min(38, Math.floor(PREVIEW_MAX / Math.max(cols, rows))));
+  const obstacles = previewObstacles(cols, rows, obstacleMax);
+  const isTree = (x: number, y: number) => obstacles.some((o) => o.x === x && o.y === y);
+
+  const rowEls: React.ReactNode[] = [];
+  for (let y = 0; y < rows; y++) {
+    const cellEls: React.ReactNode[] = [];
+    for (let x = 0; x < cols; x++) {
+      const start = x === 0 && y === 0;
+      const goal = x === cols - 1 && y === rows - 1;
+      const tree = isTree(x, y);
+      const base = (x + y) % 2 === 0 ? colors.tileLight : colors.tileDark;
+      const bg = goal ? colors.goalTile : tree ? colors.obstacleTile : base;
+      cellEls.push(
+        <View key={x} style={[styles.pvCell, { width: cellPx, height: cellPx, backgroundColor: bg }]}>
+          <Text style={{ fontSize: cellPx * 0.6 }}>
+            {start ? '🐥' : goal ? '🎁' : tree ? '🌳' : ''}
+          </Text>
+        </View>
+      );
+    }
+    rowEls.push(
+      <View key={y} style={styles.pvRow}>
+        {cellEls}
+      </View>
+    );
+  }
+  return <View style={styles.pvBoard}>{rowEls}</View>;
+}
 
 function LevelCard({
-  level,
+  template,
   index,
   cleared,
   width,
   onPick,
 }: {
-  level: Level;
+  template: Template;
   index: number;
   cleared: boolean;
   width: number;
@@ -56,10 +109,10 @@ function LevelCard({
     <Pressable
       onPress={() => {
         playSound('tap');
-        onPick(level.id);
+        onPick(template.id);
       }}
       accessibilityRole="button"
-      accessibilityLabel={cleared ? `${level.title}（クリアずみ）` : level.title}
+      accessibilityLabel={cleared ? `${template.label}（クリアずみ）` : template.label}
       style={({ pressed }) => [styles.card, { width }, pressed && styles.cardPressed]}
     >
       <View style={styles.numberBadge}>
@@ -73,18 +126,11 @@ function LevelCard({
         </View>
       ) : null}
 
-      <View style={styles.goalCircle}>
-        <Text style={styles.goalEmoji}>{level.goalEmoji}</Text>
-      </View>
-
-      <View style={styles.conceptRow}>
-        <Text style={styles.conceptEmoji}>{level.avatarEmoji}</Text>
-        <Text style={styles.conceptArrow}>→</Text>
-        <Text style={styles.conceptEmoji}>{level.goalEmoji}</Text>
-      </View>
+      {/* むずかしさが一目で伝わるミニめいろ（大きさ・🌳の数がヒント）。 */}
+      <MazePreview template={template} />
 
       <Text style={styles.cardTitle} numberOfLines={1}>
-        {level.title}
+        {template.label}
       </Text>
     </Pressable>
   );
@@ -146,7 +192,7 @@ export default function LevelSelectScreen({ onPick, onBack }: Props) {
 
   // 実測できたらそれを使い、初回描画のちらつきは画面幅で代用する（フルブリードなので≒画面幅）。
   const viewportW = measuredW || winW;
-  const n = LEVELS.length;
+  const n = TEMPLATES.length;
 
   // 全カードを程よい大きさで収められる幅か（PC等の広い画面か）を判定。
   const cardIfAllFit = Math.floor((viewportW - 2 * H_PAD - (n - 1) * GAP) / n);
@@ -213,12 +259,12 @@ export default function LevelSelectScreen({ onPick, onBack }: Props) {
           style={styles.scrollView}
           contentContainerStyle={[styles.scroll, allFit && styles.scrollCentered]}
         >
-          {LEVELS.map((level, i) => (
+          {TEMPLATES.map((template, i) => (
             <LevelCard
-              key={level.id}
-              level={level}
+              key={template.id}
+              template={template}
               index={i}
-              cleared={isCleared(level.id)}
+              cleared={isCleared(template.id)}
               width={cardW}
               onPick={onPick}
             />
@@ -373,31 +419,23 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: colors.white,
   },
-  goalCircle: {
-    width: 128,
-    height: 128,
-    borderRadius: 64,
-    backgroundColor: colors.goalHalo,
+  // ミニめいろ（プレビュー）。実際の盤面(MazeGrid)の縮小版。
+  pvBoard: {
+    backgroundColor: colors.boardBg,
+    borderRadius: radius.sm,
+    borderWidth: 2,
+    borderColor: colors.tileBorder,
+    padding: 3,
+    marginTop: space.xs,
+  },
+  pvRow: {
+    flexDirection: 'row',
+  },
+  pvCell: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 4,
-    borderColor: colors.white,
-  },
-  goalEmoji: {
-    fontSize: 72,
-  },
-  conceptRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: space.md,
-  },
-  conceptEmoji: {
-    fontSize: 30,
-  },
-  conceptArrow: {
-    fontSize: 24,
-    marginHorizontal: space.xs,
-    color: colors.subtext,
+    borderWidth: 1,
+    borderColor: colors.tileBorder,
   },
   cardTitle: {
     marginTop: space.sm,

@@ -14,8 +14,9 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { colors, font, radius, space } from '../theme';
-import { getLevel, getNextLevelId } from '../data/levels';
-import { Coord, Direction } from '../types';
+import { getTemplate, getNextTemplateId } from '../data/templates';
+import { generateLevel } from '../game/generate';
+import { Coord, Direction, Level } from '../types';
 import { canMove, isGoal, move } from '../game/maze';
 import { playSound } from '../audio/sounds';
 import { allCleared, hasCelebratedAll, markCleared } from '../progress';
@@ -25,15 +26,22 @@ import ClearOverlay from '../components/ClearOverlay';
 import BigButton from '../components/BigButton';
 
 interface Props {
-  levelId: string;
+  templateId: string;
   onHome: () => void;
-  onNext: (nextLevelId: string) => void;
+  onNext: (nextTemplateId: string) => void;
   onCelebrateAll: () => void; // 全5レベルの⭐が初めて揃った → がんばりカードへ
 }
 
-export default function PlayScreen({ levelId, onHome, onNext, onCelebrateAll }: Props) {
-  const level = getLevel(levelId);
+export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll }: Props) {
+  const template = getTemplate(templateId);
   const { width, height } = useWindowDimensions();
+
+  // このテンプレートから生成した「いまの迷路」。カードを開くたび／「もういちど」のたびに
+  // 新しい迷路を作る（さんすうドリルのように何回も遊べる）。テンプレートが無い保険では null。
+  // key={templateId}（App.tsx）で画面はテンプレートごとに作り直されるので、初期生成は1回。
+  const [level, setLevel] = useState<Level | null>(() =>
+    template ? generateLevel(template) : null
+  );
 
   // --- 盤面・ボタンの寸法 ---
   // 縦を「上段ヘッダー＋めいろ＋方向パッド」で必ず収める。
@@ -77,14 +85,19 @@ export default function PlayScreen({ levelId, onHome, onNext, onCelebrateAll }: 
     }
   }, [cell, avatarPos]);
 
+  // 「もういちど」= 同じむずかしさで新しい迷路を作り直す（さんすうドリルのように毎回ちがう）。
+  // マス数はテンプレート内で不変なので cell は変わらず、アバターは新しいスタートへ置き直す。
   const reset = useCallback(() => {
+    if (!template) return;
+    const nextLevel = generateLevel(template);
+    setLevel(nextLevel);
     animatingRef.current = false;
-    posRef.current = start;
-    avatarPos.setValue({ x: start.x * cell, y: start.y * cell });
+    posRef.current = nextLevel.start;
+    avatarPos.setValue({ x: nextLevel.start.x * cell, y: nextLevel.start.y * cell });
     avatarTilt.setValue(0);
     setArrived(false);
     setCompletedAll(false);
-  }, [start, cell, avatarPos, avatarTilt]);
+  }, [template, cell, avatarPos, avatarTilt]);
 
   // 動けないときの「首をかしげる」演出。
   const wiggle = useCallback(() => {
@@ -143,7 +156,7 @@ export default function PlayScreen({ levelId, onHome, onNext, onCelebrateAll }: 
     );
   }
 
-  const nextId = getNextLevelId(levelId);
+  const nextId = getNextTemplateId(templateId);
 
   return (
     <View style={styles.root}>

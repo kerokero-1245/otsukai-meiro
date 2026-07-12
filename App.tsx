@@ -28,19 +28,20 @@ export default function App() {
     case 'select':
       screen = (
         <LevelSelectScreen
-          onPick={(id) => go({ name: 'play', levelId: id })}
+          onPick={(id) => go({ name: 'play', templateId: id })}
           onBack={() => go({ name: 'title' })}
         />
       );
       break;
     case 'play':
       screen = (
-        // key を付けてレベルごとに作り直す（アバター位置などの状態をリセット）。
+        // key を付けてテンプレートごとに作り直す（迷路・アバター位置などの状態をリセット）。
+        // 同じテンプレート内の「もういちど」は PlayScreen 内で新しい迷路を生成する（remount しない）。
         <PlayScreen
-          key={route.levelId}
-          levelId={route.levelId}
+          key={route.templateId}
+          templateId={route.templateId}
           onHome={() => go({ name: 'select' })}
-          onNext={(nextId) => go({ name: 'play', levelId: nextId })}
+          onNext={(nextId) => go({ name: 'play', templateId: nextId })}
           onCelebrateAll={() => {
             // 大祝福を見せる＝一度きり。以降はレベルえらびの控えめな王冠だけ。
             setCelebratedAll(true);

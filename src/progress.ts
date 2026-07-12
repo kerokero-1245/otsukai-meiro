@@ -7,7 +7,7 @@
 // - settings.ts（piyopiyo-sansu）の localStorage パターンを移植。
 
 import { Platform } from 'react-native';
-import { LEVELS } from './data/levels';
+import { TEMPLATES } from './data/templates';
 
 const KEY_STARS = 'meiro.stars'; // クリア済みレベルidの配列（JSON）
 const KEY_CELEBRATED = 'meiro.celebratedAll'; // 「ぜんぶ できたね!」を一度見せたか（'1'）
@@ -82,10 +82,10 @@ export function clearedCount(): number {
   return loadStars().size;
 }
 
-// 全レベル（同梱の全5レベル）に⭐が揃っているか。
+// 全カード（同梱の全5テンプレート）に⭐が揃っているか。
 export function allCleared(): boolean {
   const set = loadStars();
-  return LEVELS.length > 0 && LEVELS.every((lv) => set.has(lv.id));
+  return TEMPLATES.length > 0 && TEMPLATES.every((t) => set.has(t.id));
 }
 
 // 「ぜんぶ できたね! がんばりカード」を既に一度見せたか。
