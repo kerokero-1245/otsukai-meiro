@@ -134,10 +134,12 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
         animatingRef.current = false;
         posRef.current = next;
         if (isGoal(level, next)) {
+          // 街（ランチャー）の燃料。クリアのたび +1（再クリアも +1。バッジとは独立）。
+          // 先に積む: markCleared が今回の⭐を足す前に読むことで、初回マイグレーション
+          // （totalStars 未存在時に meiro.stars 件数を初期値化）が今回の1クリアを二重計上しない。
+          bumpTotalStars();
           // クリア=⭐（何手で着いたかは問わない）。既にクリア済みなら剥奪・変化なし。
           markCleared(level.id);
-          // 街（ランチャー）の燃料。クリアのたび +1（再クリアも +1。バッジとは独立）。
-          bumpTotalStars();
           // このクリアで全部そろい、まだ大祝福を見せていなければ「がんばりカード」へ。
           setCompletedAll(allCleared() && !hasCelebratedAll());
           playSound('clear');
