@@ -247,7 +247,7 @@ MVPは**この端末1台・姪っ子1人**が主役。将来「離れたおじ�
 |---|---|---|
 | むずかしさテンプレート（構造） | アプリ同梱JSON（迷路は実行時にランダム生成） | しない |
 | 上書き差分・進捗（任意） | `AsyncStorage` | しない |
-| ごほうび（⭐スタンプ） | web は `localStorage`（`meiro.stars` / `meiro.celebratedAll`）。native はセッション内キャッシュのみ（→ §14） | **しない** |
+| ごほうび（⭐スタンプ） | web は `localStorage`（`meiro.stars` / `meiro.celebratedAll` / `meiro.totalStars`）。native はセッション内キャッシュのみ（→ §14） | **しない** |
 | ゴール写真 | `expo-file-system` のドキュメント領域にコピー | **しない** |
 | おじの声 | 同上（録音 or 同梱） | **しない** |
 
@@ -391,7 +391,8 @@ Expo は同一コードを web でも動かせるが、ブラウザ特有の制�
 ### 保存と実装
 
 - 状態は web の `localStorage` に保存（`piyopiyo-sansu/src/settings.ts` の localStorage パターンを移植 → `src/progress.ts`）。native はセッション内キャッシュのみ（フェーズ2で `AsyncStorage` に差し替え可能）。**外部送信ゼロ**。
-- キー: `meiro.stars`（クリア済みレベルidの配列）/ `meiro.celebratedAll`（がんばりカードを見せたか）。
+- キー: `meiro.stars`（クリア済みレベルidの配列）/ `meiro.celebratedAll`（がんばりカードを見せたか）/ `meiro.totalStars`（累計クリア回数。街＝ランチャーの燃料）。
+- `meiro.totalStars` は**クリアのたび +1**（再クリアも +1）。キー未存在の初回だけ既存 `meiro.stars` の件数を初期値に書き込む（マイグレーション）。**「⭐をリセット」ではバッジは消すが `totalStars` は残す**（街の成長を巻き戻さないため）。街（別オリジンではなく**同一オリジン**の `kerokero-1245.github.io` 直下ランチャー）は `Number(meiro.totalStars||0) + Number(sansu.totalStars||0)` を燃料に読む。
 - **消えても遊びは壊れない**（進捗ロックは無いまま／§5）。プライベートブラウズやサイトデータ削除で消える可能性は許容（§8 web 注意）。
 - **リセット**は「⭐をリセット」としておとなモード（親ゲートの奥）に配置。子どもの誤操作を避けるため確認を1枚はさむ。
 - 効果音はすべて `src/audio/sounds.ts` に Web Audio で合成（外部素材ゼロ）。`star`（きらっ）と `fanfare`（大祝福）を追加。§8 のとおり音は必ずタップ／到着起点で鳴らす。
