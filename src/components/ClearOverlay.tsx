@@ -9,6 +9,7 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { colors, font, space } from '../theme';
 import { playSound } from '../audio/sounds';
+import { sayPhrase, cancelVoice } from '../audio/voice';
 import BigButton from './BigButton';
 import Confetti from './Confetti';
 import PiyoArt from './PiyoArt';
@@ -64,7 +65,19 @@ export default function ClearOverlay({
       }).start();
     }, 360);
 
-    return () => clearTimeout(starDelay);
+    // ずんだもんの声「ついたね」。既存の clear 効果音（PlayScreen が到達時に鳴らす・約0.65秒）と
+    // 星の「きらっ」のあとに遅らせて鳴らし、効果音と喧嘩させない。
+    // クリップ未同梱の現状は speechSynthesis で読み上げ、非対応環境では無音（文字だけで成立）。
+    const voiceDelay = setTimeout(() => {
+      sayPhrase('tsuita');
+    }, 750);
+
+    return () => {
+      clearTimeout(starDelay);
+      clearTimeout(voiceDelay);
+      // 全制覇でがんばりカードへ自動遷移する時など、離脱時に声を止めて次の声と重ならないように。
+      cancelVoice();
+    };
   }, [scale, opacity, starScale]);
 
   // 全部そろった瞬間だけ、⭐ゲットの余韻ののち自動で大祝福（がんばりカード）へ。

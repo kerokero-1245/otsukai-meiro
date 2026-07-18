@@ -74,6 +74,10 @@ src/
   game/maze.ts              move / canMove / isGoal など盤面の純粋関数
   game/generate.ts          テンプレートから迷路をランダム生成（BFS検証つき・詰み無し保証）
   audio/sounds.ts           効果音（web は Web Audio で合成、native は無音スタブ）
+  audio/voice.ts            よみあげの入口（3段構え ①同梱クリップ→②speechSynthesis→③無音）
+  audio/clips.ts            tier1: 同梱クリップ再生（HTMLAudioElement / native 無音）
+  audio/voiceClips.ts       tier1: クリップ登録表（いまは空＝未同梱）
+  audio/speech.ts           tier2: 端末の音声合成（Web Speech API / native 無音）
   components/
     MazeGrid.tsx            盤面（タイル・障害物・ゴール・アバター）
     DirPad.tsx              ◀▲▼▶ の巨大方向パッド
@@ -87,3 +91,21 @@ src/
     PlayScreen.tsx          プレイ本体（①タップモード）
     OtonaScreen.tsx         おとなモード（フェーズ2のスタブ）
 ```
+
+## 音声（こえ）
+
+効果音（`audio/sounds.ts` の合成音）とは別レイヤーで、3か所でずんだもんの声を鳴らす。
+読み上げは3段構え（`audio/voice.ts`）: **① 同梱クリップ（VOICEVOX ずんだもん）→ ② 端末の音声合成（Web Speech API）→ ③ 無音**。
+声はすべてユーザー操作（タップ）起点。効果音と喧嘩しないよう、声は効果音の**あと**に遅らせて鳴らす。
+
+| 場面 | 声（同梱クリップ） | 効果音との順序 |
+|---|---|---|
+| タイトルをタップ | 「おつかいめいろ」（`p_title`） | ここで声エンジンをアンロック（warmUpVoice） |
+| ゴール到達（ClearOverlay） | 「ついたね！」（`p_tsuita`） | 既存 `clear` 効果音の約0.75秒後に発声 |
+| 全レベル制覇（がんばりカード） | 「ぜんぶ できたね！」（`p_zenbu`） | 既存 `fanfare` 効果音の約1秒後に発声 |
+
+壁・障害物にぶつかったときは既存の `blocked` 効果音のまま（**声は出さない**）。
+
+クリップは `assets/voice/` に同梱（`audio/voiceClips.ts` の `CLIP_URLS` で登録）。同梱クリップを持たない環境（native 等）は
+② 端末の音声合成へ自動フォールバックし、それも無ければ ③ 無音（絵・文字だけで成立）。生成手順・パラメータ・クレジット
+（**VOICEVOX:ずんだもん**）は [`assets/voice/README.md`](assets/voice/README.md) を参照。

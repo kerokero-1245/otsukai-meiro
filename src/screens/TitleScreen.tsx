@@ -7,6 +7,7 @@ import { colors, font, space } from '../theme';
 import BigButton from '../components/BigButton';
 import PiyoArt from '../components/PiyoArt';
 import { playSound } from '../audio/sounds';
+import { sayPhrase, warmUpVoice } from '../audio/voice';
 
 interface Props {
   onPlay: () => void;
@@ -35,13 +36,25 @@ export default function TitleScreen({ onPlay, onOtona }: Props) {
   return (
     <View style={styles.root}>
       <View style={styles.center}>
-        <Text style={styles.title}>おつかいめいろ</Text>
+        {/* タイトル＋概念の絵をタップすると「おつかいめいろ」と声が出る（ジェスチャ起点）。
+            同時に声エンジンをアンロックして、以降のゴール到達・がんばりカードの声も鳴るようにする。 */}
+        <Pressable
+          onPress={() => {
+            warmUpVoice();
+            sayPhrase('title');
+          }}
+          accessibilityRole="button"
+          accessibilityLabel="おつかいめいろ（こえ）"
+          style={styles.titleTap}
+        >
+          <Text style={styles.title}>おつかいめいろ</Text>
 
-        <View style={styles.concept}>
-          <PiyoArt glyph="🐥" size={82} emojiSize={64} />
-          <Text style={styles.conceptArrow}>➡️</Text>
-          <PiyoArt glyph="🍎" size={82} emojiSize={64} />
-        </View>
+          <View style={styles.concept}>
+            <PiyoArt glyph="🐥" size={82} emojiSize={64} />
+            <Text style={styles.conceptArrow}>➡️</Text>
+            <PiyoArt glyph="🍎" size={82} emojiSize={64} />
+          </View>
+        </Pressable>
 
         <View style={styles.playWrap}>
           <BigButton
@@ -51,6 +64,9 @@ export default function TitleScreen({ onPlay, onOtona }: Props) {
             color={colors.play}
             pressedColor={colors.playPressed}
             onPress={() => {
+              // 声を出さずに次へ進むが、ここでも声エンジンをアンロックしておく
+              // （タイトルをタップせず直接「あそぶ」を押した子でも、後の声が鳴るように）。
+              warmUpVoice();
               playSound('tap');
               onPlay();
             }}
@@ -80,6 +96,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  titleTap: {
+    alignItems: 'center',
   },
   title: {
     fontSize: font.huge,

@@ -6,6 +6,7 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { colors, font, space } from '../theme';
 import { playSound } from '../audio/sounds';
+import { sayPhrase, cancelVoice } from '../audio/voice';
 import BigButton from '../components/BigButton';
 import Confetti from '../components/Confetti';
 
@@ -41,13 +42,24 @@ export default function GanbariScreen({ onDone }: Props) {
       );
     });
     // 全部そろったら大きな祝福（王冠＋ファンファーレ）。
+    const fanfareAt = 300 + STAR_COUNT * 340 + 150;
     timers.push(
       setTimeout(() => {
         playSound('fanfare');
         Animated.spring(crown, { toValue: 1, friction: 5, tension: 90, useNativeDriver: false }).start();
-      }, 300 + STAR_COUNT * 340 + 150)
+      }, fanfareAt)
     );
-    return () => timers.forEach(clearTimeout);
+    // ずんだもんの声「ぜんぶ できたね」。fanfare 効果音（約1秒）のあとに鳴らして喧嘩させない。
+    // クリップ未同梱の現状は speechSynthesis で読み上げ、非対応環境では無音（文字だけで成立）。
+    timers.push(
+      setTimeout(() => {
+        sayPhrase('zenbu');
+      }, fanfareAt + 1050)
+    );
+    return () => {
+      timers.forEach(clearTimeout);
+      cancelVoice(); // 画面を離れるとき、鳴りかけの声を止める。
+    };
   }, [stars, crown]);
 
   const crownTranslate = crown.interpolate({ inputRange: [0, 1], outputRange: [16, 0] });

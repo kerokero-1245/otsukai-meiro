@@ -66,6 +66,10 @@ export default function OtonaScreen({ onBack }: Props) {
 
       <View style={styles.spacer} />
 
+      {/* こえ（よみあげ）の出どころ。同梱クリップは VOICEVOX（ずんだもん）で生成。
+          対応環境が無い場合のみ端末の音声合成へフォールバックする（README の音声メモ参照）。 */}
+      <Text style={styles.credit}>VOICEVOX:ずんだもん</Text>
+
       <BigButton emoji="◀️" label="もどる" onPress={onBack} color={colors.button} />
     </View>
   );
@@ -123,5 +127,11 @@ const styles = StyleSheet.create({
   },
   spacer: {
     flex: 1,
+  },
+  credit: {
+    fontSize: font.small,
+    color: colors.subtext,
+    textAlign: 'center',
+    marginBottom: space.md,
   },
 });
