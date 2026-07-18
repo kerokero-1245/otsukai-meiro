@@ -1,0 +1,99 @@
+// 音声クリップ再生（tier1 / DESIGN §4 の3段構え「①同梱クリップ」担当）。
+// web では HTMLAudioElement で同梱クリップ（VOICEVOX 事前生成）を鳴らす。native は無音スタブ。
+//
+// - iOS Safari の自動再生制限: 音は最初のユーザー操作より前には鳴らせない。タイトルの操作で
+//   warmUpClips() を1回呼び、（クリップがあれば）muted で1つ触ってエンジンをアンロックする。
+//   以降は自動再生（ゴール到達・がんばりカードの祝福など、タップ直後の非同期）も鳴る。1ページロードにつき1回で足りる。
+// - クリップ未同梱（voiceClips の CLIP_URLS が空）なら全て no-op。呼び出し側（voice.ts）が
+//   speechSynthesis（tier2）へフォールバックする。
+// - 外部送信ゼロ: 同梱アセットのみ。ネットワークは使わない。
+//
+// DOM lib に依存しないよう、必要な形だけ最小宣言して globalThis から取り出す。
+
+import { Platform } from 'react-native';
+import { CLIP_URLS, hasClip } from './voiceClips';
+
+interface AudioEl {
+  play(): Promise<void> | void;
+  pause(): void;
+  currentTime: number;
+  muted: boolean;
+}
+type AudioCtor = new (src?: string) => AudioEl;
+
+function getAudioCtor(): AudioCtor | null {
+  if (Platform.OS !== 'web') return null;
+  try {
+    const g = globalThis as unknown as { Audio?: AudioCtor };
+    return g.Audio ?? null;
+  } catch {
+    return null;
+  }
+}
+
+// この基名のクリップを tier1 で鳴らせるか（native/非対応/未同梱では false）。
+export function isClipAvailable(name: string | undefined): boolean {
+  return getAudioCtor() != null && hasClip(name);
+}
+
+let current: AudioEl | null = null;
+
+// 直前の再生を止める（発声が重ならないように）。
+export function cancelClip(): void {
+  try {
+    if (current) current.pause();
+  } catch {
+    // 無視
+  }
+  current = null;
+}
+
+// name のクリップを再生する。鳴らせたら true、無理なら false（呼び出し側が tier2 へ）。
+export function playClip(name: string): boolean {
+  const A = getAudioCtor();
+  if (!A || !hasClip(name)) return false;
+  try {
+    cancelClip();
+    const a = new A(CLIP_URLS[name]);
+    current = a;
+    const p = a.play();
+    // play() の Promise 拒否（ユーザー操作前など）は握りつぶす（遊びは壊さない）。
+    if (p && typeof (p as Promise<void>).catch === 'function') {
+      (p as Promise<void>).catch(() => {});
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// タイトルの操作で1回呼ぶ。クリップがあれば muted で1つ触ってアンロック（iOS Safari 対策）。
+// クリップ未同梱なら no-op。
+let warmed = false;
+export function warmUpClips(): void {
+  if (warmed) return;
+  warmed = true;
+  const A = getAudioCtor();
+  if (!A) return;
+  const first = Object.keys(CLIP_URLS)[0];
+  if (!first) return; // クリップ未同梱: 何もしない
+  try {
+    const a = new A(CLIP_URLS[first]);
+    a.muted = true;
+    const p = a.play();
+    if (p && typeof (p as Promise<void>).then === 'function') {
+      (p as Promise<void>)
+        .then(() => {
+          try {
+            a.pause();
+            a.currentTime = 0;
+          } catch {
+            // 無視
+          }
+        })
+        .catch(() => {});
+    }
+  } catch {
+    // アンロックできなくても遊びは壊さない
+  }
+}
