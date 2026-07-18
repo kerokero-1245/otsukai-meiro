@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="ドーナツ">
+  <!-- white die-cut underlay (ring) -->
+  <path fill="#ffffff" stroke="#ffffff" stroke-width="15" fill-rule="evenodd"
+        d="M44,100 a56,56 0 1,0 112,0 a56,56 0 1,0 -112,0 Z M78,100 a22,22 0 1,0 44,0 a22,22 0 1,0 -44,0 Z"/>
+  <!-- dough ring -->
+  <path fill="#E3A257" stroke="#3d2a1c" stroke-width="3.2" fill-rule="evenodd"
+        d="M44,100 a56,56 0 1,0 112,0 a56,56 0 1,0 -112,0 Z M78,100 a22,22 0 1,0 44,0 a22,22 0 1,0 -44,0 Z"/>
+  <clipPath id="donutclip">
+    <path fill-rule="evenodd" d="M44,100 a56,56 0 1,0 112,0 a56,56 0 1,0 -112,0 Z M78,100 a22,22 0 1,0 44,0 a22,22 0 1,0 -44,0 Z"/>
+  </clipPath>
+  <g clip-path="url(#donutclip)">
+    <!-- pink glaze -->
+    <path fill="#FF9EC0" d="M36,98 Q36,44 100,40 Q164,44 164,98 Q154,112 144,100 Q134,116 122,102 Q112,118 100,104 Q88,118 78,102 Q66,116 56,100 Q46,112 36,98 Z"/>
+    <!-- glaze drip outline -->
+    <path fill="none" stroke="#3d2a1c" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"
+          d="M36,98 Q46,112 56,100 Q66,116 78,102 Q88,118 100,104 Q112,118 122,102 Q134,116 144,100 Q154,112 164,98"/>
+    <!-- glaze highlight -->
+    <path d="M56,72 Q72,56 96,54" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity="0.5"/>
+    <!-- sprinkles -->
+    <rect x="-3" y="-4.5" width="6" height="9" rx="3" fill="#57C2E0" transform="translate(72 66) rotate(35)"/>
+    <rect x="-3" y="-4.5" width="6" height="9" rx="3" fill="#FFD34D" transform="translate(100 58) rotate(-15)"/>
+    <rect x="-3" y="-4.5" width="6" height="9" rx="3" fill="#7ED957" transform="translate(128 66) rotate(60)"/>
+    <rect x="-3" y="-4.5" width="6" height="9" rx="3" fill="#FFFFFF" transform="translate(60 88) rotate(80)"/>
+    <rect x="-3" y="-4.5" width="6" height="9" rx="3" fill="#FF6F91" transform="translate(140 88) rotate(-40)"/>
+    <rect x="-3" y="-4.5" width="6" height="9" rx="3" fill="#FF7A4D" transform="translate(84 76) rotate(10)"/>
+    <rect x="-3" y="-4.5" width="6" height="9" rx="3" fill="#57C2E0" transform="translate(116 76) rotate(-55)"/>
+    <rect x="-3" y="-4.5" width="6" height="9" rx="3" fill="#FFD34D" transform="translate(150 104) rotate(25)"/>
+    <rect x="-3" y="-4.5" width="6" height="9" rx="3" fill="#7ED957" transform="translate(50 104) rotate(-25)"/>
+    <rect x="-3" y="-4.5" width="6" height="9" rx="3" fill="#FF6F91" transform="translate(100 70) rotate(70)"/>
+  </g>
+</svg>

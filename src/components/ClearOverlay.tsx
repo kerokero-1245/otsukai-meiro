@@ -11,6 +11,7 @@ import { colors, font, space } from '../theme';
 import { playSound } from '../audio/sounds';
 import BigButton from './BigButton';
 import Confetti from './Confetti';
+import PiyoArt from './PiyoArt';
 
 interface Props {
   goalEmoji: string;
@@ -89,7 +90,8 @@ export default function ClearOverlay({
 
       <Animated.View style={[styles.card, { opacity, transform: [{ scale }] }]}>
         <View style={styles.zoomCircle}>
-          <Text style={styles.goalEmoji}>{goalEmoji}</Text>
+          <PiyoArt glyph={goalEmoji} size={128} emojiSize={104} />
+
           {/* ⭐ゲットのスタンプ（右上にぽんっ） */}
           <Animated.View
             style={[
@@ -158,9 +160,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.35,
     shadowRadius: 12,
     elevation: 8,
-  },
-  goalEmoji: {
-    fontSize: 104,
   },
   starStamp: {
     position: 'absolute',

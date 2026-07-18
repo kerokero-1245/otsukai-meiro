@@ -27,6 +27,7 @@ import { TEMPLATES } from '../data/templates';
 import { Coord, Template } from '../types';
 import { playSound } from '../audio/sounds';
 import { allCleared, isCleared } from '../progress';
+import PiyoArt from '../components/PiyoArt';
 
 interface Props {
   onPick: (levelId: string) => void;
@@ -77,9 +78,13 @@ function MazePreview({ template }: { template: Template }) {
       const bg = goal ? colors.goalTile : tree ? colors.obstacleTile : base;
       cellEls.push(
         <View key={x} style={[styles.pvCell, { width: cellPx, height: cellPx, backgroundColor: bg }]}>
-          <Text style={{ fontSize: cellPx * 0.6 }}>
-            {start ? '🐥' : goal ? '🎁' : tree ? '🌳' : ''}
-          </Text>
+          {start || goal || tree ? (
+            <PiyoArt
+              glyph={start ? '🐥' : goal ? '🎁' : '🌳'}
+              size={cellPx * 0.86}
+              emojiSize={cellPx * 0.6}
+            />
+          ) : null}
         </View>
       );
     }

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="ぴよ">
+  <!-- white die-cut underlay -->
+  <g fill="#ffffff" stroke="#ffffff" stroke-width="15" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M84,58 Q82,42 94,48 Q100,38 106,48 Q118,42 116,58 Z"/>
+    <path fill="none" d="M84,150 L84,168 M84,168 L76,174 M84,168 L84,176 M84,168 L92,174"/>
+    <path fill="none" d="M116,150 L116,168 M116,168 L108,174 M116,168 L116,176 M116,168 L124,174"/>
+    <ellipse cx="100" cy="108" rx="54" ry="54"/>
+    <path d="M50,104 Q34,118 44,140 Q56,138 60,118 Z"/>
+    <path d="M150,104 Q166,118 156,140 Q144,138 140,118 Z"/>
+  </g>
+  <!-- feet -->
+  <path fill="none" stroke="#F0891C" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"
+        d="M84,150 L84,168 M84,168 L76,174 M84,168 L84,176 M84,168 L92,174"/>
+  <path fill="none" stroke="#F0891C" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"
+        d="M116,150 L116,168 M116,168 L108,174 M116,168 L116,176 M116,168 L124,174"/>
+  <!-- tuft -->
+  <path d="M84,58 Q82,42 94,48 Q100,38 106,48 Q118,42 116,58 Z" fill="#FFCB2E" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round"/>
+  <!-- wings -->
+  <path d="M50,104 Q34,118 44,140 Q56,138 60,118 Z" fill="#F5B400" stroke="#3d2a1c" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M150,104 Q166,118 156,140 Q144,138 140,118 Z" fill="#F5B400" stroke="#3d2a1c" stroke-width="3" stroke-linejoin="round"/>
+  <!-- body -->
+  <ellipse cx="100" cy="108" rx="54" ry="54" fill="#FFCB2E" stroke="#3d2a1c" stroke-width="3.2"/>
+  <!-- belly -->
+  <ellipse cx="100" cy="122" rx="34" ry="31" fill="#FFE089"/>
+  <!-- body highlight -->
+  <ellipse cx="74" cy="82" rx="17" ry="11" fill="#ffffff" opacity="0.24"/>
+  <!-- cheeks -->
+  <ellipse cx="66" cy="114" rx="10" ry="6.5" fill="#FF9E4D" opacity="0.6"/>
+  <ellipse cx="134" cy="114" rx="10" ry="6.5" fill="#FF9E4D" opacity="0.6"/>
+  <!-- beak -->
+  <path d="M100,107 L111,115 L100,123 L89,115 Z" fill="#FF9F1C" stroke="#3d2a1c" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M89,115 L111,115" fill="none" stroke="#3d2a1c" stroke-width="2" stroke-linecap="round"/>
+  <!-- eyes -->
+  <circle cx="80" cy="102" r="9" fill="#2a1e16"/>
+  <circle cx="120" cy="102" r="9" fill="#2a1e16"/>
+  <circle cx="83" cy="99" r="3.2" fill="#fff"/>
+  <circle cx="123" cy="99" r="3.2" fill="#fff"/>
+  <circle cx="77" cy="105" r="1.6" fill="#fff" opacity="0.85"/>
+  <circle cx="117" cy="105" r="1.6" fill="#fff" opacity="0.85"/>
+</svg>

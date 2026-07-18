@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="うさぎ">
+  <!-- white die-cut underlay -->
+  <g fill="#ffffff" stroke="#ffffff" stroke-width="15" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M84,84 Q70,40 78,22 Q88,16 94,28 Q95,56 96,86 Z"/>
+    <path d="M116,84 Q130,40 122,22 Q112,16 106,28 Q105,56 104,86 Z"/>
+    <circle cx="100" cy="114" r="44"/>
+  </g>
+  <!-- ears (behind head) -->
+  <path d="M84,84 Q70,40 78,22 Q88,16 94,28 Q95,56 96,86 Z" fill="#FDFAF5" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M116,84 Q130,40 122,22 Q112,16 106,28 Q105,56 104,86 Z" fill="#FDFAF5" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- inner ear -->
+  <path d="M85,80 Q77,46 82,30 Q87,27 90,35 Q90,58 92,82 Z" fill="#FFB3C6"/>
+  <path d="M115,80 Q123,46 118,30 Q113,27 110,35 Q110,58 108,82 Z" fill="#FFB3C6"/>
+  <!-- head -->
+  <circle cx="100" cy="114" r="44" fill="#FDFAF5" stroke="#3d2a1c" stroke-width="3.2"/>
+  <!-- cheeks -->
+  <ellipse cx="68" cy="120" rx="10" ry="7" fill="#ff7ba0" opacity="0.7"/>
+  <ellipse cx="132" cy="120" rx="10" ry="7" fill="#ff7ba0" opacity="0.7"/>
+  <!-- eyes -->
+  <circle cx="82" cy="108" r="8.5" fill="#2a1e16"/>
+  <circle cx="118" cy="108" r="8.5" fill="#2a1e16"/>
+  <circle cx="85" cy="105" r="3" fill="#fff"/>
+  <circle cx="121" cy="105" r="3" fill="#fff"/>
+  <!-- nose -->
+  <path d="M95,115 Q100,112 105,115 Q103,120 100,120 Q97,120 95,115 Z" fill="#FF8FAB" stroke="#3d2a1c" stroke-width="1.4" stroke-linejoin="round"/>
+  <!-- mouth -->
+  <path d="M100,119 L100,123 M100,123 Q94,129 89,125 M100,123 Q106,129 111,125" fill="none" stroke="#3d2a1c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- front teeth -->
+  <rect x="95" y="127" width="10" height="7" rx="2" fill="#fff" stroke="#3d2a1c" stroke-width="1.5"/>
+  <line x1="100" y1="127.5" x2="100" y2="133.5" stroke="#3d2a1c" stroke-width="1"/>
+</svg>

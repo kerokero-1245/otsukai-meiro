@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="ケーキ">
+  <!-- white die-cut underlay -->
+  <g fill="#ffffff" stroke="#ffffff" stroke-width="15" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M46,156 L150,156 L150,102 L62,120 Z"/>
+    <path d="M62,120 L150,102 L162,88 L74,106 Z"/>
+    <path d="M108,64 C86,60 78,80 88,94 C96,106 118,106 126,92 C134,78 128,66 116,66 Q112,60 108,64 Z"/>
+  </g>
+  <!-- sponge front face -->
+  <path d="M46,156 L150,156 L150,102 L62,120 Z" fill="#F4CE82" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round"/>
+  <!-- pink cream stripe on front -->
+  <path d="M52,140 L150,131 L150,120 L57,131 Z" fill="#FFC4D5" stroke="#3d2a1c" stroke-width="2.4" stroke-linejoin="round"/>
+  <!-- top frosting slab -->
+  <path d="M62,120 L150,102 L162,88 L74,106 Z" fill="#FFFFFF" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round"/>
+  <!-- frosting drip on front edge -->
+  <path d="M62,120 L150,102 L150,112 Q126,112 118,118 Q110,110 100,116 Q90,108 80,116 Q72,110 62,120 Z" fill="#FFFFFF" stroke="#3d2a1c" stroke-width="2.6" stroke-linejoin="round"/>
+  <!-- strawberry on top -->
+  <path d="M108,64 C86,60 78,80 88,94 C96,106 118,106 126,92 C134,78 128,66 116,66 Q112,60 108,64 Z" fill="#F0384A" stroke="#3d2a1c" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M104,66 Q100,56 96,56 Q104,58 104,66 Z" fill="#4FB65E" stroke="#3d2a1c" stroke-width="2.2" stroke-linejoin="round"/>
+  <path d="M112,66 Q118,56 122,58 Q114,60 112,66 Z" fill="#4FB65E" stroke="#3d2a1c" stroke-width="2.2" stroke-linejoin="round"/>
+  <ellipse cx="102" cy="80" rx="1.8" ry="2.6" fill="#FFE27A" transform="rotate(-14 102 80)"/>
+  <ellipse cx="114" cy="82" rx="1.8" ry="2.6" fill="#FFE27A" transform="rotate(12 114 82)"/>
+  <ellipse cx="108" cy="92" rx="1.8" ry="2.6" fill="#FFE27A"/>
+  <!-- sponge highlight -->
+  <ellipse cx="70" cy="140" rx="6" ry="12" fill="#ffffff" opacity="0.18"/>
+</svg>

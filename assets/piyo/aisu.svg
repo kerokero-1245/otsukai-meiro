@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="アイス">
+  <!-- white die-cut underlay -->
+  <g fill="#ffffff" stroke="#ffffff" stroke-width="15" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M72,116 L128,116 L102,182 Q100,186 98,182 Z"/>
+    <path d="M70,122 C58,116 64,104 76,106 C64,98 72,86 84,90 C76,74 92,66 96,74 C98,58 102,58 104,74 C108,66 124,74 116,90 C128,86 136,98 124,106 C136,104 142,116 130,122 Z"/>
+  </g>
+  <!-- cone -->
+  <path d="M72,116 L128,116 L102,182 Q100,186 98,182 Z" fill="#E0A45C" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round"/>
+  <path d="M84,116 L74,150 M100,116 L94,168 M116,116 L118,150" stroke="#B0793A" stroke-width="2.4" stroke-linecap="round" opacity="0.75"/>
+  <path d="M90,130 L112,130 M88,146 L108,146" stroke="#B0793A" stroke-width="2.4" stroke-linecap="round" opacity="0.75"/>
+  <!-- soft serve -->
+  <path d="M70,122 C58,116 64,104 76,106 C64,98 72,86 84,90 C76,74 92,66 96,74 C98,58 102,58 104,74 C108,66 124,74 116,90 C128,86 136,98 124,106 C136,104 142,116 130,122 Z" fill="#FFFFFF" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round"/>
+  <!-- swirl folds -->
+  <path d="M76,110 Q100,120 124,110" fill="none" stroke="#FFB2CE" stroke-width="3" stroke-linecap="round"/>
+  <path d="M84,92 Q100,102 116,92" fill="none" stroke="#FFB2CE" stroke-width="3" stroke-linecap="round"/>
+  <path d="M94,76 Q100,82 106,76" fill="none" stroke="#FFB2CE" stroke-width="2.6" stroke-linecap="round"/>
+  <!-- highlight -->
+  <ellipse cx="82" cy="100" rx="5" ry="8" fill="#ffffff" opacity="0.6" transform="rotate(-16 82 100)"/>
+</svg>

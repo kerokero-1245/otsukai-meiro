@@ -24,6 +24,7 @@ import MazeGrid from '../components/MazeGrid';
 import DirPad from '../components/DirPad';
 import ClearOverlay from '../components/ClearOverlay';
 import BigButton from '../components/BigButton';
+import PiyoArt from '../components/PiyoArt';
 
 interface Props {
   templateId: string;
@@ -173,7 +174,8 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
           <Text style={styles.bannerLabel} numberOfLines={1}>
             ここまで いこう
           </Text>
-          <Text style={styles.bannerGoal}>{level.goalEmoji}</Text>
+          <PiyoArt glyph={level.goalEmoji} size={34} emojiSize={32} />
+
         </View>
         <View style={styles.homeBtn} />
       </View>
@@ -244,9 +246,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.text,
     marginRight: space.sm,
-  },
-  bannerGoal: {
-    fontSize: 32,
   },
   boardArea: {
     flex: 1,

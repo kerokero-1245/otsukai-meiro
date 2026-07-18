@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="プレゼント">
+  <!-- white die-cut underlay -->
+  <g fill="#ffffff" stroke="#ffffff" stroke-width="15" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="54" y="92" width="92" height="82" rx="10"/>
+    <rect x="46" y="74" width="108" height="28" rx="8"/>
+    <path d="M100,74 C100,54 78,50 74,62 C70,74 90,76 100,74 C110,76 130,74 126,62 C122,50 100,54 100,74 Z"/>
+  </g>
+  <!-- box body -->
+  <rect x="54" y="92" width="92" height="82" rx="10" fill="#EE3B4B" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round"/>
+  <!-- vertical ribbon on body -->
+  <rect x="88" y="92" width="24" height="82" fill="#FFC83D" stroke="#3d2a1c" stroke-width="3" stroke-linejoin="round"/>
+  <!-- lid -->
+  <rect x="46" y="74" width="108" height="28" rx="8" fill="#FF5566" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round"/>
+  <!-- ribbon across lid -->
+  <rect x="88" y="74" width="24" height="28" fill="#FFC83D" stroke="#3d2a1c" stroke-width="3" stroke-linejoin="round"/>
+  <!-- bow -->
+  <path d="M100,74 C100,54 78,50 74,62 C70,74 90,76 100,74 Z" fill="#FFC83D" stroke="#3d2a1c" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M100,74 C100,54 122,50 126,62 C130,74 110,76 100,74 Z" fill="#FFC83D" stroke="#3d2a1c" stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="100" cy="72" r="7.5" fill="#FFD86A" stroke="#3d2a1c" stroke-width="3"/>
+  <!-- bow shine -->
+  <path d="M82,60 Q80,66 84,70" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" opacity="0.6"/>
+  <path d="M118,60 Q120,66 116,70" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" opacity="0.6"/>
+  <!-- box highlight -->
+  <rect x="62" y="100" width="8" height="60" rx="4" fill="#ffffff" opacity="0.16"/>
+</svg>

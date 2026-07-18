@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="りんご">
+  <!-- white die-cut underlay -->
+  <g fill="#ffffff" stroke="#ffffff" stroke-width="15" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M99,54 Q97,38 103,34 Q107,40 104,54 Z"/>
+    <path d="M104,46 Q124,30 138,42 Q126,58 104,54 Q100,50 104,46 Z"/>
+    <path d="M100,56 C112,42 150,46 152,90 C154,130 128,166 100,166 C72,166 46,130 48,90 C50,46 88,42 100,56 Z"/>
+  </g>
+  <!-- color -->
+  <path d="M99,54 Q97,38 103,34 Q107,40 104,54 Z" fill="#7A5230" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M104,46 Q124,30 138,42 Q126,58 104,54 Q100,50 104,46 Z" fill="#58BE6E" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M100,56 C112,42 150,46 152,90 C154,130 128,166 100,166 C72,166 46,130 48,90 C50,46 88,42 100,56 Z" fill="#EE4237" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>
+  <ellipse cx="72" cy="86" rx="15" ry="20" fill="#fff" opacity="0.28" transform="rotate(-18 72 86)"/>
+  <path d="M118,52 Q126,44 132,46" fill="none" stroke="#3E9E52" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+  <ellipse cx="74" cy="122" rx="9" ry="6" fill="#ff7ba0" opacity="0.8"/>
+  <ellipse cx="126" cy="122" rx="9" ry="6" fill="#ff7ba0" opacity="0.8"/>
+  <circle cx="84" cy="108" r="8" fill="#2a1e16"/>
+  <circle cx="116" cy="108" r="8" fill="#2a1e16"/>
+  <circle cx="87" cy="105" r="3" fill="#fff"/>
+  <circle cx="119" cy="105" r="3" fill="#fff"/>
+  <path d="M92,122 Q100,129 108,122" fill="none" stroke="#3d2a1c" stroke-width="3" stroke-linecap="round"/>
+</svg>

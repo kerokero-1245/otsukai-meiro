@@ -2,8 +2,9 @@
 // MVPは絵文字のプレースホルダを丸いバッジに載せるだけ。将来ここを画像差し替え可能に。
 
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { colors } from '../theme';
+import PiyoArt from './PiyoArt';
 
 interface Props {
   emoji: string;
@@ -18,7 +19,7 @@ export default function Avatar({ emoji, size }: Props) {
         { width: size, height: size, borderRadius: size / 2 },
       ]}
     >
-      <Text style={{ fontSize: size * 0.58 }}>{emoji}</Text>
+      <PiyoArt glyph={emoji} size={size * 0.82} emojiSize={size * 0.58} />
     </View>
   );
 }

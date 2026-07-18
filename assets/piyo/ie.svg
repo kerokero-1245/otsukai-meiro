@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="いえ">
+  <!-- white die-cut underlay -->
+  <g fill="#ffffff" stroke="#ffffff" stroke-width="15" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="52" y="94" width="96" height="82" rx="10"/>
+    <path d="M40,102 L98,52 Q100,50 102,52 L160,102 Q163,107 156,107 L44,107 Q37,107 40,102 Z"/>
+    <rect x="120" y="58" width="16" height="30" rx="3"/>
+  </g>
+  <!-- chimney -->
+  <rect x="120" y="58" width="16" height="30" rx="3" fill="#C0512F" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round"/>
+  <!-- wall -->
+  <rect x="52" y="94" width="96" height="82" rx="10" fill="#FBE7C0" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round"/>
+  <!-- roof -->
+  <path d="M40,102 L98,52 Q100,50 102,52 L160,102 Q163,107 156,107 L44,107 Q37,107 40,102 Z" fill="#CF5A38" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- roof highlight -->
+  <path d="M58,100 L98,66 L104,70 L70,100 Z" fill="#ffffff" opacity="0.20"/>
+  <!-- door -->
+  <path d="M85,176 L85,138 Q85,122 100,122 Q115,122 115,138 L115,176 Z" fill="#A56A38" stroke="#3d2a1c" stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="109" cy="151" r="2.8" fill="#FFE27A"/>
+  <!-- windows -->
+  <rect x="60" y="114" width="22" height="22" rx="4" fill="#57C2E0" stroke="#3d2a1c" stroke-width="3" stroke-linejoin="round"/>
+  <rect x="118" y="114" width="22" height="22" rx="4" fill="#57C2E0" stroke="#3d2a1c" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M71,114 L71,136 M60,125 L82,125" stroke="#3d2a1c" stroke-width="2.2"/>
+  <path d="M129,114 L129,136 M118,125 L140,125" stroke="#3d2a1c" stroke-width="2.2"/>
+  <path d="M64,118 L68,118 M64,118 L64,122" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" opacity="0.8"/>
+  <path d="M122,118 L126,118 M122,118 L122,122" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" opacity="0.8"/>
+</svg>

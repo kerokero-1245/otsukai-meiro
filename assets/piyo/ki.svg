@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="き">
+  <!-- white die-cut underlay -->
+  <g fill="#ffffff" stroke="#ffffff" stroke-width="15" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="88" y="112" width="24" height="62" rx="8"/>
+    <path d="M100,32 C122,32 134,46 133,58 C150,58 158,74 151,88 C160,100 151,120 134,120 C126,134 106,134 100,126 C94,134 74,134 66,120 C49,120 40,100 49,88 C42,74 50,58 67,58 C66,46 78,32 100,32 Z"/>
+  </g>
+  <!-- trunk -->
+  <rect x="88" y="112" width="24" height="62" rx="8" fill="#8A5A32" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round"/>
+  <path d="M100,120 L100,168" stroke="#6B451F" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+  <!-- canopy -->
+  <path d="M100,32 C122,32 134,46 133,58 C150,58 158,74 151,88 C160,100 151,120 134,120 C126,134 106,134 100,126 C94,134 74,134 66,120 C49,120 40,100 49,88 C42,74 50,58 67,58 C66,46 78,32 100,32 Z" fill="#54B85E" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round"/>
+  <!-- inner shading -->
+  <path d="M100,126 C106,116 118,114 126,118 M74,118 Q66,110 68,100" fill="none" stroke="#3B9E4A" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  <path d="M118,74 Q128,80 126,92" fill="none" stroke="#3B9E4A" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+  <!-- highlight blobs -->
+  <ellipse cx="78" cy="66" rx="12" ry="9" fill="#7AD07E" opacity="0.7" transform="rotate(-18 78 66)"/>
+  <ellipse cx="100" cy="54" rx="9" ry="7" fill="#7AD07E" opacity="0.55"/>
+</svg>

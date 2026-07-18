@@ -3,10 +3,11 @@
 // 制御コンポーネント。ここでは描画とゴールのゆるやかな“きらきら”だけを持つ。
 
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, StyleSheet, View } from 'react-native';
 import { Level } from '../types';
 import { colors, radius } from '../theme';
 import Avatar from './Avatar';
+import PiyoArt from './PiyoArt';
 
 const OBSTACLE_EMOJI = '🌳';
 
@@ -81,7 +82,7 @@ export default function MazeGrid({ level, cell, avatarPos, avatarTilt, goalEmoji
           style={[styles.cellOverlay, { left: o.x * cell, top: o.y * cell, width: cell, height: cell }]}
           pointerEvents="none"
         >
-          <Text style={{ fontSize: cell * 0.58 }}>{OBSTACLE_EMOJI}</Text>
+          <PiyoArt glyph={OBSTACLE_EMOJI} size={cell * 0.78} emojiSize={cell * 0.58} />
         </View>
       ))}
 
@@ -105,7 +106,7 @@ export default function MazeGrid({ level, cell, avatarPos, avatarTilt, goalEmoji
             { width: cell * 0.82, height: cell * 0.82, borderRadius: cell * 0.41 },
           ]}
         >
-          <Text style={{ fontSize: cell * 0.54 }}>{goalEmoji}</Text>
+          <PiyoArt glyph={goalEmoji} size={cell * 0.66} emojiSize={cell * 0.54} />
         </View>
       </Animated.View>
 

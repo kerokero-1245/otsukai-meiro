@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="ふうせん">
+  <!-- string (drawn first, thin) -->
+  <path d="M100,150 Q88,164 98,176 Q108,186 100,196" fill="none" stroke="#3d2a1c" stroke-width="2.4" stroke-linecap="round" opacity="0.85"/>
+  <!-- white die-cut underlay -->
+  <g fill="#ffffff" stroke="#ffffff" stroke-width="15" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M100,150 C62,142 50,100 58,72 C66,42 134,42 142,72 C150,100 138,142 100,150 Z"/>
+    <path d="M100,148 L90,162 Q100,168 110,162 Z"/>
+  </g>
+  <!-- knot -->
+  <path d="M100,146 L90,162 Q100,168 110,162 Z" fill="#D3283A" stroke="#3d2a1c" stroke-width="3" stroke-linejoin="round"/>
+  <!-- balloon body -->
+  <path d="M100,150 C62,142 50,100 58,72 C66,42 134,42 142,72 C150,100 138,142 100,150 Z" fill="#F0384A" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round"/>
+  <!-- bottom pinch highlight -->
+  <path d="M84,138 Q100,150 116,138" fill="none" stroke="#C42638" stroke-width="3" stroke-linecap="round" opacity="0.65"/>
+  <!-- big glossy highlight -->
+  <ellipse cx="80" cy="80" rx="16" ry="22" fill="#ffffff" opacity="0.42" transform="rotate(-20 80 80)"/>
+  <ellipse cx="118" cy="112" rx="9" ry="13" fill="#ffffff" opacity="0.18" transform="rotate(-18 118 112)"/>
+</svg>

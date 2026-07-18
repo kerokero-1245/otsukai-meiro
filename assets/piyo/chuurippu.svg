@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="チューリップ">
+  <!-- white die-cut underlay -->
+  <g fill="#ffffff" stroke="#ffffff" stroke-width="15" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M96,120 L96,172 L104,172 L104,120 Z"/>
+    <path d="M100,164 C64,164 58,128 60,112 Q94,124 100,158 Z"/>
+    <path d="M100,164 C136,164 142,128 140,112 Q106,124 100,158 Z"/>
+    <path d="M68,78 Q68,50 84,52 Q90,66 100,66 Q110,66 116,52 Q132,50 132,78 Q132,110 100,116 Q68,110 68,78 Z"/>
+  </g>
+  <!-- stem -->
+  <rect x="95" y="108" width="10" height="66" fill="#54B85E" stroke="#3d2a1c" stroke-width="3" stroke-linejoin="round"/>
+  <!-- leaves -->
+  <path d="M100,164 C64,164 58,128 60,112 Q94,124 100,158 Z" fill="#54B85E" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round"/>
+  <path d="M100,164 C136,164 142,128 140,112 Q106,124 100,158 Z" fill="#4AA854" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round"/>
+  <!-- flower cup -->
+  <path d="M68,78 Q68,50 84,52 Q90,66 100,66 Q110,66 116,52 Q132,50 132,78 Q132,110 100,116 Q68,110 68,78 Z" fill="#F0384A" stroke="#3d2a1c" stroke-width="3.2" stroke-linejoin="round"/>
+  <!-- petal separations -->
+  <path d="M84,54 Q86,86 100,112" fill="none" stroke="#C42A3A" stroke-width="2.8" stroke-linecap="round" opacity="0.85"/>
+  <path d="M116,54 Q114,86 100,112" fill="none" stroke="#C42A3A" stroke-width="2.8" stroke-linecap="round" opacity="0.85"/>
+  <!-- highlight -->
+  <path d="M74,74 Q74,58 82,58" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.4"/>
+  <path d="M100,72 Q102,90 100,110" fill="none" stroke="#FF7488" stroke-width="3" stroke-linecap="round" opacity="0.55"/>
+</svg>

@@ -5,6 +5,7 @@ import React, { useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, font, space } from '../theme';
 import BigButton from '../components/BigButton';
+import PiyoArt from '../components/PiyoArt';
 import { playSound } from '../audio/sounds';
 
 interface Props {
@@ -37,9 +38,9 @@ export default function TitleScreen({ onPlay, onOtona }: Props) {
         <Text style={styles.title}>おつかいめいろ</Text>
 
         <View style={styles.concept}>
-          <Text style={styles.conceptEmoji}>🐥</Text>
+          <PiyoArt glyph="🐥" size={82} emojiSize={64} />
           <Text style={styles.conceptArrow}>➡️</Text>
-          <Text style={styles.conceptEmoji}>🍎</Text>
+          <PiyoArt glyph="🍎" size={82} emojiSize={64} />
         </View>
 
         <View style={styles.playWrap}>
@@ -91,9 +92,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: space.lg,
     marginBottom: space.xl,
-  },
-  conceptEmoji: {
-    fontSize: 64,
   },
   conceptArrow: {
     fontSize: 40,
