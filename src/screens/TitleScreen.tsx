@@ -8,6 +8,7 @@ import BigButton from '../components/BigButton';
 import PiyoArt from '../components/PiyoArt';
 import { playSound } from '../audio/sounds';
 import { sayPhrase, warmUpVoice } from '../audio/voice';
+import { startMeiroBgm } from '../audio/bgm';
 
 interface Props {
   onPlay: () => void;
@@ -40,6 +41,8 @@ export default function TitleScreen({ onPlay, onOtona }: Props) {
             同時に声エンジンをアンロックして、以降のゴール到達・がんばりカードの声も鳴るようにする。 */}
         <Pressable
           onPress={() => {
+            // 最初のタップ起点で BGM（オルゴール）も流し始める（同一曲の再呼び出しは冪等）。
+            startMeiroBgm();
             warmUpVoice();
             sayPhrase('title');
           }}
@@ -66,6 +69,8 @@ export default function TitleScreen({ onPlay, onOtona }: Props) {
             onPress={() => {
               // 声を出さずに次へ進むが、ここでも声エンジンをアンロックしておく
               // （タイトルをタップせず直接「あそぶ」を押した子でも、後の声が鳴るように）。
+              // BGM も同じタップ起点で流し始める（以降の画面遷移でも途切れず続く）。
+              startMeiroBgm();
               warmUpVoice();
               playSound('tap');
               onPlay();

@@ -18,6 +18,7 @@ interface AudioEl {
   pause(): void;
   currentTime: number;
   muted: boolean;
+  addEventListener?: (type: string, cb: () => void) => void;
 }
 type AudioCtor = new (src?: string) => AudioEl;
 
@@ -37,8 +38,22 @@ export function isClipAvailable(name: string | undefined): boolean {
 }
 
 let current: AudioEl | null = null;
+// 現在の再生に紐づく「終了通知」（ended/error/停止のいずれか一度きり）。BGM ダッキング解除に使う。
+let currentOnEnd: (() => void) | null = null;
 
-// 直前の再生を止める（発声が重ならないように）。
+function fireCurrentOnEnd(): void {
+  const cb = currentOnEnd;
+  currentOnEnd = null;
+  if (cb) {
+    try {
+      cb();
+    } catch {
+      // 無視
+    }
+  }
+}
+
+// 直前の再生を止める（発声が重ならないように）。停止も「終了」として通知する（ダッキング解除のため）。
 export function cancelClip(): void {
   try {
     if (current) current.pause();
@@ -46,16 +61,36 @@ export function cancelClip(): void {
     // 無視
   }
   current = null;
+  fireCurrentOnEnd();
 }
 
 // name のクリップを再生する。鳴らせたら true、無理なら false（呼び出し側が tier2 へ）。
-export function playClip(name: string): boolean {
+// onEnd を渡すと ended/error/停止のいずれか最初の一度だけ呼ぶ（BGM ダッキング解除に使う）。
+export function playClip(name: string, onEnd?: () => void): boolean {
   const A = getAudioCtor();
   if (!A || !hasClip(name)) return false;
   try {
     cancelClip();
     const a = new A(CLIP_URLS[name]);
     current = a;
+    if (onEnd) {
+      let fired = false;
+      const fire = () => {
+        if (fired) return;
+        fired = true;
+        onEnd();
+      };
+      currentOnEnd = fire;
+      // 自然終了・読み込み失敗で終了通知（停止は cancelClip 側で通知）。
+      try {
+        a.addEventListener?.('ended', fire);
+        a.addEventListener?.('error', fire);
+      } catch {
+        // リスナを付けられなくても cancelClip / 呼び出し側の保険で解除される
+      }
+    } else {
+      currentOnEnd = null;
+    }
     const p = a.play();
     // play() の Promise 拒否（ユーザー操作前など）は握りつぶす（遊びは壊さない）。
     if (p && typeof (p as Promise<void>).catch === 'function') {

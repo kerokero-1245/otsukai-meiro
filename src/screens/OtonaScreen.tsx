@@ -7,6 +7,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { colors, font, radius, space } from '../theme';
 import BigButton from '../components/BigButton';
 import { clearedCount, resetProgress } from '../progress';
+import { isBgmOn, setBgmOn } from '../audio/bgm';
 
 interface Props {
   onBack: () => void;
@@ -16,6 +17,15 @@ export default function OtonaScreen({ onBack }: Props) {
   const [count, setCount] = useState(() => clearedCount());
   const [confirming, setConfirming] = useState(false);
   const [done, setDone] = useState(false);
+  const [bgmOn, setBgmOnState] = useState(() => isBgmOn());
+
+  // BGM の ON/OFF トグル（既定 ON・保存キー meiro.bgm）。この押下はユーザー操作なので、
+  // ON にした瞬間その場で（ジェスチャ文脈で）鳴らし直せる。OFF なら即フェード停止。
+  const toggleBgm = () => {
+    const next = !bgmOn;
+    setBgmOn(next);
+    setBgmOnState(next);
+  };
 
   const doReset = () => {
     resetProgress();
@@ -62,6 +72,24 @@ export default function OtonaScreen({ onBack }: Props) {
             />
           </View>
         )}
+      </View>
+
+      {/* BGM（オルゴール）の ON/OFF。既定 ON。子は触らない前提（親ゲートの奥）だが、うるさければ切れる。 */}
+      <View style={styles.card}>
+        <Text style={styles.sectionTitle}>おんがく（BGM）</Text>
+        <Text style={styles.note}>
+          {bgmOn ? 'いま BGM は ながれます ♪' : 'いま BGM は ながれません。'}
+        </Text>
+        <View style={styles.resetWrap}>
+          <BigButton
+            emoji={bgmOn ? '🎵' : '🔇'}
+            label={bgmOn ? 'BGM: ながす' : 'BGM: ながさない'}
+            onPress={toggleBgm}
+            color={bgmOn ? colors.play : colors.button}
+            pressedColor={bgmOn ? colors.playPressed : colors.buttonPressed}
+          />
+        </View>
+        <Text style={styles.note}>タップで きりかえ</Text>
       </View>
 
       <View style={styles.spacer} />

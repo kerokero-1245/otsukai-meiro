@@ -74,10 +74,13 @@ src/
   game/maze.ts              move / canMove / isGoal など盤面の純粋関数
   game/generate.ts          テンプレートから迷路をランダム生成（BFS検証つき・詰み無し保証）
   audio/sounds.ts           効果音（web は Web Audio で合成、native は無音スタブ）
-  audio/voice.ts            よみあげの入口（3段構え ①同梱クリップ→②speechSynthesis→③無音）
+  audio/voice.ts            よみあげの入口（3段構え ①同梱クリップ→②speechSynthesis→③無音）＋声中のBGMダッキング
   audio/clips.ts            tier1: 同梱クリップ再生（HTMLAudioElement / native 無音）
   audio/voiceClips.ts       tier1: クリップ登録表（いまは空＝未同梱）
   audio/speech.ts           tier2: 端末の音声合成（Web Speech API / native 無音）
+  audio/bgm.ts              BGM 配線の入口（曲=meiro / トグル meiro.bgm / ダッキング / ctx共有）
+  audio/bgm/engine.ts       BGM エンジン（オルゴール風の手続き生成ループ・piyo-assets 共通）
+  audio/bgm/songs.ts        BGM スコアデータ（4曲。meiro を再生）
   components/
     MazeGrid.tsx            盤面（タイル・障害物・ゴール・アバター）
     DirPad.tsx              ◀▲▼▶ の巨大方向パッド
@@ -89,7 +92,7 @@ src/
     TitleScreen.tsx         タイトル（あそぶ / 親ゲート）
     LevelSelectScreen.tsx   レベルえらび（横スクロール）
     PlayScreen.tsx          プレイ本体（①タップモード）
-    OtonaScreen.tsx         おとなモード（フェーズ2のスタブ）
+    OtonaScreen.tsx         おとなモード（⭐リセット / BGM トグル）
 ```
 
 ## 音声（こえ）
@@ -109,3 +112,20 @@ src/
 クリップは `assets/voice/` に同梱（`audio/voiceClips.ts` の `CLIP_URLS` で登録）。同梱クリップを持たない環境（native 等）は
 ② 端末の音声合成へ自動フォールバックし、それも無ければ ③ 無音（絵・文字だけで成立）。生成手順・パラメータ・クレジット
 （**VOICEVOX:ずんだもん**）は [`assets/voice/README.md`](assets/voice/README.md) を参照。
+
+## BGM（おんがく）
+
+姉妹アプリ共通のオルゴール風 BGM を配線（`audio/bgm.ts` → `audio/bgm/engine.ts`）。曲は **meiro**（すこしわくわく・
+G メジャーペンタ・84BPM・16小節シームレスループ）。音源ファイルは同梱せず **Web Audio API でその場合成**する
+手続き生成ループ（効果音・声と同じく外部送信ゼロ・完全オフライン）。
+
+- **開始**: 最初のユーザー操作（タイトルをタップ／「あそぶ」）で `startMeiroBgm()`。iOS Safari の自動再生制限に合わせ
+  必ずタップ起点。以降は画面遷移でも途切れず流し続ける（クリア演出中も継続）。
+- **ダッキング**: 声（タイトル・ついたね・ぜんぶ できたね）の再生中だけ BGM を約35%へ沈め、終了で戻す
+  （`audio/voice.ts` が `duckForVoice` / `unduckForVoice` を呼ぶ。ended/error/停止/無音のいずれでも確実に復帰）。
+- **トグル**: おとなモードに「BGM: ながす／ながさない」（既定 **ON**・`localStorage` キー `meiro.bgm`）。OFF で即停止、
+  ON で（ジェスチャ文脈なら）即再開。リロードしても設定は保持。
+- **AudioContext 共有**: 効果音（`audio/sounds.ts`）と同じ `AudioContext` を共有（`configureBgm({ getCtx })`）。
+- 非対応環境（native・AudioContext 無し）・`localStorage` 例外でも全て無害な no-op（遊びは壊さない）。
+
+**BGM: オリジナル（Web Audio 生成）**。録音物・外部素材は使っていない。

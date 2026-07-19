@@ -28,6 +28,8 @@ interface SSUtterance {
   pitch: number;
   volume: number;
   voice: SSVoice | null;
+  onend: (() => void) | null;
+  onerror: (() => void) | null;
 }
 type UtteranceCtor = new (text?: string) => SSUtterance;
 interface SS {
@@ -59,6 +61,20 @@ function getUtteranceCtor(): UtteranceCtor | null {
 
 let jaVoice: SSVoice | null = null;
 let voicesWired = false;
+// 現在の発声に紐づく「終了通知」（end/error/cancel のいずれか一度きり）。BGM ダッキング解除に使う。
+let currentOnEnd: (() => void) | null = null;
+
+function fireCurrentOnEnd(): void {
+  const cb = currentOnEnd;
+  currentOnEnd = null;
+  if (cb) {
+    try {
+      cb();
+    } catch {
+      // 無視
+    }
+  }
+}
 
 function refreshVoice(): void {
   const s = getSynth();
@@ -114,33 +130,52 @@ export function warmUpSpeech(): void {
 }
 
 // text を ja-JP で少しゆっくり読み上げる。enabled=false / 非対応 では何もしない。
-export function speak(text: string, opts?: { enabled?: boolean }): void {
-  if (opts && opts.enabled === false) return;
+// 発声を開始できたら true を返す（呼び出し側の tier 判定・BGM ダッキングに使う）。
+// onEnd を渡すと end/error/停止のいずれか最初の一度だけ呼ぶ（BGM ダッキング解除に使う）。
+export function speak(text: string, opts?: { enabled?: boolean }, onEnd?: () => void): boolean {
+  if (opts && opts.enabled === false) return false;
   const s = getSynth();
   const U = getUtteranceCtor();
-  if (!s || !U) return;
+  if (!s || !U) return false;
   wireVoices();
   try {
-    s.cancel(); // 前の発声を止めて重ならないように
+    s.cancel(); // 前の発声を止めて重ならないように（保留中の終了通知も解除）
+    fireCurrentOnEnd();
     const u = new U(text);
     u.lang = 'ja-JP';
     u.rate = 0.9; // 少しゆっくり
     u.pitch = 1;
     u.volume = 1;
     if (jaVoice) u.voice = jaVoice;
+    if (onEnd) {
+      let fired = false;
+      const fire = () => {
+        if (fired) return;
+        fired = true;
+        onEnd();
+      };
+      currentOnEnd = fire;
+      u.onend = fire;
+      u.onerror = fire;
+    }
     s.speak(u);
+    return true;
   } catch {
     // 読み上げできなくても遊びは壊さない
+    fireCurrentOnEnd();
+    return false;
   }
 }
 
-// 発声を止める（画面を離れるときなど）。
+// 発声を止める（画面を離れるときなど）。停止も「終了」として通知する（ダッキング解除のため）。
 export function cancelSpeech(): void {
   const s = getSynth();
-  if (!s) return;
-  try {
-    s.cancel();
-  } catch {
-    // 無視
+  if (s) {
+    try {
+      s.cancel();
+    } catch {
+      // 無視
+    }
   }
+  fireCurrentOnEnd();
 }

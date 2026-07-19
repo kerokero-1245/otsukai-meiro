@@ -15,6 +15,7 @@
 import { isClipAvailable, playClip, warmUpClips, cancelClip } from './clips';
 import { CLIP_URLS } from './voiceClips';
 import { speak, warmUpSpeech, cancelSpeech, isSpeechAvailable } from './speech';
+import { duckForVoice, unduckForVoice } from './bgm';
 
 // 読み上げ1回ぶんの指定。clip=同梱クリップの基名（無ければ tier2 へ）/ text=フォールバック読み上げ文字列。
 export interface VoiceSpec {
@@ -34,14 +35,55 @@ export const PHRASE_VOICE: Record<PhraseKey, VoiceSpec> = {
   zenbu: { clip: 'p_zenbu', text: 'ぜんぶ できたね' },
 };
 
+// ── BGM ダッキング（声の再生中だけ BGM を沈める）─────────────────────
+// 声（tier1 クリップ／tier2 TTS）の再生開始で duckForVoice()、終了（ended/error/停止/無音）で
+// unduckForVoice()。エンジン側は duck/unduck の回数を数えて多重再生に耐える（duckCount）。
+// ここでは「1回の声＝duck 1回・unduck 1回」を厳守する（finish は最初の一度だけ実行）。
+// 声のイベントを取りこぼしても BGM が沈みっぱなしにならないよう、保険のタイマも張る。
+const DUCK_SAFETY_MS = 8000; // 定型フレーズはどれも数秒。取りこぼし時の最終保険。
+let pendingUnduck: (() => void) | null = null;
+
+function beginDuck(): () => void {
+  // 直前の声がまだダッキング中なら先に解除（新しい声で1回だけ沈め直す）。
+  if (pendingUnduck) {
+    const prev = pendingUnduck;
+    pendingUnduck = null;
+    prev();
+  }
+  duckForVoice();
+  let done = false;
+  let safety: ReturnType<typeof setTimeout> | null = null;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    if (safety) {
+      clearTimeout(safety);
+      safety = null;
+    }
+    if (pendingUnduck === finish) pendingUnduck = null;
+    unduckForVoice();
+  };
+  try {
+    safety = setTimeout(finish, DUCK_SAFETY_MS);
+  } catch {
+    // タイマが張れなくても end/cancel 側で解除される
+  }
+  pendingUnduck = finish;
+  return finish;
+}
+
 // ── 再生（3段構えの解決）─────────────────────────────────────────────
 // enabled=false なら何もしない（将来おとなモードで読み上げオフにする時の対応点）。
 export function playVoice(spec: VoiceSpec, opts?: { enabled?: boolean }): void {
   if (opts && opts.enabled === false) return;
+  // 声が鳴っている間だけ BGM を沈める。鳴らせた tier の終了で finish（＝解除）が呼ばれる。
+  const finish = beginDuck();
   // ① 同梱クリップ
-  if (isClipAvailable(spec.clip) && playClip(spec.clip as string)) return;
-  // ② speechSynthesis（無ければ speak が no-op ＝ ③ 無音）
-  speak(spec.text, { enabled: true });
+  if (isClipAvailable(spec.clip) && playClip(spec.clip as string, finish)) return;
+  // ② speechSynthesis
+  if (speak(spec.text, { enabled: true }, finish)) return;
+  // ③ 無音（どちらも鳴らせない）: ダッキングを即解除
+  finish();
 }
 
 // 定型フレーズを読む（タイトル「おつかいめいろ」・ゴール「ついたね」・全制覇「ぜんぶ できたね」）。
@@ -55,10 +97,15 @@ export function warmUpVoice(): void {
   warmUpSpeech();
 }
 
-// 発声を止める（画面を離れるとき・次の発声の前）。両 tier を止める。
+// 発声を止める（画面を離れるとき・次の発声の前）。両 tier を止め、ダッキングも確実に解除する。
 export function cancelVoice(): void {
   cancelClip();
   cancelSpeech();
+  if (pendingUnduck) {
+    const f = pendingUnduck;
+    pendingUnduck = null;
+    f();
+  }
 }
 
 // 読み上げが1つでも使えるか（同梱クリップが1つでもある or TTS が使える）。
