@@ -12,7 +12,10 @@ interface Props {
   color?: string; // 背景色（省略時は白カード）
   pressedColor?: string; // 押下時の色
   textColor?: string;
-  size?: 'big' | 'huge';
+  // big=既定（こども側の巨大ボタン） / huge=タイトルの「あそぶ」
+  // small=おとなモード用。親ゲートの奥は普通のアプリUIでよいので、
+  //       長いラベル（「しゃしんを ふやす」など）が折り返さない大きさにする。
+  size?: 'small' | 'big' | 'huge';
 }
 
 export default function BigButton({
@@ -35,15 +38,32 @@ export default function BigButton({
       style={({ pressed }) => [
         styles.base,
         size === 'huge' && styles.huge,
+        size === 'small' && styles.small,
         { backgroundColor: pressed ? pressedBg : bg },
       ]}
     >
       <View style={styles.row}>
         {emoji ? (
-          <Text style={[styles.emoji, size === 'huge' && styles.emojiHuge]}>{emoji}</Text>
+          <Text
+            style={[
+              styles.emoji,
+              size === 'huge' && styles.emojiHuge,
+              size === 'small' && styles.emojiSmall,
+            ]}
+          >
+            {emoji}
+          </Text>
         ) : null}
         {label ? (
-          <Text style={[styles.label, size === 'huge' && styles.labelHuge, { color: fg }]}>
+          <Text
+            style={[
+              styles.label,
+              size === 'huge' && styles.labelHuge,
+              size === 'small' && styles.labelSmall,
+              { color: fg },
+            ]}
+            numberOfLines={size === 'small' ? 1 : undefined}
+          >
             {label}
           </Text>
         ) : null}
@@ -71,6 +91,13 @@ const styles = StyleSheet.create({
     minHeight: 104,
     borderRadius: radius.lg,
   },
+  // おとなモード用の一回り小さいボタン（それでも 64pt 以上を確保）。
+  small: {
+    minHeight: 64,
+    paddingVertical: space.sm,
+    paddingHorizontal: space.md,
+    borderRadius: radius.md,
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -83,11 +110,18 @@ const styles = StyleSheet.create({
   emojiHuge: {
     fontSize: font.huge,
   },
+  emojiSmall: {
+    fontSize: font.big,
+    marginRight: space.xs,
+  },
   label: {
     fontSize: font.big,
     fontWeight: '800',
   },
   labelHuge: {
     fontSize: font.huge,
+  },
+  labelSmall: {
+    fontSize: font.body,
   },
 });
