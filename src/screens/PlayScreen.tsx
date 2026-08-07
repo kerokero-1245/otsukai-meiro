@@ -24,13 +24,22 @@ import MazeGrid from '../components/MazeGrid';
 import DirPad from '../components/DirPad';
 import ClearOverlay from '../components/ClearOverlay';
 import BigButton from '../components/BigButton';
-import PiyoArt from '../components/PiyoArt';
+import GoalArt from '../components/GoalArt';
+import { pickGoalPhotoUrl } from '../personal/store';
 
 interface Props {
   templateId: string;
   onHome: () => void;
   onNext: (nextTemplateId: string) => void;
   onCelebrateAll: () => void; // 全5レベルの⭐が初めて揃った → がんばりカードへ
+}
+
+// 生成した迷路に「このプレイのゴールの見た目」を載せる。
+// おとなモードで写真が入っていれば一定の割合で写真をゴールにする（personal/store.ts）。
+// 写真が無い／保存が使えない環境では null のまま＝従来どおり絵文字プールのゴール。
+function withGoalPhoto(level: Level): Level {
+  const photo = pickGoalPhotoUrl();
+  return photo ? { ...level, goalImage: photo } : level;
 }
 
 export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll }: Props) {
@@ -41,7 +50,7 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
   // 新しい迷路を作る（さんすうドリルのように何回も遊べる）。テンプレートが無い保険では null。
   // key={templateId}（App.tsx）で画面はテンプレートごとに作り直されるので、初期生成は1回。
   const [level, setLevel] = useState<Level | null>(() =>
-    template ? generateLevel(template) : null
+    template ? withGoalPhoto(generateLevel(template)) : null
   );
 
   // --- 盤面・ボタンの寸法 ---
@@ -90,7 +99,7 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
   // マス数はテンプレート内で不変なので cell は変わらず、アバターは新しいスタートへ置き直す。
   const reset = useCallback(() => {
     if (!template) return;
-    const nextLevel = generateLevel(template);
+    const nextLevel = withGoalPhoto(generateLevel(template));
     setLevel(nextLevel);
     animatingRef.current = false;
     posRef.current = nextLevel.start;
@@ -174,7 +183,12 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
           <Text style={styles.bannerLabel} numberOfLines={1}>
             ここまで いこう
           </Text>
-          <PiyoArt glyph={level.goalEmoji} size={34} emojiSize={32} />
+          <GoalArt
+            glyph={level.goalEmoji}
+            photoUri={level.goalImage}
+            size={34}
+            emojiSize={32}
+          />
 
         </View>
         <View style={styles.homeBtn} />
@@ -199,6 +213,7 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
       {arrived ? (
         <ClearOverlay
           goalEmoji={level.goalEmoji}
+          goalPhoto={level.goalImage}
           onReplay={() => {
             playSound('tap');
             reset();

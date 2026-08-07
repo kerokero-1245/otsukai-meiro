@@ -8,6 +8,7 @@ import { Level } from '../types';
 import { colors, radius } from '../theme';
 import Avatar from './Avatar';
 import PiyoArt from './PiyoArt';
+import GoalArt from './GoalArt';
 
 const OBSTACLE_EMOJI = '🌳';
 
@@ -86,7 +87,7 @@ export default function MazeGrid({ level, cell, avatarPos, avatarTilt, goalEmoji
         </View>
       ))}
 
-      {/* ゴール（既定は絵文字。差し替え写真はフェーズ2） */}
+      {/* ゴール（おとなモードの写真があれば写真、無ければシールポップSVG/絵文字） */}
       <Animated.View
         style={[
           styles.cellOverlay,
@@ -106,7 +107,12 @@ export default function MazeGrid({ level, cell, avatarPos, avatarTilt, goalEmoji
             { width: cell * 0.82, height: cell * 0.82, borderRadius: cell * 0.41 },
           ]}
         >
-          <PiyoArt glyph={goalEmoji} size={cell * 0.66} emojiSize={cell * 0.54} />
+          <GoalArt
+            glyph={goalEmoji}
+            photoUri={level.goalImage}
+            size={cell * 0.66}
+            emojiSize={cell * 0.54}
+          />
         </View>
       </Animated.View>
 

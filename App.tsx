@@ -2,7 +2,7 @@
 // react-navigation は使わず、文字ヘッダの無い全画面遷移にするための最小ステートルーター。
 // 縦持ち前提のレイアウト（中央寄せ・最大幅制限）で横画面・大画面でも崩れにくくする（DESIGN §8）。
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 import { Route } from './src/types';
@@ -13,10 +13,18 @@ import PlayScreen from './src/screens/PlayScreen';
 import GanbariScreen from './src/screens/GanbariScreen';
 import OtonaScreen from './src/screens/OtonaScreen';
 import { setCelebratedAll } from './src/progress';
+import { initPersonal } from './src/personal/store';
 
 export default function App() {
   const [route, setRoute] = useState<Route>({ name: 'title' });
   const go = useCallback((r: Route) => setRoute(r), []);
+
+  // パーソナライズ資産（ゴール写真・おじの声）を端末内 IndexedDB から読み込んでおく。
+  // 迷路生成・クリア演出は同期なので、先にメモリ上の在庫にしておく必要がある（personal/store.ts）。
+  // 失敗しても例外は投げない（保存が使えない環境では静かに既定動作のまま）。
+  useEffect(() => {
+    void initPersonal();
+  }, []);
 
   let screen: React.ReactNode = null;
   switch (route.name) {

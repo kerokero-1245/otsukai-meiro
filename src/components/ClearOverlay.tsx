@@ -13,9 +13,11 @@ import { sayPhrase, cancelVoice } from '../audio/voice';
 import BigButton from './BigButton';
 import Confetti from './Confetti';
 import PiyoArt from './PiyoArt';
+import GoalArt from './GoalArt';
 
 interface Props {
   goalEmoji: string;
+  goalPhoto?: string | null; // おとなモードの写真（blob: URL）。あれば丸ではなく写真の台紙でズーム
   onReplay: () => void;
   onNext?: () => void; // 次のレベルが無ければ undefined（ボタンを出さない）
   onHome: () => void;
@@ -25,6 +27,7 @@ interface Props {
 
 export default function ClearOverlay({
   goalEmoji,
+  goalPhoto,
   onReplay,
   onNext,
   onHome,
@@ -102,8 +105,14 @@ export default function ClearOverlay({
       <Confetti />
 
       <Animated.View style={[styles.card, { opacity, transform: [{ scale }] }]}>
-        <View style={styles.zoomCircle}>
-          <PiyoArt glyph={goalEmoji} size={128} emojiSize={104} />
+        {/* 写真があるときは丸い台紙をやめ、白い台紙の「写真ズーム」にする（DESIGN §1）。
+            fit='contain' なので、おばあちゃんの家の写真が端まで欠けずに大きく出る。 */}
+        <View style={[styles.zoomCircle, goalPhoto ? styles.zoomPhoto : null]}>
+          {goalPhoto ? (
+            <GoalArt glyph={goalEmoji} photoUri={goalPhoto} size={168} fit="contain" />
+          ) : (
+            <PiyoArt glyph={goalEmoji} size={128} emojiSize={104} />
+          )}
 
           {/* ⭐ゲットのスタンプ（右上にぽんっ） */}
           <Animated.View
@@ -173,6 +182,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.35,
     shadowRadius: 12,
     elevation: 8,
+  },
+  // 写真のときだけ角丸の四角い台紙に（丸く切ると人や家が欠けるため）。寸法は同じ180。
+  zoomPhoto: {
+    borderRadius: 28,
+    backgroundColor: colors.white,
   },
   starStamp: {
     position: 'absolute',
