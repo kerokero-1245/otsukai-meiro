@@ -14,7 +14,7 @@
 
 ## 状態
 
-**フェーズ1（タップで即1マス動く）実装済み・Webファースト。** タイトル → レベルえらび → プレイ → 祝福（ついたね!）まで遊べる。同梱レベル5個（2×2→3×3、障害物を段階的に導入）。おとなモード（写真・声の差し替え）はフェーズ2。
+**フェーズ1（タップで即1マス動く）＋フェーズ2（パーソナライズ）実装済み・Webファースト。** タイトル → レベルえらび → プレイ → 祝福（ついたね!）まで遊べる。むずかしさカード5枚から迷路を毎回ランダム生成。おとなモード（⚙️3秒長押し）で **ゴールを実在の写真に**、**クリアの声をおじの録音に**できる（完全端末内・外部送信ゼロ → [パーソナライズ](#パーソナライズこの子だけの世界地図)）。
 
 配布は **Webファースト**: Expo の web ビルドを URL で配布し、ブラウザで開いて「ホーム画面に追加」すれば全画面で遊べる。ネイティブアプリ（App Store 等）は同じコードから後日。詳細は DESIGN.md §0。
 
@@ -57,10 +57,10 @@ GitHub Pages はサブパス（`/otsukai-meiro/`）配信のため、CI では `
 EXPO_BASE_URL=/otsukai-meiro npx expo export --platform web
 ```
 
-### 遊び方（フェーズ1）
+### 遊び方
 
 タイトルの「あそぶ」→ カードで**むずかしさ**を選ぶ → その難易度の迷路が**その場でランダム生成**される → ◀▲▼▶ をタップしてアバターを1マスずつ動かし、ゴール（りんご・おうち等、毎回ランダム）へ。壁や障害物の向きを押すとキャラが首をかしげるだけ（罰・ゲームオーバー無し）。ゴールで「ついたね!」の祝福。「もういちど」で同じ難易度の**新しい迷路**に挑戦（さんすうドリルのように何度でも）。
-※ タイトル右下の歯車を **3秒長押し** すると、おとなモード（現在は準備中スタブ）に入る。
+※ タイトル右下の歯車を **3秒長押し** すると、おとなモード（写真・こえ・⭐リセット・BGM）に入る。
 
 ## 画面・ファイル構成
 
@@ -74,38 +74,65 @@ src/
   game/maze.ts              move / canMove / isGoal など盤面の純粋関数
   game/generate.ts          テンプレートから迷路をランダム生成（BFS検証つき・詰み無し保証）
   audio/sounds.ts           効果音（web は Web Audio で合成、native は無音スタブ）
-  audio/voice.ts            よみあげの入口（3段構え ①同梱クリップ→②speechSynthesis→③無音）＋声中のBGMダッキング
-  audio/clips.ts            tier1: 同梱クリップ再生（HTMLAudioElement / native 無音）
-  audio/voiceClips.ts       tier1: クリップ登録表（いまは空＝未同梱）
+  audio/voice.ts            よみあげの入口（4段構え ⓪おじの声→①同梱クリップ→②speechSynthesis→③無音）＋声中のBGMダッキング
+  audio/clips.ts            tier0/1: クリップ・録音の再生（HTMLAudioElement / native 無音）
+  audio/voiceClips.ts       tier1: 同梱クリップ登録表（VOICEVOX ずんだもん 3個）
   audio/speech.ts           tier2: 端末の音声合成（Web Speech API / native 無音）
   audio/bgm.ts              BGM 配線の入口（曲=meiro / トグル meiro.bgm / ダッキング / ctx共有）
   audio/bgm/engine.ts       BGM エンジン（オルゴール風の手続き生成ループ・piyo-assets 共通）
   audio/bgm/songs.ts        BGM スコアデータ（4曲。meiro を再生）
+  personal/                 パーソナライズ（ゴール写真・おじの声。web のみ・完全端末内）
+    idb.ts                  IndexedDB 最小ラッパ（DB名 meiro-personal。例外を投げない）
+    image.ts                canvas で長辺512px・JPEG0.8 に縮小（EXIF向き対応）
+    filePicker.ts           隠し <input type=file> を1つ置いて click する
+    recorder.ts             getUserMedia + MediaRecorder（mime判定・自動停止・マイク解放）
+    store.ts                在庫（メモリ）＋追加/削除＋購読。pickGoalPhotoUrl() を公開
   components/
     MazeGrid.tsx            盤面（タイル・障害物・ゴール・アバター）
     DirPad.tsx              ◀▲▼▶ の巨大方向パッド
     Avatar.tsx              アバター（絵文字バッジ）
     Confetti.tsx            紙吹雪
-    ClearOverlay.tsx        ゴール祝福オーバーレイ
-    BigButton.tsx           共通の大ボタン
+    ClearOverlay.tsx        ゴール祝福オーバーレイ（写真ならズーム表示）
+    GoalArt.tsx             ゴールの見た目（写真 or シールポップSVG or 絵文字）
+    PiyoArt.tsx             絵文字グリフ → シールポップSVG の差し替え
+    BigButton.tsx           共通の大ボタン（small / big / huge）
   screens/
     TitleScreen.tsx         タイトル（あそぶ / 親ゲート）
     LevelSelectScreen.tsx   レベルえらび（横スクロール）
     PlayScreen.tsx          プレイ本体（①タップモード）
-    OtonaScreen.tsx         おとなモード（⭐リセット / BGM トグル）
+    GanbariScreen.tsx       ぜんぶ できたね! がんばりカード
+    OtonaScreen.tsx         おとなモード（しゃしん / こえ / ⭐リセット / BGM トグル）
 ```
+
+## パーソナライズ（この子だけの世界地図）
+
+このアプリの差別化の核。おとなモード（⚙️3秒長押しの奥）で、**ゴールを実在の写真**（おばあちゃんの家・公園）に、
+**クリアの声をおじの録音**にできる。設計の詳細は [DESIGN.md §15](docs/DESIGN.md)。
+
+- **ゴールの しゃしん** … 最大6枚。保存前に **長辺512px・JPEG0.8** に縮小して **IndexedDB**（DB名 `meiro-personal`）へ。
+  写真があると、そのプレイのゴールが **2/3 の確率で写真**になる（残りは従来どおり12種のシールポップ絵）。
+  マスの上では白フチ角丸のシール風、クリア演出では白い台紙で大きくズーム。
+- **こえ** … 「ついたね!」「ぜんぶ できたね!」の2スロットを `MediaRecorder` で録音（最長6秒）。録音があると
+  ずんだもんクリップの**代わりに**鳴る（BGM ダッキングも同じ経路を通る）。ためしぎき・とりなおし・削除つき。
+- **プライバシー** … 写真も録音も**この端末の中だけ**。通信・アカウント・クラウドはゼロ。1枚ずつ／ぜんぶ／録音とも
+  いつでも消せる。破壊的操作には確認を1枚はさむ。
+- **壊れないこと** … IndexedDB が使えない環境（プライベートブラウズ等）ではクラッシュせず、おとなモードの2セクションが
+  「つかえません」表示に変わるだけ。こども側は完全に従来どおり（絵文字ゴール・ずんだもん）。写真の読み込み失敗も
+  静かに絵へフォールバック。
+- **新規 npm 依存ゼロ**（`<input type=file>` / canvas / IndexedDB / getUserMedia / MediaRecorder のブラウザ標準APIのみ）。
+  ネイティブでは `Platform` 分岐で「つかえない」を返すスタブ。
 
 ## 音声（こえ）
 
-効果音（`audio/sounds.ts` の合成音）とは別レイヤーで、3か所でずんだもんの声を鳴らす。
-読み上げは3段構え（`audio/voice.ts`）: **① 同梱クリップ（VOICEVOX ずんだもん）→ ② 端末の音声合成（Web Speech API）→ ③ 無音**。
+効果音（`audio/sounds.ts` の合成音）とは別レイヤーで、3か所で声を鳴らす。
+読み上げは4段構え（`audio/voice.ts`）: **⓪ おじの声（おとなモードの録音）→ ① 同梱クリップ（VOICEVOX ずんだもん）→ ② 端末の音声合成（Web Speech API）→ ③ 無音**。
 声はすべてユーザー操作（タップ）起点。効果音と喧嘩しないよう、声は効果音の**あと**に遅らせて鳴らす。
 
-| 場面 | 声（同梱クリップ） | 効果音との順序 |
-|---|---|---|
-| タイトルをタップ | 「おつかいめいろ」（`p_title`） | ここで声エンジンをアンロック（warmUpVoice） |
-| ゴール到達（ClearOverlay） | 「ついたね！」（`p_tsuita`） | 既存 `clear` 効果音の約0.75秒後に発声 |
-| 全レベル制覇（がんばりカード） | 「ぜんぶ できたね！」（`p_zenbu`） | 既存 `fanfare` 効果音の約1秒後に発声 |
+| 場面 | 声（同梱クリップ） | 差し替え | 効果音との順序 |
+|---|---|---|---|
+| タイトルをタップ | 「おつかいめいろ」（`p_title`） | — | ここで声エンジンをアンロック（warmUpVoice） |
+| ゴール到達（ClearOverlay） | 「ついたね！」（`p_tsuita`） | おとなモードの録音スロット `tsuita` | 既存 `clear` 効果音の約0.75秒後に発声 |
+| 全レベル制覇（がんばりカード） | 「ぜんぶ できたね！」（`p_zenbu`） | おとなモードの録音スロット `zenbu` | 既存 `fanfare` 効果音の約1秒後に発声 |
 
 壁・障害物にぶつかったときは既存の `blocked` 効果音のまま（**声は出さない**）。
 
