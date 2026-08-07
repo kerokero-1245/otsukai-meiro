@@ -1,7 +1,11 @@
-// 読み上げの入口（DESIGN §4）。画面はこのモジュールだけを呼ぶ。内部で3段構えに解決する:
-//   ① 同梱クリップ（tier1 / clips.ts）… VOICEVOX 事前生成の音声。あれば最優先で再生。
+// 読み上げの入口（DESIGN §4）。画面はこのモジュールだけを呼ぶ。内部で4段構えに解決する:
+//   ⓪ おじの声（tier0 / personal/store.ts）… おとなモードで録った端末内の録音。あれば最優先。
+//   ① 同梱クリップ（tier1 / clips.ts）… VOICEVOX 事前生成の音声。
 //   ② speechSynthesis（tier2 / speech.ts）… ブラウザ内蔵の日本語合成音声（ja-JP）。
-//   ③ 無音（tier3）… どちらも無ければ何もしない。文字なしでもゲームは成立する。
+//   ③ 無音（tier3）… どれも無ければ何もしない。文字なしでもゲームは成立する。
+//
+// tier0 は「この子だけの世界地図」の核（DESIGN §1）。録音が無い／読めない場合は静かに tier1 へ
+// 落ちるので、こども側の体験は決して壊れない。
 //
 // このアプリの声は「効果音（sounds.ts の合成音）」とは別レイヤー。喧嘩しないよう、声は効果音の
 // あとに少し遅らせて鳴らす（呼び出し側の setTimeout で順序を作る。ゴール到達・がんばりカードを参照）。
@@ -12,13 +16,18 @@
 //
 // iOS Safari の自動再生制限（最初のユーザー操作より前に音を出せない）は warmUpVoice() で守る。
 
-import { isClipAvailable, playClip, warmUpClips, cancelClip } from './clips';
+import { isClipAvailable, playClip, playAudioUrl, warmUpClips, cancelClip } from './clips';
 import { CLIP_URLS } from './voiceClips';
 import { speak, warmUpSpeech, cancelSpeech, isSpeechAvailable } from './speech';
 import { duckForVoice, unduckForVoice } from './bgm';
+import { VoiceSlot, voiceUrl } from '../personal/store';
 
-// 読み上げ1回ぶんの指定。clip=同梱クリップの基名（無ければ tier2 へ）/ text=フォールバック読み上げ文字列。
+// 読み上げ1回ぶんの指定。
+//   slot … おとなモードの録音スロット（tier0）。録音があればここが最優先。
+//   clip … 同梱クリップの基名（tier1）。
+//   text … tier2（speechSynthesis）で読むひらがな。
 export interface VoiceSpec {
+  slot?: VoiceSlot; // おじの声のスロット（'tsuita' | 'zenbu'）。録音があれば tier0 で再生。
   clip?: string; // 同梱クリップ基名（voiceClips のキー）。あれば tier1 で再生。
   text: string; // tier2（speechSynthesis）で読む文字列（ひらがな）。
 }
@@ -27,12 +36,14 @@ export interface VoiceSpec {
 // title … タイトルをタップして「おつかいめいろ」（タップ起点）。
 // tsuita … ゴール到達の「ついたね」（ClearOverlay。既存の clear 効果音のあとに遅らせて鳴らす）。
 // zenbu  … 全レベル制覇の「ぜんぶ できたね」（がんばりカード。fanfare 効果音のあとに鳴らす）。
-// clip 基名は将来 assets/voice/ に置く VOICEVOX ずんだもんクリップのファイル基名と一致させてある。
+// clip 基名は assets/voice/ に置いた VOICEVOX ずんだもんクリップのファイル基名と一致している。
+// slot はおとなモードで録れる「おじの声」の置き場（tsuita / zenbu の2つ）。title は同梱のまま
+// （アプリ名の読み上げなので差し替えの必要が薄い）。
 export type PhraseKey = 'title' | 'tsuita' | 'zenbu';
 export const PHRASE_VOICE: Record<PhraseKey, VoiceSpec> = {
   title: { clip: 'p_title', text: 'おつかいめいろ' },
-  tsuita: { clip: 'p_tsuita', text: 'ついたね' },
-  zenbu: { clip: 'p_zenbu', text: 'ぜんぶ できたね' },
+  tsuita: { slot: 'tsuita', clip: 'p_tsuita', text: 'ついたね' },
+  zenbu: { slot: 'zenbu', clip: 'p_zenbu', text: 'ぜんぶ できたね' },
 };
 
 // ── BGM ダッキング（声の再生中だけ BGM を沈める）─────────────────────
@@ -72,17 +83,20 @@ function beginDuck(): () => void {
   return finish;
 }
 
-// ── 再生（3段構えの解決）─────────────────────────────────────────────
+// ── 再生（4段構えの解決）─────────────────────────────────────────────
 // enabled=false なら何もしない（将来おとなモードで読み上げオフにする時の対応点）。
 export function playVoice(spec: VoiceSpec, opts?: { enabled?: boolean }): void {
   if (opts && opts.enabled === false) return;
   // 声が鳴っている間だけ BGM を沈める。鳴らせた tier の終了で finish（＝解除）が呼ばれる。
   const finish = beginDuck();
+  // ⓪ おじの声（おとなモードの録音。あれば同梱クリップより優先）
+  const personal = spec.slot ? voiceUrl(spec.slot) : null;
+  if (personal && playAudioUrl(personal, finish)) return;
   // ① 同梱クリップ
   if (isClipAvailable(spec.clip) && playClip(spec.clip as string, finish)) return;
   // ② speechSynthesis
   if (speak(spec.text, { enabled: true }, finish)) return;
-  // ③ 無音（どちらも鳴らせない）: ダッキングを即解除
+  // ③ 無音（どれも鳴らせない）: ダッキングを即解除
   finish();
 }
 

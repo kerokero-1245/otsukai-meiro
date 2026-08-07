@@ -1,6 +1,10 @@
 // 音声クリップ再生（tier1 / DESIGN §4 の3段構え「①同梱クリップ」担当）。
 // web では HTMLAudioElement で同梱クリップ（VOICEVOX 事前生成）を鳴らす。native は無音スタブ。
 //
+// フェーズ2（パーソナライズ）で playAudioUrl() を追加した。おとなモードで録った「おじの声」の
+// blob: URL を、同梱クリップと**まったく同じ経路**（同じ停止・同じ終了通知＝BGM ダッキング）で
+// 鳴らすため。どちらを鳴らすかは voice.ts が決める（tier0=おじの声 → tier1=同梱クリップ）。
+//
 // - iOS Safari の自動再生制限: 音は最初のユーザー操作より前には鳴らせない。タイトルの操作で
 //   warmUpClips() を1回呼び、（クリップがあれば）muted で1つ触ってエンジンをアンロックする。
 //   以降は自動再生（ゴール到達・がんばりカードの祝福など、タップ直後の非同期）も鳴る。1ページロードにつき1回で足りる。
@@ -64,14 +68,28 @@ export function cancelClip(): void {
   fireCurrentOnEnd();
 }
 
+// 任意の音声URLを、クリップと同じ経路（＝同じ停止・終了通知）で鳴らす。
+// おとなモードで録った「おじの声」（blob: URL / personal/store.ts）を tier0 として鳴らすのに使う。
+// 鳴らせたら true、無理なら false（呼び出し側が次の tier へ）。
+export function playAudioUrl(src: string, onEnd?: () => void): boolean {
+  if (!src) return false;
+  return playSrc(src, onEnd);
+}
+
 // name のクリップを再生する。鳴らせたら true、無理なら false（呼び出し側が tier2 へ）。
 // onEnd を渡すと ended/error/停止のいずれか最初の一度だけ呼ぶ（BGM ダッキング解除に使う）。
 export function playClip(name: string, onEnd?: () => void): boolean {
+  if (!hasClip(name)) return false;
+  return playSrc(CLIP_URLS[name], onEnd);
+}
+
+// 実体（クリップも録音も同じ HTMLAudioElement 経路で鳴らす）。
+function playSrc(src: string, onEnd?: () => void): boolean {
   const A = getAudioCtor();
-  if (!A || !hasClip(name)) return false;
+  if (!A) return false;
   try {
     cancelClip();
-    const a = new A(CLIP_URLS[name]);
+    const a = new A(src);
     current = a;
     if (onEnd) {
       let fired = false;
