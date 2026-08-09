@@ -37,6 +37,20 @@ const AVATAR_EMOJI = '🐥';
 // 1テンプレートあたりの作り直し上限。これを超えたらフォールバックへ。
 const MAX_ATTEMPTS = 50;
 
+// ②ならべてゴー（フェーズ4）で並べられる矢印の上限 = Level.maxSteps。
+// 「その迷路の実際の最短手数 ＋ よゆう4本」。短い迷路でも最低6本は置ける。
+//
+// なぜ固定値（例: 10本）にしないか: テンプレート⑤（4×4・障害物2〜3）は **最短10手** の迷路が
+// 起こりうる（全配置の全数探索で確認。採用されうる最短手数の最大は ①2 ②4 ③4 ④6 ⑤10）。
+// 固定10本だと、その迷路では「一本道の完璧な10手」しか許されず、まわり道もやり直しの余白も
+// 無くなってしまう。上限は「盤面の最短手数に対して十分な数」でなければならない（DESIGN §16）ので、
+// 生成時に判明した実際の最短手数から1迷路ごとに決める。
+export const QUEUE_SLACK = 4;
+export const QUEUE_MIN_CAPACITY = 6;
+export function queueCapacity(shortest: number): number {
+  return Math.max(QUEUE_MIN_CAPACITY, shortest + QUEUE_SLACK);
+}
+
 function randInt(n: number): number {
   return Math.floor(Math.random() * n);
 }
@@ -120,8 +134,11 @@ export function generateLevelDebug(template: Template): GenResult {
     start,
     goal,
     obstacles,
+    // あそびかたは既定の①。②で遊ぶかは端末の設定（settings.ts）なので、画面側で載せ替える
+    // （生成ロジックはモードを知らないまま＝①②で完全に同じ迷路が出る）。
     mode: 'tap',
-    maxSteps: minSteps, // ①では未使用。②（並べてゴー）用に最短手数を入れておく。
+    // 暫定値。実際の最短手数が分かった時点で finish() が queueCapacity() で入れ直す。
+    maxSteps: queueCapacity(minSteps),
     goalImage: null,
     goalVoice: null,
     goalEmoji,
@@ -144,18 +161,25 @@ export function generateLevelDebug(template: Template): GenResult {
     return null;
   };
 
+  // 採用が決まってから maxSteps（②で並べられる矢印の上限）を実際の最短手数で入れ直す。
+  const finish = (level: Level, stage: GenStage, shortest: number): GenResult => ({
+    level: { ...level, maxSteps: queueCapacity(shortest) },
+    stage,
+    shortest,
+  });
+
   // 本命: テンプレート通り。障害物数はレンジ [min,max] から毎回ランダムに選び直す。
   for (let a = 0; a < MAX_ATTEMPTS; a++) {
     const obstacleCount = obstacleMin + randInt(obstacleMax - obstacleMin + 1);
     const r = attempt(obstacleCount);
-    if (r) return { level: r.level, stage: 'natural', shortest: r.shortest };
+    if (r) return finish(r.level, 'natural', r.shortest);
   }
 
   // フォールバック1: 障害物を段階的に減らして通す（それでも遊べる迷路にする）。
   for (let oc = obstacleMin; oc >= 0; oc--) {
     for (let a = 0; a < MAX_ATTEMPTS; a++) {
       const r = attempt(oc);
-      if (r) return { level: r.level, stage: 'reduced', shortest: r.shortest };
+      if (r) return finish(r.level, 'reduced', r.shortest);
     }
   }
 
@@ -165,7 +189,7 @@ export function generateLevelDebug(template: Template): GenResult {
   const goal: Coord = { x: cols - 1, y: rows - 1 };
   const level = build(start, goal, []);
   const shortest = bfsShortest(level) ?? cols - 1 + (rows - 1);
-  return { level, stage: 'corner', shortest };
+  return finish(level, 'corner', shortest);
 }
 
 // テンプレートから迷路を1つ生成する（アプリ本体が使う公開API）。
