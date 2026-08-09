@@ -134,9 +134,7 @@ export function generateLevelDebug(template: Template): GenResult {
     start,
     goal,
     obstacles,
-    // あそびかたは既定の①。②で遊ぶかは端末の設定（settings.ts）なので、画面側で載せ替える
-    // （生成ロジックはモードを知らないまま＝①②で完全に同じ迷路が出る）。
-    mode: 'tap',
+    // 生成ロジックは あそびかた（①/②）を知らない＝①でも②でも完全に同じ迷路が出る。
     // 暫定値。実際の最短手数が分かった時点で finish() が queueCapacity() で入れ直す。
     maxSteps: queueCapacity(minSteps),
     goalImage: null,

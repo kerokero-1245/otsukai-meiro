@@ -6,8 +6,10 @@
 //   取り消しは単発タップで成立する手段を **1つだけ** に絞る（ドラッグ・長押しは使わない / §4）。
 // - 実行中は、いま動いている命令が緑に光り、済んだ命令は薄くなる。
 //   「言われたとおりに、順に動いている」を目で追えるようにする（＝観察）。
-// - 高さの見積り（measureQueueStrip）は PlayScreen の高さバジェット計算から呼ぶ。
-//   帯・盤面・方向パッドが重ならないよう、先に帯の高さを確定させてから盤面のマス寸法を決める。
+// - 帯の高さは **上限本数によらず一定**（＝⌫ の巨大タップ領域ぶんだけ）。
+//   矢印のマスは表示だけなので、その一定の高さに収まるよう大きさのほうを合わせる。
+//   こうしないと「上限9本＝2行×大きいマス」が「上限14本＝2行×小さいマス」より帯が厚くなり、
+//   いちばんよく出る迷路がいちばん盤面を損する（非単調）という逆転が起きる。
 
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -15,11 +17,14 @@ import { Direction } from '../types';
 import { colors, radius } from '../theme';
 
 export const CHIP_GAP = 8; // マスとマスのすきま
-export const UNDO_W = 60; // ⌫ ボタンの幅
-const MAX_PER_ROW = 7; // 1行に並べる最大数（超えたら2行に折り返して1マスを大きく保つ）
-const CHIP_MIN = 22;
+// ⌫ の一辺。§4 の巨大タップ領域（64pt以上）をボタンの実寸で満たす。
+// react-native-web は hitSlop を **無視する**（実測）ので、当たり判定は箱の大きさで確保する。
+export const UNDO_SIZE = 64;
+// 帯の高さ。ここを一定にすることで、上限本数が増えても帯が厚くならない（＝盤面が痩せない）。
+export const BAND_H = UNDO_SIZE;
+const MAX_ROWS = 3; // 折り返しの上限（上限本数は最大14本なので実際は1〜2行）
+const CHIP_MIN = 6; // 極端に細い画面での保険（表示だけなので、つぶれても操作は壊れない）
 const CHIP_MAX = 44;
-const BAND_MIN = 56; // ⌫ の縦のタップ領域を確保するための帯の最低高さ
 
 const GLYPH: Record<Direction, string> = {
   up: '▲',
@@ -42,18 +47,26 @@ export interface QueueStripMetrics {
   height: number; // 帯全体の高さ
 }
 
-// 帯の寸法を先に決める（PlayScreen の高さバジェット用の純粋関数）。
-// 上限本数（capacity）は迷路ごとに変わる（generate.ts の queueCapacity）ので、
-// 横幅に収まらないときは2行に折り返し、1マスが小さくなりすぎないようにする。
+// 帯の寸法を決める（PlayScreen の高さバジェット用の純粋関数）。
+// 高さは常に BAND_H。上限本数（capacity）は迷路ごとに変わる（generate.ts の queueCapacity）ので、
+// **その一定の高さと横幅の両方に収まる中でいちばん大きくなる並べ方** を選ぶ。
+// 1行に収まるなら1行（並べた順が左から右に素直に読める）、幅が足りなければ折り返す。
 export function measureQueueStrip(width: number, capacity: number): QueueStripMetrics {
   const cap = Math.max(1, Math.floor(capacity));
-  const rows = Math.max(1, Math.ceil(cap / MAX_PER_ROW));
-  const perRow = Math.ceil(cap / rows);
-  const usable = Math.max(120, width - UNDO_W - CHIP_GAP);
-  const raw = Math.floor((usable - CHIP_GAP * (perRow - 1)) / perRow);
-  const chip = Math.max(CHIP_MIN, Math.min(raw, CHIP_MAX));
-  const height = Math.max(BAND_MIN, rows * chip + (rows - 1) * CHIP_GAP);
-  return { chip, perRow, rows, height };
+  const usable = Math.max(60, width - UNDO_SIZE - CHIP_GAP);
+
+  let best = { chip: 0, perRow: cap, rows: 1 };
+  for (let r = 1; r <= MAX_ROWS; r++) {
+    const perRow = Math.ceil(cap / r);
+    const rows = Math.ceil(cap / perRow); // 実際に使う行数（空の行を作らない）
+    const byW = Math.floor((usable - CHIP_GAP * (perRow - 1)) / perRow);
+    const byH = Math.floor((BAND_H - CHIP_GAP * (rows - 1)) / rows);
+    const chip = Math.min(byW, byH, CHIP_MAX);
+    // 同点なら行数の少ないほう（先に見たほう）を残す。
+    if (chip > best.chip) best = { chip, perRow, rows };
+  }
+
+  return { chip: Math.max(CHIP_MIN, best.chip), perRow: best.perRow, rows: best.rows, height: BAND_H };
 }
 
 interface Props {
@@ -114,24 +127,23 @@ export default function CommandQueue({
       : `めいれいの れつ: ${queue.map((d) => LABEL[d]).join('、')}`;
 
   const undoOff = disabled || queue.length === 0;
-  const undoH = Math.min(height, 64);
 
   return (
     <View style={[styles.band, { height }]}>
       <View style={styles.slots} accessible accessibilityLabel={readOut}>
         {rowNodes}
       </View>
+      {/* 帯のなかで唯一のボタン。一辺 64px の実寸で巨大タップ領域を満たす（hitSlop に頼らない）。*/}
       <Pressable
         onPress={onUndo}
         disabled={undoOff || undefined}
         accessibilityRole="button"
         accessibilityLabel="さいごの やじるしを けす"
-        hitSlop={8}
         style={({ pressed }) => [
           styles.undo,
           {
-            width: UNDO_W,
-            height: undoH,
+            width: UNDO_SIZE,
+            height: UNDO_SIZE,
             opacity: undoOff ? 0.3 : 1,
             backgroundColor: pressed ? '#F0EADD' : colors.surface,
           },

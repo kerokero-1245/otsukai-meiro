@@ -55,14 +55,14 @@ const STEP_GAP_MS = 110;
 // 列を全部実行してもゴールに届かなかったとき、首をかしげ始めるまでの間。
 const MISS_PAUSE_MS = 320;
 
-// 生成した迷路に「このプレイのゴールの見た目」と「あそびかた」を載せる。
+// 生成した迷路に「このプレイのゴールの見た目」を載せる。
 // おとなモードで写真が入っていれば一定の割合で写真をゴールにする（personal/store.ts）。
 // 写真が無い／保存が使えない環境では null のまま＝従来どおり絵文字プールのゴール。
-// mode が 'tap'（既定）のときは生成結果をそのまま返す（＝フェーズ1と完全に同じ）。
-function decorate(level: Level, mode: LevelMode): Level {
+// あそびかた（①/②）は迷路には載せない。画面が settings の値で描き分けるだけなので、
+// 生成される迷路は①でも②でも同一（DESIGN §16.3）。
+function decorate(level: Level): Level {
   const photo = pickGoalPhotoUrl();
-  const withPhoto = photo ? { ...level, goalImage: photo } : level;
-  return mode === 'queue' ? { ...withPhoto, mode } : withPhoto;
+  return photo ? { ...level, goalImage: photo } : level;
 }
 
 export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll }: Props) {
@@ -79,7 +79,7 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
   // 新しい迷路を作る（さんすうドリルのように何回も遊べる）。テンプレートが無い保険では null。
   // key={templateId}（App.tsx）で画面はテンプレートごとに作り直されるので、初期生成は1回。
   const [level, setLevel] = useState<Level | null>(() =>
-    template ? decorate(generateLevel(template), playMode) : null
+    template ? decorate(generateLevel(template)) : null
   );
 
   // --- ②ならべてゴー の状態（①では触らない）---
@@ -101,22 +101,33 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
   const availH = Math.max(height - (space.lg + space.md), 320); // 縦に使える高さ（frame の上下パディングぶん）
   const HEADER_H = 64; // 上段（おうち＋ゴール案内）にみておく高さ
   const GAP = space.md; // 盤と方向パッドのあいだの最小余白
+  const CELL_MIN = 44; // めいろのマスの下限
+  const DIR_MIN = 52; // 方向ボタンの下限（ここまで来たらもう譲らない）
 
-  // ②だけ増える「命令の列」の帯。先に高さを確定させてから盤面のマス寸法を決める（重なり防止）。
+  // ②だけ増える「命令の列」の帯。高さは上限本数によらず一定（CommandQueue の BAND_H）。
   const strip = isQueue ? measureQueueStrip(contentW, capacity) : null;
   const stripH = strip ? strip.height + space.sm : 0; // 帯の高さ＋上マージン
 
-  // 方向パッド: 幅と「高さの持ちぶん」の両方から1辺を決める（背の低い画面では小さくする）。
-  const bodyH = Math.max(availH - HEADER_H - stripH, 200);
-  const padBudget = Math.min(bodyH * 0.42, 340); // 方向パッド帯に割り当てる高さの上限
+  // 縦の配りかた。②で帯が1段増えても、**タップ標的（方向ボタン・ゴー!）は①と同じ大きさ**を保つ
+  // （§4 の巨大タップ領域は遊びかたで変わってはいけない）。帯が食う縦は、優先度の低いほうから
+  // 　タップ標的 ＞ 盤面のマス ＞ 帯のマスの見た目
+  // の順で返す。＝ 帯の高さは方向パッドの取り分から引かない（引くのは盤面から）。
+  const bodyH = Math.max(availH - HEADER_H, 200);
+  let padBudget = Math.min(bodyH * 0.42, 340); // 方向パッド帯に割り当てる高さの上限
+  if (stripH > 0) {
+    // 例外: 盤面が下限のマスすら置けないほど縦が足りない画面では、足りないぶんだけ方向パッドが譲る
+    //（重なりを出さないことが最優先。DIR_MIN より小さくはしない）。
+    const padRoom = bodyH - stripH - GAP - rows * CELL_MIN;
+    padBudget = Math.min(padBudget, Math.max(padRoom, DIR_MIN * 3.3 + space.md));
+  }
   const dirByH = Math.floor((padBudget - space.md) / 3.3); // 3行＋行間＋下パディングぶん
   const dirByW = Math.floor(contentW / 3.4);
-  const dirSize = Math.max(52, Math.min(dirByH, dirByW, 100));
+  const dirSize = Math.max(DIR_MIN, Math.min(dirByH, dirByW, 100));
   const padAreaH = Math.ceil(dirSize * 3.3) + space.md; // 実際に方向パッド帯が占める高さの見積り
 
   // めいろのマス: 残り高さと幅の小さいほうに収める。下限も小さめにして絶対にあふれさせない。
-  const boardBudgetH = Math.max(bodyH - padAreaH - GAP, rows * 44);
-  const cell = Math.max(44, Math.floor(Math.min(contentW / cols, boardBudgetH / rows, 116)));
+  const boardBudgetH = Math.max(bodyH - stripH - padAreaH - GAP, rows * CELL_MIN);
+  const cell = Math.max(CELL_MIN, Math.floor(Math.min(contentW / cols, boardBudgetH / rows, 116)));
 
   // --- アバターの状態（論理位置は ref、見た目は Animated 値で駆動）---
   const start = level?.start ?? { x: 0, y: 0 };
@@ -151,7 +162,7 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
   const reset = useCallback(() => {
     if (!template) return;
     runTokenRef.current++; // 走っている実行があれば打ち切る（②）
-    const nextLevel = decorate(generateLevel(template), playMode);
+    const nextLevel = decorate(generateLevel(template));
     setLevel(nextLevel);
     animatingRef.current = false;
     posRef.current = nextLevel.start;
@@ -162,7 +173,7 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
     setQueue([]);
     setRunning(false);
     setStepIndex(-1);
-  }, [template, playMode, cell, avatarPos, avatarTilt]);
+  }, [template, cell, avatarPos, avatarTilt]);
 
   // 動けないときの「首をかしげる」演出。②では1歩ぶんの待ちとしても使うので Promise を返す。
   // subdued（prefers-reduced-motion）のときは回転させず、同じ長さだけ間を置く。

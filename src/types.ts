@@ -38,7 +38,8 @@ export interface Level {
   start: Coord; // アバターの初期位置
   goal: Coord; // ゴールのマス
   obstacles: Coord[]; // 通れないマス（無ければ空配列）
-  mode: LevelMode; // 'tap' | 'queue'
+  // あそびかた（①/②）は Level に持たせない。端末の設定（settings.ts）をプレイ画面が読んで
+  // 描き分けるだけで、生成される迷路は①でも②でも同一（DESIGN §16.3）。
   maxSteps: number; // ②で並べられる最大手数（①では無視）
   goalImage: string | null; // 差し替え後の写真パス。null → 既定イラスト（goalEmoji）
   goalVoice: string | null; // 差し替え後の音声パス。null → 既定SE
