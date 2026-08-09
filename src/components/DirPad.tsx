@@ -10,6 +10,12 @@ import { colors, radius } from '../theme';
 interface Props {
   onDir: (d: Direction) => void;
   size: number; // ボタン1つの一辺
+  // 十字のまんなかに置くもの（②ならべてゴー の「ゴー!」ボタン）。
+  // 省略時（＝①タップモード）は従来どおり空きスペースのまま。
+  center?: React.ReactNode;
+  // ②の実行中だけ true。押しても何も起きない（押下色も出さない）。
+  // 省略時は undefined のまま Pressable に渡すので、①の描画は従来と完全に同じ。
+  disabled?: boolean;
 }
 
 const GLYPH: Record<Direction, string> = {
@@ -26,10 +32,21 @@ const LABEL: Record<Direction, string> = {
   right: 'みぎ',
 };
 
-function DirButton({ dir, size, onDir }: { dir: Direction; size: number; onDir: (d: Direction) => void }) {
+function DirButton({
+  dir,
+  size,
+  onDir,
+  disabled,
+}: {
+  dir: Direction;
+  size: number;
+  onDir: (d: Direction) => void;
+  disabled?: boolean;
+}) {
   return (
     <Pressable
       onPress={() => onDir(dir)}
+      disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={LABEL[dir]}
       hitSlop={8}
@@ -43,24 +60,24 @@ function DirButton({ dir, size, onDir }: { dir: Direction; size: number; onDir: 
   );
 }
 
-export default function DirPad({ onDir, size }: Props) {
+export default function DirPad({ onDir, size, center, disabled }: Props) {
   const gap = Math.round(size * 0.14);
   const Spacer = () => <View style={{ width: size, height: size }} />;
   return (
     <View style={{ alignItems: 'center' }}>
       <View style={[styles.row, { marginBottom: gap }]}>
         <Spacer />
-        <DirButton dir="up" size={size} onDir={onDir} />
+        <DirButton dir="up" size={size} onDir={onDir} disabled={disabled} />
         <Spacer />
       </View>
       <View style={[styles.row, { marginBottom: gap }]}>
-        <DirButton dir="left" size={size} onDir={onDir} />
-        <View style={[styles.centerGap, { width: size, height: size }]} />
-        <DirButton dir="right" size={size} onDir={onDir} />
+        <DirButton dir="left" size={size} onDir={onDir} disabled={disabled} />
+        <View style={[styles.centerGap, { width: size, height: size }]}>{center}</View>
+        <DirButton dir="right" size={size} onDir={onDir} disabled={disabled} />
       </View>
       <View style={styles.row}>
         <Spacer />
-        <DirButton dir="down" size={size} onDir={onDir} />
+        <DirButton dir="down" size={size} onDir={onDir} disabled={disabled} />
         <Spacer />
       </View>
     </View>

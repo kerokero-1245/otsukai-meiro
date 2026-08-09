@@ -16,6 +16,7 @@ import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import { colors, font, radius, space } from '../theme';
 import BigButton from '../components/BigButton';
 import { clearedCount, resetProgress } from '../progress';
+import { getPlayMode, setPlayMode } from '../settings';
 import { isBgmOn, setBgmOn } from '../audio/bgm';
 import { sayPhrase, warmUpVoice, cancelVoice } from '../audio/voice';
 import {
@@ -57,6 +58,8 @@ export default function OtonaScreen({ onBack }: Props) {
   const [confirming, setConfirming] = useState(false);
   const [done, setDone] = useState(false);
   const [bgmOn, setBgmOnState] = useState(() => isBgmOn());
+  // あそびかた（① タップで すすむ ／ ② ならべて ゴー!）。既定は①（DESIGN §3 / §16）。
+  const [queueMode, setQueueMode] = useState(() => getPlayMode() === 'queue');
 
   // 在庫（写真・録音）の変化を拾って描き直すためのカウンタ。
   const [, bump] = useState(0);
@@ -108,6 +111,13 @@ export default function OtonaScreen({ onBack }: Props) {
     const next = !bgmOn;
     setBgmOn(next);
     setBgmOnState(next);
+  };
+
+  // あそびかたの切替（保存キー meiro.mode・既定 ①）。こども側の見た目は②にしたときだけ変わる。
+  const togglePlayMode = () => {
+    const next = !queueMode;
+    setPlayMode(next ? 'queue' : 'tap');
+    setQueueMode(next);
   };
 
   const doReset = () => {
@@ -414,6 +424,33 @@ export default function OtonaScreen({ onBack }: Props) {
             {voiceMsg ? <Text style={styles.note}>{voiceMsg}</Text> : null}
           </>
         )}
+      </View>
+
+      {/* あそびかた（①タップで すすむ / ②ならべて ゴー!）。DESIGN §3 の二段階を切り替える。
+          既定は①なので、ここを触らないかぎり こども側はフェーズ1のままで何も変わらない。 */}
+      <View style={styles.card}>
+        <Text style={styles.sectionTitle}>あそびかた</Text>
+        <Text style={styles.note}>
+          ① タップで すすむ … やじるしを おすと、その場で 1マス うごきます（きほん）。
+        </Text>
+        <Text style={styles.note}>
+          ② ならべて ゴー! … やじるしを ならべてから「ゴー!」で いっきに うごきます。
+          じゅんばんを 先に かんがえる あそび（プログラミングの 第一歩）。①に なれてから どうぞ。
+          うまく いかなくても、ぴよが スタートに もどるだけ です（しっぱい・タイマーは ありません）。
+        </Text>
+        <Text style={styles.note}>
+          いま: {queueMode ? '② ならべて ゴー!' : '① タップで すすむ'}
+        </Text>
+        <View style={styles.resetWrap}>
+          <BigButton
+            emoji={queueMode ? '🧩' : '👆'}
+            label={queueMode ? '② ならべて ゴー!' : '① タップで すすむ'}
+            onPress={togglePlayMode}
+            color={queueMode ? colors.play : colors.button}
+            pressedColor={queueMode ? colors.playPressed : colors.buttonPressed}
+          />
+        </View>
+        <Text style={styles.note}>タップで きりかえ（つぎに ひらく めいろから）</Text>
       </View>
 
       {/* ごほうび（⭐）のリセット。子どもの誤操作で消えないよう確認を1枚はさむ。 */}
