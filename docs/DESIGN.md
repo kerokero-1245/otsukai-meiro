@@ -276,7 +276,7 @@ MVPは**この端末1台・姪っ子1人**が主役。将来「離れたおじ�
 
 ## 8. 技術構成
 
-1本目 kore-daijobu と**同じスタックを再利用**（Expo SDK 57 / React Native / TypeScript、`src/screens`・`src/components`・`src/data` 構成、Node 20.20.0）。バックエンド（Supabase）は**使わない**。
+1本目 kore-daijobu と**同じスタックを再利用**（Expo SDK 57 / React Native / TypeScript、`src/screens`・`src/components`・`src/data` 構成、Node 22.23.3）。バックエンド（Supabase）は**使わない**。
 
 | 役割 | 技術 | 用途 |
 |---|---|---|
@@ -303,7 +303,7 @@ Expo は同一コードを web でも動かせるが、ブラウザ特有の制�
 
 ### 開発環境メモ
 
-- Node は **v20（.nvmrc: 20.20.0）**。macOS 既定の v16 では Expo が動かない。
+- Node は **v22（.nvmrc: 22.23.3）**。macOS 既定の v16 では Expo が動かない。
 - リポジトリ名は `otsukai-meiro`（アプリ名「おつかいめいろ」確定に伴いリネーム済み）。
 
 ---

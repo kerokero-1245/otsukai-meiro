@@ -28,11 +28,11 @@
 - 作り手（おじ/おば）は遠方在住 — 離れていても関われる要素を重視
 - MVPはコア機能1つに絞る。まず姪っ子1人が喜べばOK、ストア公開は二の次
 - 完全オフライン: バックエンド・アカウント・通信なし。データは端末内のみ
-- 技術: Expo SDK 57 (React Native + TypeScript)、Node 20.20.0
+- 技術: Expo SDK 57 (React Native + TypeScript)、Node 22.23.3
 
 ## 動かし方
 
-前提: **Node 20.20.0**（macOS 既定の v16 では Expo が動かない）。nvm なら `nvm use`（`.nvmrc` に 20.20.0）。
+前提: **Node 22.23.3**（macOS 既定の v16 では Expo が動かない）。nvm なら `nvm use`（`.nvmrc` に 22.23.3）。
 
 ```sh
 npm install          # 初回のみ
