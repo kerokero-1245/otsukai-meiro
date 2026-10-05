@@ -10,9 +10,10 @@
 // このアプリの声は「効果音（sounds.ts の合成音）」とは別レイヤー。喧嘩しないよう、声は効果音の
 // あとに少し遅らせて鳴らす（呼び出し側の setTimeout で順序を作る。ゴール到達・がんばりカードを参照）。
 //
-// クリップ（tier1）は今回まだ同梱していない（voiceClips.CLIP_URLS は空）。よって現状は必ず ②→③ に
-// 落ちる。定型フレーズごとに「クリップ基名」を対応付けてあるので、後工程で assets/voice/ に VOICEVOX
-// ずんだもんの m4a を置き voiceClips に登録すれば、同じ呼び出しのまま tier1 が効く（画面の変更は不要）。
+// クリップ（tier1）は定型フレーズ3つ（p_title / p_tsuita / p_zenbu）とも assets/voice/ に同梱し、
+// voiceClips.CLIP_URLS に登録してある（VOICEVOX ずんだもん）。クリップを鳴らせない環境（native 等）では
+// ②→③ に落ちる。フレーズを足すときは m4a を置いて voiceClips に1行登録すれば、同じ呼び出しのまま
+// tier1 が効く（画面の変更は不要）。
 //
 // iOS Safari の自動再生制限（最初のユーザー操作より前に音を出せない）は warmUpVoice() で守る。
 

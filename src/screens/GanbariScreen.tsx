@@ -50,7 +50,8 @@ export default function GanbariScreen({ onDone }: Props) {
       }, fanfareAt)
     );
     // ずんだもんの声「ぜんぶ できたね」。fanfare 効果音（約1秒）のあとに鳴らして喧嘩させない。
-    // クリップ未同梱の現状は speechSynthesis で読み上げ、非対応環境では無音（文字だけで成立）。
+    // 鳴る声は おじの録音 → 同梱クリップ（p_zenbu）→ speechSynthesis → 無音 の順（voice.ts）。
+    // どれも鳴らせない環境でも文字だけで成立する。
     timers.push(
       setTimeout(() => {
         sayPhrase('zenbu');

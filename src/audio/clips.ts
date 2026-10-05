@@ -8,7 +8,7 @@
 // - iOS Safari の自動再生制限: 音は最初のユーザー操作より前には鳴らせない。タイトルの操作で
 //   warmUpClips() を1回呼び、（クリップがあれば）muted で1つ触ってエンジンをアンロックする。
 //   以降は自動再生（ゴール到達・がんばりカードの祝福など、タップ直後の非同期）も鳴る。1ページロードにつき1回で足りる。
-// - クリップ未同梱（voiceClips の CLIP_URLS が空）なら全て no-op。呼び出し側（voice.ts）が
+// - CLIP_URLS に登録の無い基名・native・Audio の無い環境では何もしない（no-op）。呼び出し側（voice.ts）が
 //   speechSynthesis（tier2）へフォールバックする。
 // - 外部送信ゼロ: 同梱アセットのみ。ネットワークは使わない。
 //
@@ -36,7 +36,7 @@ function getAudioCtor(): AudioCtor | null {
   }
 }
 
-// この基名のクリップを tier1 で鳴らせるか（native/非対応/未同梱では false）。
+// この基名のクリップを tier1 で鳴らせるか（native/非対応/登録の無い基名では false）。
 export function isClipAvailable(name: string | undefined): boolean {
   return getAudioCtor() != null && hasClip(name);
 }
@@ -121,7 +121,7 @@ function playSrc(src: string, onEnd?: () => void): boolean {
 }
 
 // タイトルの操作で1回呼ぶ。クリップがあれば muted で1つ触ってアンロック（iOS Safari 対策）。
-// クリップ未同梱なら no-op。
+// 登録されたクリップが1つも無ければ no-op。
 let warmed = false;
 export function warmUpClips(): void {
   if (warmed) return;
@@ -129,7 +129,7 @@ export function warmUpClips(): void {
   const A = getAudioCtor();
   if (!A) return;
   const first = Object.keys(CLIP_URLS)[0];
-  if (!first) return; // クリップ未同梱: 何もしない
+  if (!first) return; // 登録の無い状態: 何もしない
   try {
     const a = new A(CLIP_URLS[first]);
     a.muted = true;

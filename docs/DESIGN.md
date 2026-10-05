@@ -278,19 +278,30 @@ MVPは**この端末1台・姪っ子1人**が主役。将来「離れたおじ�
 
 1本目 kore-daijobu と**同じスタックを再利用**（Expo SDK 57 / React Native / TypeScript、`src/screens`・`src/components`・`src/data` 構成、Node 22.23.3）。バックエンド（Supabase）は**使わない**。
 
-| 役割 | 技術 | 用途 |
-|---|---|---|
-| アプリ基盤 | **Expo SDK 57 / React Native / TypeScript** | kore-daijobu と同一。実機は Expo Go でテスト |
-| 画面遷移 | @react-navigation/native + native-stack | タイトル→レベルえらび→プレイ→クリア／おとなモード |
-| アニメーション | **react-native-reanimated** | アバターのマス移動、ぷるん着地、紙吹雪・ズームの祝福演出 |
-| 効果音・音声 | **expo-audio** | 掛け声・SE再生、おじの声の**録音** |
-| 写真取り込み | **expo-image-picker** | ゴール写真の差し替え（カメラロール／撮影） |
-| ファイル保存 | **expo-file-system** | 選んだ写真・録音を端末内にコピー保存 |
-| ローカル保存 | **@react-native-async-storage/async-storage** | 上書き差分・進捗の永続化 |
-| 画像表示 | expo-image（または RN Image） | 写真・イラストの表示 |
-| ハプティクス（任意） | expo-haptics | タップ・到着の触覚フィードバック |
+**npm の依存は `package.json` の dependencies にある7つだけ**（`expo` / `expo-status-bar` / `@expo/metro-runtime` /
+`react` / `react-dom` / `react-native` / `react-native-web`。devDependencies は `typescript` と `@types/react`）。
+当初は下の表の右の列のライブラリを入れる計画だったが、Webファースト（§0）にしたことで、どれも
+React Native の標準 API かブラウザ標準 API で足りたため、**追加のライブラリは入れていない**。
 
-> **実装前に必ず** Expo SDK 57 の公式ドキュメント（`https://docs.expo.dev/versions/v57.0.0/`）で各ライブラリの**最新の導入手順・API名**を確認する（reanimated の babel プラグイン設定、expo-audio の権限まわり等）。SDKごとにAPIが変わるため、記憶で書かない。
+| 役割 | 実装（いま使っているもの） | 用途 | 当初の計画（入れていない） |
+|---|---|---|---|
+| アプリ基盤 | **Expo SDK 57 / React Native / TypeScript**（`expo`・`react-native`・`react-native-web`） | kore-daijobu と同一。Web に書き出して配る | — |
+| 画面遷移 | `App.tsx` の**最小ステートルーター**（`useState` で画面を切り替える） | タイトル→レベルえらび→プレイ→クリア／おとなモード。文字ヘッダ無しの全画面遷移 | @react-navigation/native + native-stack |
+| アニメーション | React Native 標準の **`Animated`** | アバターのマス移動・首かしげ・ぴょん、紙吹雪・ズームの祝福演出 | react-native-reanimated |
+| 効果音・BGM | **Web Audio API** でその場合成（`audio/sounds.ts`・`audio/bgm/`） | タップ・移動・首かしげ・クリアの効果音、オルゴール風 BGM | expo-audio |
+| 声の再生 | **`HTMLAudioElement`**（同梱クリップ・おじの録音）→ **Web Speech API**（`speechSynthesis`） | 「おつかいめいろ」「ついたね」「ぜんぶ できたね」 | expo-audio |
+| 声の録音 | **`getUserMedia` + `MediaRecorder`**（`personal/recorder.ts`） | おじの声の録音（§15.3） | expo-audio |
+| 写真取り込み | 隠し **`<input type=file>`** + **canvas** で縮小（`personal/filePicker.ts`・`personal/image.ts`） | ゴール写真の差し替え（§15.2） | expo-image-picker |
+| 写真・録音の保存 | **IndexedDB**（`personal/idb.ts`。DB名 `meiro-personal`） | 端末内に保存（§15.4） | expo-file-system |
+| 進捗・設定の保存 | **`localStorage`**（`progress.ts`・`settings.ts`・`audio/bgm.ts`） | ⭐・累計・あそびかた・BGM の ON/OFF | @react-native-async-storage/async-storage |
+| 画像表示 | React Native 標準の **`Image`**（SVG 素材・写真） | シールポップ絵・写真の表示 | expo-image |
+| ハプティクス | 使っていない | — | expo-haptics（任意） |
+| ステータスバー | `expo-status-bar` | 文字色を暗くする | — |
+
+ネイティブ（iOS/Android）では、上のブラウザ API の部分は `Platform` 分岐で「つかえない」「無音」を返すスタブになる
+（こども側の遊びは壊れない）。ネイティブで写真・録音を使えるようにするときに、右の列のライブラリを検討する。
+
+> **ライブラリを足すときは必ず** Expo SDK 57 の公式ドキュメント（`https://docs.expo.dev/versions/v57.0.0/`）で**最新の導入手順・API名**を確認する（reanimated の babel プラグイン設定、expo-audio の権限まわり等）。SDKごとにAPIが変わるため、記憶で書かない。
 
 ### Web対応の注意（Webファースト前提 / §0）
 
@@ -567,10 +578,14 @@ src/screens/OtonaScreen.tsx おとなモードUI（ScrollView 化・しゃしん
 
 | ビューポート | ①方向ボタン | ②方向ボタン | ①マス | ②マス | ②の帯 |
 |---|---|---|---|---|---|
-| 390×844 | 87 | **87** | 87 | 82 | 64 |
-| 515×684 | 66 | **66** | 78 | 59 | 64 |
-| 1280×800 | 81 | **81** | 95 | 76 | 64 |
-| 360×640 | 61 | **61** | 71 | 52 | 64 |
+| 390×844 | 87 | **87** | 86 | 80 | 64 |
+| 515×684 | 66 | **66** | 77 | 58 | 64 |
+| 1280×800 | 81 | **81** | 93 | 74 | 64 |
+| 360×640 | 61 | **61** | 70 | 51 | 64 |
+
+（2026-10-06 に再計測。盤の外寸を「マス目全体＋枠線 3px×2」に直し、マスの大きさも枠線のぶんを
+引いてから割るようにしたため、マスは以前の値より 1〜2px 小さい。方向ボタン・帯は変わらない。
+以前はマス目が枠線の内側より 6px 大きく、右と下の枠線にかぶっていた。）
 
 ②の方向ボタンと「ゴー!」は、どの画面でも**①と同じ一辺**（＝64px以上。360×640 だけは①自体が
 61pxなのでそこまで）。⌫ は **64×64 の実寸**で確保する — react-native-web は `hitSlop` を
