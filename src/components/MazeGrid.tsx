@@ -12,6 +12,12 @@ import GoalArt from './GoalArt';
 
 const OBSTACLE_EMOJI = '🌳';
 
+// 盤の枠線の太さ。枠の大きさは「マス目全体＋左右（上下）の枠線」にする。
+// 以前はマス目全体の大きさ（cell×列数）を枠の外寸にしていたため、枠線のぶん内側が狭くなり、
+// マス目が右と下で枠線に 6px かぶっていた（左上は枠線の内側から始まるので、右下だけずれる）。
+// PlayScreen のマスの大きさの計算でも、この太さを差し引いてから割る。
+export const BOARD_BORDER = 3;
+
 interface Props {
   level: Level;
   cell: number; // 1マスのピクセルサイズ
@@ -21,8 +27,9 @@ interface Props {
 }
 
 export default function MazeGrid({ level, cell, avatarPos, avatarTilt, goalEmoji }: Props) {
-  const boardW = cell * level.cols;
-  const boardH = cell * level.rows;
+  // 外寸（枠線こみ）。枠線の内側がちょうどマス目全体になる。
+  const boardW = cell * level.cols + BOARD_BORDER * 2;
+  const boardH = cell * level.rows + BOARD_BORDER * 2;
 
   // ゴールをそっと目立たせるゆるやかな拍動（§4 強い点滅は避ける）。
   const pulse = useRef(new Animated.Value(1)).current;
@@ -142,7 +149,7 @@ const styles = StyleSheet.create({
   board: {
     backgroundColor: colors.boardBg,
     borderRadius: radius.md,
-    borderWidth: 3,
+    borderWidth: BOARD_BORDER,
     borderColor: colors.tileBorder,
     position: 'relative',
     shadowColor: '#00000055',

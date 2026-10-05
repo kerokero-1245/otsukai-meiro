@@ -32,7 +32,7 @@ import { playSound } from '../audio/sounds';
 import { allCleared, bumpTotalStars, hasCelebratedAll, markCleared } from '../progress';
 import { getPlayMode } from '../settings';
 import { useReducedMotion } from '../a11y';
-import MazeGrid from '../components/MazeGrid';
+import MazeGrid, { BOARD_BORDER } from '../components/MazeGrid';
 import DirPad from '../components/DirPad';
 import ClearOverlay from '../components/ClearOverlay';
 import BigButton from '../components/BigButton';
@@ -126,8 +126,13 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
   const padAreaH = Math.ceil(dirSize * 3.3) + space.md; // 実際に方向パッド帯が占める高さの見積り
 
   // めいろのマス: 残り高さと幅の小さいほうに収める。下限も小さめにして絶対にあふれさせない。
+  // 盤の外寸はマス目全体＋枠線（MazeGrid の BOARD_BORDER）なので、枠線のぶんを引いてから割る。
   const boardBudgetH = Math.max(bodyH - stripH - padAreaH - GAP, rows * CELL_MIN);
-  const cell = Math.max(CELL_MIN, Math.floor(Math.min(contentW / cols, boardBudgetH / rows, 116)));
+  const frameLine = BOARD_BORDER * 2;
+  const cell = Math.max(
+    CELL_MIN,
+    Math.floor(Math.min((contentW - frameLine) / cols, (boardBudgetH - frameLine) / rows, 116))
+  );
 
   // --- アバターの状態（論理位置は ref、見た目は Animated 値で駆動）---
   const start = level?.start ?? { x: 0, y: 0 };
