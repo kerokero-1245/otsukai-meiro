@@ -6,7 +6,7 @@
 // 自動で「ぜんぶ できたね! がんばりカード」へ進む（onCelebrateAll）。4歳が確実に大祝福に辿り着けるように。
 
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, Platform, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { colors, font, space } from '../theme';
 import { playSound } from '../audio/sounds';
 import { sayPhrase, cancelVoice } from '../audio/voice';
@@ -14,6 +14,12 @@ import BigButton from './BigButton';
 import Confetti from './Confetti';
 import PiyoArt from './PiyoArt';
 import GoalArt from './GoalArt';
+
+// 暗幕は画面全体に敷く。このオーバーレイは最大幅 480 の枠（App.tsx の frame）の内側に置かれるので、
+// absolute のままだと広い画面では枠の中だけが暗くなる。web では position: fixed でビューポート全体を覆う
+// （react-native-web は fixed をそのまま CSS に渡す。RN の型には無いので型だけ合わせる）。
+const BACKDROP_FULL: ViewStyle | null =
+  Platform.OS === 'web' ? ({ position: 'fixed' } as unknown as ViewStyle) : null;
 
 interface Props {
   goalEmoji: string;
@@ -70,7 +76,8 @@ export default function ClearOverlay({
 
     // ずんだもんの声「ついたね」。既存の clear 効果音（PlayScreen が到達時に鳴らす・約0.65秒）と
     // 星の「きらっ」のあとに遅らせて鳴らし、効果音と喧嘩させない。
-    // クリップ未同梱の現状は speechSynthesis で読み上げ、非対応環境では無音（文字だけで成立）。
+    // 鳴る声は おじの録音 → 同梱クリップ（p_tsuita）→ speechSynthesis → 無音 の順（voice.ts）。
+    // どれも鳴らせない環境でも文字だけで成立する。
     const voiceDelay = setTimeout(() => {
       sayPhrase('tsuita');
     }, 750);
@@ -101,7 +108,7 @@ export default function ClearOverlay({
 
   return (
     <View style={styles.root} pointerEvents="box-none">
-      <View style={styles.backdrop} pointerEvents="none" />
+      <View style={[styles.backdrop, BACKDROP_FULL]} pointerEvents="none" />
       <Confetti />
 
       <Animated.View style={[styles.card, { opacity, transform: [{ scale }] }]}>

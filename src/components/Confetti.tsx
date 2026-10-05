@@ -1,8 +1,10 @@
 // 祝福の紙吹雪。外部素材を使わず、色つきの小片を Animated で上から降らせるだけ。
 // pointerEvents="none" で下のボタン操作は妨げない。
+// 横位置は画面幅ではなく、紙吹雪を置いた枠（親）の実測幅で決める。画面幅で決めると、
+// 最大幅 480 の枠を中央に置く広い画面で、紙吹雪が枠の外（右側）に散らばっていた。
 
-import React, { useEffect, useMemo, useRef } from 'react';
-import { Animated, Easing, StyleSheet, useWindowDimensions } from 'react-native';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, Easing, LayoutChangeEvent, StyleSheet } from 'react-native';
 import { colors } from '../theme';
 
 interface PieceSpec {
@@ -55,24 +57,36 @@ function Piece({ spec, fallH }: { spec: PieceSpec; fallH: number }) {
 }
 
 export default function Confetti({ count = 18 }: { count?: number }) {
-  const { width, height } = useWindowDimensions();
+  const [box, setBox] = useState({ w: 0, h: 0 });
+  const onLayout = (e: LayoutChangeEvent) => {
+    const { width, height } = e.nativeEvent.layout;
+    setBox((b) => (b.w === width && b.h === height ? b : { w: width, h: height }));
+  };
+  const width = box.w;
   const specs = useMemo<PieceSpec[]>(() => {
+    if (width <= 0) return [];
     const palette = colors.confetti;
-    return Array.from({ length: count }, (_, i) => ({
-      x: Math.random() * width,
-      size: 10 + Math.random() * 10,
-      color: palette[i % palette.length],
-      delay: Math.random() * 500,
-      duration: 1500 + Math.random() * 1200,
-      drift: (Math.random() - 0.5) * 90,
-      spin: 360 + Math.random() * 360,
-    }));
+    return Array.from({ length: count }, (_, i) => {
+      const size = 10 + Math.random() * 10;
+      // 小片の左端は 0..(枠の幅−大きさ)。左右の揺れ（drift）も枠の内側に収める。
+      const x = Math.random() * Math.max(0, width - size);
+      const drift = Math.min(Math.max((Math.random() - 0.5) * 90, -x), width - size - x);
+      return {
+        x,
+        size,
+        color: palette[i % palette.length],
+        delay: Math.random() * 500,
+        duration: 1500 + Math.random() * 1200,
+        drift,
+        spin: 360 + Math.random() * 360,
+      };
+    });
   }, [count, width]);
 
   return (
-    <Animated.View style={StyleSheet.absoluteFill} pointerEvents="none">
+    <Animated.View style={StyleSheet.absoluteFill} pointerEvents="none" onLayout={onLayout}>
       {specs.map((spec, i) => (
-        <Piece key={i} spec={spec} fallH={height + 40} />
+        <Piece key={i} spec={spec} fallH={box.h + 40} />
       ))}
     </Animated.View>
   );
