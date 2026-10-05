@@ -41,6 +41,23 @@ const CARD_MAX = 240; // カードの最大幅（大きすぎ防止）
 const CARD_MIN = 188; // ミニめいろ＋左右余白が収まる最小幅
 const PREVIEW_MAX = 132; // ミニめいろ（プレビュー）の最大辺
 
+// 見出し「どれで あそぶ?」（👑つき）を見出し行の1行に収める文字の大きさ。
+// 見出し行 = ◀（52）＋ 見出し ＋ 右の空き（52。見出しを中央に置くための重し）。見出しに使える幅は
+// 画面幅 − 左右の余白 − 52×2。以前は文字の大きさが固定 34 で、👑が付くと 360 幅で見出し行が
+// 画面の右へ約 10px はみ出していた（320 幅では👑なしでもはみ出す）。
+// 実測（Chrome / ヒラギノ）で 34px のとき幅 214.4px ≒ 6.31×大きさ。👑は 26＋すき間 6。
+// 右の空きは見えない重しなので、少しだけ（RIGHT_GIVE）縮んでよいことにする。こうすると
+// 390 幅の👑つき（見出しに使える幅 246・必要 246.4）は従来どおり 34 のまま収まり、
+// 文字の幅が端末で少し違っても、右の空きが縮んで受け止める（はみ出す前に中央が少しずれるだけ）。
+const BACK_W = 52;
+const CROWN_W = 26 + space.xs;
+const PROMPT_PER_PX = 6.31;
+const RIGHT_GIVE = 4;
+function promptFontSize(winW: number, crowned: boolean): number {
+  const room = winW - space.md * 2 - BACK_W * 2 + RIGHT_GIVE - (crowned ? CROWN_W : 0);
+  return Math.max(18, Math.min(font.title, Math.floor(room / PROMPT_PER_PX)));
+}
+
 // カードのプレビュー用の障害物マスを決める（見た目のヒント。実際に遊ぶ迷路は毎回生成される）。
 // スタート(0,0)とゴール(cols-1,rows-1)は避け、内側から count 個を等間隔にサンプルする。
 function previewObstacles(cols: number, rows: number, count: number): Coord[] {
@@ -188,6 +205,7 @@ export default function LevelSelectScreen({ onPick, onBack }: Props) {
   // 全部⭐が揃っていれば、控えめな王冠をそっと添える（減点・失敗表示は無し）。
   const crowned = allCleared();
   const { width: winW } = useWindowDimensions();
+  const promptSize = promptFontSize(winW, crowned);
 
   const scrollRef = useRef<ScrollView>(null);
   const nudgedRef = useRef(false);
@@ -246,9 +264,11 @@ export default function LevelSelectScreen({ onPick, onBack }: Props) {
         </Pressable>
         <View style={styles.promptRow}>
           {crowned ? <Text style={styles.crown}>👑</Text> : null}
-          <Text style={styles.prompt}>どれで あそぶ?</Text>
+          <Text style={[styles.prompt, { fontSize: promptSize }]} numberOfLines={1}>
+            どれで あそぶ?
+          </Text>
         </View>
-        <View style={styles.backBtn} />
+        <View style={[styles.backBtn, styles.rightWeight]} />
       </View>
 
       <View
@@ -303,10 +323,16 @@ const styles = StyleSheet.create({
   backGlyph: {
     fontSize: 26,
   },
+  // 右の空き（見出しを中央に置くための見えない重し）だけは縮んでよい。◀ と見出しは縮めない。
+  rightWeight: {
+    flexShrink: 1,
+    minWidth: 0,
+  },
   promptRow: {
     flexDirection: 'row',
     alignItems: 'center',
     columnGap: space.xs,
+    flexShrink: 0,
   },
   crown: {
     fontSize: 26,
