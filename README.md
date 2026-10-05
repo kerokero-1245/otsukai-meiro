@@ -43,7 +43,7 @@ npm start            # Expo を起動 → ターミナルで w を押すと Web 
 - `i` / `a` … iOS シミュレータ / Android エミュレータ（任意）
 - 実機は Expo Go アプリで QR を読み取り（任意）
 
-ショートカット: `npm run web`（`w` を押さず直接 Web 起動）。
+ショートカット: `npm run web`（`w` を押さず直接 Web 起動）。型の確認は `npm run typecheck`（`tsc --noEmit`）。
 
 ### Web ビルド（配布用の静的サイト書き出し）
 
@@ -59,10 +59,15 @@ GitHub Pages はサブパス（`/otsukai-meiro/`）配信のため、CI では `
 EXPO_BASE_URL=/otsukai-meiro npx expo export --platform web
 ```
 
+公開 HTML の型は [public/index.html](public/index.html)（`lang="ja"`・説明文・OGP・manifest へのリンク・読み込み中の背景色）。`public/` のほかのファイル（`manifest.webmanifest`・`icon-192.png`・`icon-512.png`・`apple-touch-icon.png`・OGP 画像 `og.png`）は書き出しにそのままコピーされる。アイコン類（`public/` と `assets/` の PNG）は、街の こうえん と同じ自作 SVG（piyo-assets の `ki.svg`。`assets/piyo/ki.svg` と同一）から作った。
+
 ### 遊び方
 
 タイトルの「あそぶ」→ カードで**むずかしさ**を選ぶ → その難易度の迷路が**その場でランダム生成**される → ◀▲▼▶ をタップしてアバターを1マスずつ動かし、ゴール（りんご・おうち等、毎回ランダム）へ。壁や障害物の向きを押すとキャラが首をかしげるだけ（罰・ゲームオーバー無し）。ゴールで「ついたね!」の祝福。「もういちど」で同じ難易度の**新しい迷路**に挑戦（さんすうドリルのように何度でも）。
 ※ タイトル右下の歯車を **3秒長押し** すると、おとなモード（写真・こえ・**あそびかた**・⭐リセット・BGM）に入る。
+※ タイトル左上の「まちへ もどる」で ぴよぴよランド（同じオリジンの `/`）へ戻る（Web のみ。レベルえらび・プレイ・祝福・がんばりカード・おとなモードには置かない）。
+
+**⭐**: クリアしたレベルのカードに⭐が付く（`meiro.stars`）。それとは別に、クリアのたびに累計 `meiro.totalStars` が1つ増え（再クリアも +1）、街（ぴよぴよランド）がこれを燃料として読む。おとなモードの「⭐をリセット」はカードの⭐と「ぜんぶ できたね!」の印だけを消す。**街へ渡す累計 `meiro.totalStars` は減らさない。**
 
 **② ならべてゴー（やじるしモード）** … おとなモードの「あそびかた」を ② にすると、矢印を押しても
 その場では動かず**画面上部の「命令の列」に積まれ**、十字のまんなかの「**ゴー!**」で先頭から1マスずつ実行する
@@ -71,7 +76,7 @@ EXPO_BASE_URL=/otsukai-meiro npx expo export --platform web
 ## 画面・ファイル構成
 
 ```
-App.tsx                     文字ヘッダ無しの最小ステートルーター（title→select→play→otona）
+App.tsx                     文字ヘッダ無しの最小ステートルーター（title→select→play→ganbari／otona）
 src/
   theme.ts                  配色・フォント・余白の基準値（4歳向け）
   types.ts                  Template / Level / Coord / Direction / Route など（DESIGN §7 準拠）
@@ -100,18 +105,19 @@ src/
     DirPad.tsx              ◀▲▼▶ の巨大方向パッド（②は十字のまんなかに「ゴー!」）
     CommandQueue.tsx        ②の「命令の列」（積んだ矢印・空きマス・実行中の光り・⌫）
     GoButton.tsx            ②の「ゴー!」（緑のまる。矢印が0本ならうすく押せない）
-    Avatar.tsx              アバター（絵文字バッジ）
+    Avatar.tsx              アバター（丸いバッジにシールポップのぴよ）
     Confetti.tsx            紙吹雪
     ClearOverlay.tsx        ゴール祝福オーバーレイ（写真ならズーム表示）
     GoalArt.tsx             ゴールの見た目（写真 or シールポップSVG or 絵文字）
     PiyoArt.tsx             絵文字グリフ → シールポップSVG の差し替え
     BigButton.tsx           共通の大ボタン（small / big / huge）
   screens/
-    TitleScreen.tsx         タイトル（あそぶ / 親ゲート）
+    TitleScreen.tsx         タイトル（あそぶ / まちへ もどる / 親ゲート）
     LevelSelectScreen.tsx   レベルえらび（横スクロール）
     PlayScreen.tsx          プレイ本体（①タップモード ／ ②ならべてゴー）
     GanbariScreen.tsx       ぜんぶ できたね! がんばりカード
     OtonaScreen.tsx         おとなモード（しゃしん / こえ / あそびかた / ⭐リセット / BGM トグル）
+public/                     Web 書き出しの HTML の型・manifest・アイコン・OGP 画像
 ```
 
 ## やじるしモード（ならべてゴー）
