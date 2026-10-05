@@ -6,6 +6,7 @@ export const colors = {
   // 地の色
   bg: '#FFF6E5', // やわらかいクリーム（背景）
   surface: '#FFFFFF', // カード
+  surfacePressed: '#F3ECDD', // カード色のボタンを押したとき（さんすうの choicePressed と同じ）
 
   // めいろ盤面
   boardBg: '#FCEFD0', // 盤の外枠
