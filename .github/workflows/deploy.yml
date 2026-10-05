@@ -25,7 +25,7 @@ jobs:
       - name: チェックアウト
         uses: actions/checkout@v4
 
-      - name: Node 20 を用意
+      - name: Node 22 を用意
         uses: actions/setup-node@v4
         with:
           node-version: 22
