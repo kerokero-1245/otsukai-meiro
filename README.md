@@ -111,6 +111,7 @@ src/
     GoalArt.tsx             ゴールの見た目（写真 or シールポップSVG or 絵文字）
     PiyoArt.tsx             絵文字グリフ → シールポップSVG の差し替え
     BigButton.tsx           共通の大ボタン（small / big / huge）
+    TownLink.tsx            「まちへ もどる」（街へのリンク。木の絵＋ひらがな・web のみ）
   screens/
     TitleScreen.tsx         タイトル（あそぶ / まちへ もどる / 親ゲート）
     LevelSelectScreen.tsx   レベルえらび（横スクロール）
