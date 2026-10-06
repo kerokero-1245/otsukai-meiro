@@ -4,9 +4,14 @@
 //
 // 全レベルに⭐が揃った瞬間（justCompletedAll）だけは、ボタンを出さずに ⭐ゲットの余韻のあと
 // 自動で「ぜんぶ できたね! がんばりカード」へ進む（onCelebrateAll）。4歳が確実に大祝福に辿り着けるように。
+//
+// 中身（ゴールの絵・「ついたね!」・ボタン）はスクロールできる入れ物に入れる。背の低い画面（320x568・
+// 横向きの 844x390・568x320 など）では縦に積むと下のボタンが画面の外に出ていたので、スクロールで必ず届くようにする。
+// 縦持ちで高さが足りる画面では中身を中央に置くので、見た目は従来と同じ。ぴよぴよさんすうと同じ作り
+// （さんすうは横向きでカードとボタンを左右に並べるが、めいろは枠が最大幅 480 のままで並べる幅が無いのでスクロールだけ）。
 
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, Platform, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { Animated, Easing, Platform, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { colors, font, space } from '../theme';
 import { playSound } from '../audio/sounds';
 import { sayPhrase, cancelVoice } from '../audio/voice';
@@ -20,6 +25,12 @@ import GoalArt from './GoalArt';
 // （react-native-web は fixed をそのまま CSS に渡す。RN の型には無いので型だけ合わせる）。
 const BACKDROP_FULL: ViewStyle | null =
   Platform.OS === 'web' ? ({ position: 'fixed' } as unknown as ViewStyle) : null;
+
+// スクロールの入れ物は、枠（App.tsx の frame）の上下の余白（上 space.lg・下 space.md）まで広げて画面の上端〜下端を使う。
+// 従来は中身を枠の中央に置き、背が足りない画面（360x640 など）では中身が枠の余白にはみ出したまま画面内に
+// 収まっていた。入れ物を画面の高さまで広げ、中央の位置（枠の中央＝画面の中央より (space.lg − space.md)/2 下）を
+// 上下の余白の差で保つので、中身が画面に収まる限り見た目は従来と同じ。収まらないときだけスクロールになる。
+const SCROLL_EDGE = 4; // スクロールになったときの上下の最小のすき間
 
 interface Props {
   goalEmoji: string;
@@ -111,43 +122,49 @@ export default function ClearOverlay({
       <View style={[styles.backdrop, BACKDROP_FULL]} pointerEvents="none" />
       <Confetti />
 
-      <Animated.View style={[styles.card, { opacity, transform: [{ scale }] }]}>
-        {/* 写真があるときは丸い台紙をやめ、白い台紙の「写真ズーム」にする（DESIGN §1）。
-            fit='contain' なので、おばあちゃんの家の写真が端まで欠けずに大きく出る。 */}
-        <View style={[styles.zoomCircle, goalPhoto ? styles.zoomPhoto : null]}>
-          {goalPhoto ? (
-            <GoalArt glyph={goalEmoji} photoUri={goalPhoto} size={168} fit="contain" />
-          ) : (
-            <PiyoArt glyph={goalEmoji} size={128} emojiSize={104} />
-          )}
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <Animated.View style={[styles.card, { opacity, transform: [{ scale }] }]}>
+          {/* 写真があるときは丸い台紙をやめ、白い台紙の「写真ズーム」にする（DESIGN §1）。
+              fit='contain' なので、おばあちゃんの家の写真が端まで欠けずに大きく出る。 */}
+          <View style={[styles.zoomCircle, goalPhoto ? styles.zoomPhoto : null]}>
+            {goalPhoto ? (
+              <GoalArt glyph={goalEmoji} photoUri={goalPhoto} size={168} fit="contain" />
+            ) : (
+              <PiyoArt glyph={goalEmoji} size={128} emojiSize={104} />
+            )}
 
-          {/* ⭐ゲットのスタンプ（右上にぽんっ） */}
-          <Animated.View
-            style={[
-              styles.starStamp,
-              { transform: [{ scale: starScale }, { rotate: starRotate }] },
-            ]}
-            pointerEvents="none"
-          >
-            <Text style={styles.starGlyph}>⭐</Text>
-          </Animated.View>
-        </View>
-        <Text style={styles.headline}>ついたね!</Text>
-        <Animated.Text style={[styles.starGot, { opacity: starScale }]}>
-          ⭐ゲット!
-        </Animated.Text>
-      </Animated.View>
+            {/* ⭐ゲットのスタンプ（右上にぽんっ） */}
+            <Animated.View
+              style={[
+                styles.starStamp,
+                { transform: [{ scale: starScale }, { rotate: starRotate }] },
+              ]}
+              pointerEvents="none"
+            >
+              <Text style={styles.starGlyph}>⭐</Text>
+            </Animated.View>
+          </View>
+          <Text style={styles.headline}>ついたね!</Text>
+          <Animated.Text style={[styles.starGot, { opacity: starScale }]}>
+            ⭐ゲット!
+          </Animated.Text>
+        </Animated.View>
 
-      {/* 全部そろった瞬間はボタンを出さず自動で大祝福へ。それ以外は次の行動ボタン。 */}
-      {justCompletedAll ? null : (
-        <View style={styles.buttons}>
-          <BigButton emoji="🔁" label="もういちど" onPress={onReplay} color={colors.button} />
-          {onNext ? (
-            <BigButton emoji="👉" label="つぎへ" onPress={onNext} color={colors.play} pressedColor={colors.playPressed} />
-          ) : null}
-          <BigButton emoji="🏠" label="おうちへ" onPress={onHome} />
-        </View>
-      )}
+        {/* 全部そろった瞬間はボタンを出さず自動で大祝福へ。それ以外は次の行動ボタン。 */}
+        {justCompletedAll ? null : (
+          <View style={styles.buttons}>
+            <BigButton emoji="🔁" label="もういちど" onPress={onReplay} color={colors.button} />
+            {onNext ? (
+              <BigButton emoji="👉" label="つぎへ" onPress={onNext} color={colors.play} pressedColor={colors.playPressed} />
+            ) : null}
+            <BigButton emoji="🏠" label="おうちへ" onPress={onHome} />
+          </View>
+        )}
+      </ScrollView>
     </View>
   );
 }
@@ -159,9 +176,22 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+  },
+  scroll: {
+    position: 'absolute',
+    top: -space.lg,
+    bottom: -space.md,
+    left: 0,
+    right: 0,
+  },
+  // 縦持ちでは従来の root と同じ中央寄せ（横の余白 space.lg）。高さが足りないときはスクロールで届く。
+  content: {
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: space.lg,
+    paddingHorizontal: space.lg,
+    paddingTop: space.lg - space.md + SCROLL_EDGE,
+    paddingBottom: SCROLL_EDGE,
   },
   backdrop: {
     position: 'absolute',
