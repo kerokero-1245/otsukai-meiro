@@ -2,10 +2,17 @@
 // pointerEvents="none" で下のボタン操作は妨げない。
 // 横位置は画面幅ではなく、紙吹雪を置いた枠（親）の実測幅で決める。画面幅で決めると、
 // 最大幅 480 の枠を中央に置く広い画面で、紙吹雪が枠の外（右側）に散らばっていた。
+// 小片は回転するので、回転した正方形の角が元の正方形より外へ出る分（一辺の (√2−1)/2 ≒ 0.207 倍）も
+// 内側に詰めて置く（詰めないと角が枠から最大 3.3px 出ていた）。ぴよぴよさんすうと同じ直し方。
+// 縦は枠の下端までで止め、降り終えた小片は取り除く。以前は枠の 40px 下まで降りて透明のまま残り、
+// 文書の高さを伸ばしていた（クリア後に約 +43px）。
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, LayoutChangeEvent, StyleSheet } from 'react-native';
 import { colors } from '../theme';
+
+// 回転した正方形の角が、回転していない正方形の外へ出る長さ（一辺に対する割合。(√2−1)/2 ≒ 0.2071 を切り上げ）。
+const ROTATE_OVERHANG = 0.21;
 
 interface PieceSpec {
   x: number;
@@ -19,6 +26,7 @@ interface PieceSpec {
 
 function Piece({ spec, fallH }: { spec: PieceSpec; fallH: number }) {
   const p = useRef(new Animated.Value(0)).current;
+  const [done, setDone] = useState(false);
   useEffect(() => {
     const anim = Animated.loop(
       Animated.timing(p, {
@@ -30,15 +38,21 @@ function Piece({ spec, fallH }: { spec: PieceSpec; fallH: number }) {
       }),
       { iterations: 2 }
     );
-    anim.start();
+    // 降り終えたら取り除く（止めたとき＝画面を離れたときは finished が false なので何もしない）。
+    anim.start(({ finished }) => {
+      if (finished) setDone(true);
+    });
     return () => anim.stop();
   }, [p, spec.duration, spec.delay]);
 
-  const translateY = p.interpolate({ inputRange: [0, 1], outputRange: [-40, fallH] });
+  // 降りる先は、回転した角まで含めて枠の下端に収まる位置（fallH は枠の高さ）。
+  const endY = Math.max(0, fallH - spec.size * (1 + ROTATE_OVERHANG));
+  const translateY = p.interpolate({ inputRange: [0, 1], outputRange: [-40, endY] });
   const translateX = p.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, spec.drift, 0] });
   const rotate = p.interpolate({ inputRange: [0, 1], outputRange: ['0deg', `${spec.spin}deg`] });
   const opacity = p.interpolate({ inputRange: [0, 0.85, 1], outputRange: [1, 1, 0] });
 
+  if (done) return null;
   return (
     <Animated.View
       style={{
@@ -68,9 +82,12 @@ export default function Confetti({ count = 18 }: { count?: number }) {
     const palette = colors.confetti;
     return Array.from({ length: count }, (_, i) => {
       const size = 10 + Math.random() * 10;
-      // 小片の左端は 0..(枠の幅−大きさ)。左右の揺れ（drift）も枠の内側に収める。
-      const x = Math.random() * Math.max(0, width - size);
-      const drift = Math.min(Math.max((Math.random() - 0.5) * 90, -x), width - size - x);
+      // 小片の左端は inset..(枠の幅−大きさ−inset)。inset は回転で角が出る分。左右の揺れ（drift）も同じ範囲に収める。
+      const inset = size * ROTATE_OVERHANG;
+      const minX = inset;
+      const maxX = Math.max(minX, width - size - inset);
+      const x = minX + Math.random() * (maxX - minX);
+      const drift = Math.min(Math.max((Math.random() - 0.5) * 90, minX - x), maxX - x);
       return {
         x,
         size,
@@ -86,7 +103,7 @@ export default function Confetti({ count = 18 }: { count?: number }) {
   return (
     <Animated.View style={StyleSheet.absoluteFill} pointerEvents="none" onLayout={onLayout}>
       {specs.map((spec, i) => (
-        <Piece key={i} spec={spec} fallH={box.h + 40} />
+        <Piece key={i} spec={spec} fallH={box.h} />
       ))}
     </Animated.View>
   );
