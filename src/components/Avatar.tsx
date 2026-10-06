@@ -1,5 +1,6 @@
 // アバター（言われた順にしか歩けないおともだち）の見た目。
-// MVPは絵文字のプレースホルダを丸いバッジに載せるだけ。将来ここを画像差し替え可能に。
+// 白い丸いバッジに、シールポップ画風のぴよ（PiyoArt。🐥 → assets/piyo/piyo.svg）を載せる。
+// 対応する素材が無いグリフのときだけ、PiyoArt が絵文字の文字で描く。
 
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
