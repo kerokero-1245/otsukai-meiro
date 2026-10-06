@@ -103,6 +103,8 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
   const GAP = space.md; // 盤と方向パッドのあいだの最小余白
   const CELL_MIN = 44; // めいろのマスの下限
   const DIR_MIN = 52; // 方向ボタンの下限（ここまで来たらもう譲らない）
+  // 盤の外寸はマス目全体＋枠線（MazeGrid の BOARD_BORDER×2）。下限のマスで組むときも枠線のぶんを数える。
+  const frameLine = BOARD_BORDER * 2;
 
   // ②だけ増える「命令の列」の帯。高さは上限本数によらず一定（CommandQueue の BAND_H）。
   const strip = isQueue ? measureQueueStrip(contentW, capacity) : null;
@@ -117,7 +119,7 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
   if (stripH > 0) {
     // 例外: 盤面が下限のマスすら置けないほど縦が足りない画面では、足りないぶんだけ方向パッドが譲る
     //（重なりを出さないことが最優先。DIR_MIN より小さくはしない）。
-    const padRoom = bodyH - stripH - GAP - rows * CELL_MIN;
+    const padRoom = bodyH - stripH - GAP - (rows * CELL_MIN + frameLine);
     padBudget = Math.min(padBudget, Math.max(padRoom, DIR_MIN * 3.3 + space.md));
   }
   const dirByH = Math.floor((padBudget - space.md) / 3.3); // 3行＋行間＋下パディングぶん
@@ -127,8 +129,9 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
 
   // めいろのマス: 残り高さと幅の小さいほうに収める。下限も小さめにして絶対にあふれさせない。
   // 盤の外寸はマス目全体＋枠線（MazeGrid の BOARD_BORDER）なので、枠線のぶんを引いてから割る。
-  const boardBudgetH = Math.max(bodyH - stripH - padAreaH - GAP, rows * CELL_MIN);
-  const frameLine = BOARD_BORDER * 2;
+  // 下限も「下限のマス×行数＋枠線」にする（以前は枠線を入れておらず、マスが下限に張り付く画面で
+  // 盤が予算より 6px 大きくなっていた）。
+  const boardBudgetH = Math.max(bodyH - stripH - padAreaH - GAP, rows * CELL_MIN + frameLine);
   const cell = Math.max(
     CELL_MIN,
     Math.floor(Math.min((contentW - frameLine) / cols, (boardBudgetH - frameLine) / rows, 116))

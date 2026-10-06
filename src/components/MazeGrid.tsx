@@ -81,7 +81,12 @@ export default function MazeGrid({ level, cell, avatarPos, avatarTilt, goalEmoji
 
   return (
     <View style={[styles.board, { width: boardW, height: boardH }]}>
-      {tiles}
+      {/* 市松のマスは角丸の枠線の内側で切る（四隅の四角いマスが角丸の外へ出ないように）。
+          切るのはマスの層だけ。盤そのものは切らないので、枠線・影と、②で盤の上へ ぴょんと跳ねる
+          アバター（PlayScreen の hopHome）は欠けない。 */}
+      <View style={styles.tileLayer} pointerEvents="none">
+        {tiles}
+      </View>
 
       {/* 障害物（通れないマス） */}
       {level.obstacles.map((o, i) => (
@@ -157,6 +162,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 4,
+  },
+  // 枠線の内側いっぱい。角丸は枠の角丸から枠線の太さを引いた内側の丸み。
+  tileLayer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: radius.md - BOARD_BORDER,
+    overflow: 'hidden',
   },
   tile: {
     position: 'absolute',
