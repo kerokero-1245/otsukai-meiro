@@ -1,12 +1,18 @@
 // タイトル画面。文字ゼロでも進める大ボタン「あそぶ」＋概念の絵（🐥→🍎）。
 // 隅の歯車を3秒長押しでおとなモードへ（4歳が偶発しにくい親ゲート／DESIGN §6）。
-// 左上の「まちへ もどる」で ぴよぴよランド（街）へ帰る。あそんでいる途中の画面には置かない。
+// 左上の「まちへ もどる」（TownLink）で ぴよぴよランド（街）へ帰る。あそんでいる途中の画面には置かない。
+//
+// 並びは上から「まちへ もどる の行 → 題字〜あそぶ（残りの高さの中央）→ 歯車の行」。要素を重ねず流すので、
+// 横向き（844x390・568x320 など）でも「まちへ もどる」が題字に、歯車が「あそぶ」に重ならない。高さが足りない
+// ときは全体をスクロールして全部に届く。並びの順がそのまま Tab の順（まちへ もどる → 題字 → あそぶ → 歯車）になる。
+// ぴよぴよさんすうのタイトルと同じ作り。
 
 import React, { useRef } from 'react';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, font, radius, space } from '../theme';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { colors, font, space } from '../theme';
 import BigButton from '../components/BigButton';
 import PiyoArt from '../components/PiyoArt';
+import TownLink, { SHOW_TOWN, TOWN_LINK_HEIGHT } from '../components/TownLink';
 import { playSound } from '../audio/sounds';
 import { sayPhrase, warmUpVoice } from '../audio/voice';
 import { startMeiroBgm } from '../audio/bgm';
@@ -17,16 +23,6 @@ interface Props {
 }
 
 const HOLD_MS = 3000;
-
-// 街（ぴよぴよランド）は同じオリジンのルート https://kerokero-1245.github.io/ にある。
-// めいろは /otsukai-meiro/ で配っているので、同じオリジンの "/" へ移れば街に戻る。
-// 街は web にしか無いので、ボタンも web のときだけ出す。
-const TOWN_URL = '/';
-const SHOW_TOWN = Platform.OS === 'web';
-function goTown() {
-  const loc = (globalThis as unknown as { location?: { assign(url: string): void } }).location;
-  loc?.assign(TOWN_URL);
-}
 
 export default function TitleScreen({ onPlay, onOtona }: Props) {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -47,75 +43,75 @@ export default function TitleScreen({ onPlay, onOtona }: Props) {
 
   return (
     <View style={styles.root}>
-      <View style={styles.center}>
-        {/* タイトル＋概念の絵をタップすると「おつかいめいろ」と声が出る（ジェスチャ起点）。
-            同時に声エンジンをアンロックして、以降のゴール到達・がんばりカードの声も鳴るようにする。 */}
-        <Pressable
-          onPress={() => {
-            // 最初のタップ起点で BGM（オルゴール）も流し始める（同一曲の再呼び出しは冪等）。
-            startMeiroBgm();
-            warmUpVoice();
-            sayPhrase('title');
-          }}
-          accessibilityRole="button"
-          accessibilityLabel="おつかいめいろ（こえ）"
-          style={styles.titleTap}
-        >
-          <Text style={styles.title}>おつかいめいろ</Text>
-
-          <View style={styles.concept}>
-            <PiyoArt glyph="🐥" size={82} emojiSize={64} />
-            <Text style={styles.conceptArrow}>➡️</Text>
-            <PiyoArt glyph="🍎" size={82} emojiSize={64} />
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* 街へ戻る（タイトルにだけ置く）。上に専用の行を取り、題字以下はその下に流す。 */}
+        {SHOW_TOWN ? (
+          <View style={styles.townRow}>
+            <TownLink onPress={() => playSound('tap')} />
           </View>
-        </Pressable>
+        ) : null}
 
-        <View style={styles.playWrap}>
-          <BigButton
-            emoji="▶️"
-            label="あそぶ"
-            size="huge"
-            color={colors.play}
-            pressedColor={colors.playPressed}
+        <View style={styles.center}>
+          {/* タイトル＋概念の絵をタップすると「おつかいめいろ」と声が出る（ジェスチャ起点）。
+              同時に声エンジンをアンロックして、以降のゴール到達・がんばりカードの声も鳴るようにする。 */}
+          <Pressable
             onPress={() => {
-              // 声を出さずに次へ進むが、ここでも声エンジンをアンロックしておく
-              // （タイトルをタップせず直接「あそぶ」を押した子でも、後の声が鳴るように）。
-              // BGM も同じタップ起点で流し始める（以降の画面遷移でも途切れず続く）。
+              // 最初のタップ起点で BGM（オルゴール）も流し始める（同一曲の再呼び出しは冪等）。
               startMeiroBgm();
               warmUpVoice();
-              playSound('tap');
-              onPlay();
+              sayPhrase('title');
             }}
-          />
+            accessibilityRole="button"
+            accessibilityLabel="おつかいめいろ（こえ）"
+            style={styles.titleTap}
+          >
+            <Text style={styles.title}>おつかいめいろ</Text>
+
+            <View style={styles.concept}>
+              <PiyoArt glyph="🐥" size={82} emojiSize={64} />
+              <Text style={styles.conceptArrow}>➡️</Text>
+              <PiyoArt glyph="🍎" size={82} emojiSize={64} />
+            </View>
+          </Pressable>
+
+          <View style={styles.playWrap}>
+            <BigButton
+              emoji="▶️"
+              label="あそぶ"
+              size="huge"
+              color={colors.play}
+              pressedColor={colors.playPressed}
+              onPress={() => {
+                // 声を出さずに次へ進むが、ここでも声エンジンをアンロックしておく
+                // （タイトルをタップせず直接「あそぶ」を押した子でも、後の声が鳴るように）。
+                // BGM も同じタップ起点で流し始める（以降の画面遷移でも途切れず続く）。
+                startMeiroBgm();
+                warmUpVoice();
+                playSound('tap');
+                onPlay();
+              }}
+            />
+          </View>
         </View>
-      </View>
 
-      {/* 街へ戻る（タイトルにだけ置く）。 */}
-      {SHOW_TOWN ? (
-        <Pressable
-          onPress={() => {
-            playSound('tap');
-            goTown();
-          }}
-          accessibilityRole="link"
-          accessibilityLabel="まちへ もどる"
-          style={({ pressed }) => [styles.town, pressed && styles.townPressed]}
-        >
-          <Text style={styles.townText}>まちへ もどる</Text>
-        </Pressable>
-      ) : null}
-
-      {/* 親ゲート: 3秒長押しでおとなモード */}
-      <Pressable
-        onPressIn={startHold}
-        onPressOut={clearHold}
-        accessibilityRole="button"
-        accessibilityLabel="おとなモード（長押し）"
-        hitSlop={12}
-        style={styles.gear}
-      >
-        <Text style={styles.gearGlyph}>⚙️</Text>
-      </Pressable>
+        {/* 親ゲート: 3秒長押しでおとなモード（右下。ほかの要素と重ならないよう行として置く） */}
+        <View style={styles.gearRow}>
+          <Pressable
+            onPressIn={startHold}
+            onPressOut={clearHold}
+            accessibilityRole="button"
+            accessibilityLabel="おとなモード（長押し）"
+            hitSlop={12}
+            style={styles.gear}
+          >
+            <Text style={styles.gearGlyph}>⚙️</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -124,8 +120,20 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
-  center: {
+  scroll: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  townRow: {
+    height: TOWN_LINK_HEIGHT,
+    marginBottom: space.sm,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  center: {
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -152,31 +160,14 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 320,
   },
-  town: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    minHeight: 44,
-    paddingHorizontal: space.sm + 2,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-    borderWidth: 2,
-    borderColor: colors.tileBorder,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  townPressed: {
-    backgroundColor: colors.surfacePressed,
-  },
-  townText: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: colors.text,
+  // 歯車の行（右下）。歯車の位置は従来（右 space.sm・下 space.sm）と同じ。
+  gearRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingRight: space.sm,
+    paddingBottom: space.sm,
   },
   gear: {
-    position: 'absolute',
-    right: space.sm,
-    bottom: space.sm,
     padding: space.sm,
     opacity: 0.35,
   },
