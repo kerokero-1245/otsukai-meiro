@@ -1,13 +1,21 @@
 // おつかいめいろ アプリのルート。
 // react-navigation は使わず、文字ヘッダの無い全画面遷移にするための最小ステートルーター。
 // 縦持ち前提のレイアウト（中央寄せ・最大幅制限）で横画面・大画面でも崩れにくくする（DESIGN §8）。
+// 背の低い横向き（スマホの横持ち）では、めいろ画面だけ枠を広げて盤と方向パッドを左右に並べる（src/layout.ts）。
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Route } from './src/types';
 import { colors } from './src/theme';
-import { FRAME_MAX_W, FRAME_PAD_BOTTOM, FRAME_PAD_H, FRAME_PAD_TOP } from './src/layout';
+import {
+  FRAME_MAX_W,
+  FRAME_MAX_W_WIDE,
+  FRAME_PAD_BOTTOM,
+  FRAME_PAD_H,
+  FRAME_PAD_TOP,
+  isCompactLandscape,
+} from './src/layout';
 import TitleScreen from './src/screens/TitleScreen';
 import LevelSelectScreen from './src/screens/LevelSelectScreen';
 import PlayScreen from './src/screens/PlayScreen';
@@ -19,6 +27,8 @@ import { initPersonal } from './src/personal/store';
 export default function App() {
   const [route, setRoute] = useState<Route>({ name: 'title' });
   const go = useCallback((r: Route) => setRoute(r), []);
+  const { width: windowW, height: windowH } = useWindowDimensions();
+  const compact = isCompactLandscape(windowW, windowH);
 
   // パーソナライズ資産（ゴール写真・おじの声）を端末内 IndexedDB から読み込んでおく。
   // 迷路生成・クリア演出は同期なので、先にメモリ上の在庫にしておく必要がある（personal/store.ts）。
@@ -74,7 +84,15 @@ export default function App() {
 
   return (
     <View style={styles.root}>
-      <View style={[styles.frame, fullBleed && styles.frameFull]}>{screen}</View>
+      <View
+        style={[
+          styles.frame,
+          fullBleed && styles.frameFull,
+          compact && route.name === 'play' && styles.frameWide,
+        ]}
+      >
+        {screen}
+      </View>
       <StatusBar style="dark" />
     </View>
   );
@@ -98,5 +116,9 @@ const styles = StyleSheet.create({
   frameFull: {
     maxWidth: 9999,
     paddingHorizontal: 0,
+  },
+  // 背の低い横向きのめいろ画面: 盤と方向パッドを左右に並べるので枠を広げる。余白は変えない。
+  frameWide: {
+    maxWidth: FRAME_MAX_W_WIDE,
   },
 });

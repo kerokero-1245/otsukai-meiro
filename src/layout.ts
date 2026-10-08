@@ -1,4 +1,5 @@
-// 画面の枠（App.tsx の frame）の寸法。App.tsx・ClearOverlay で共有する（ぴよぴよさんすうの src/layout.ts と同じ作り）。
+// 画面の枠（App.tsx の frame）の寸法と、画面の向きに応じたレイアウトの判定（DESIGN §8）。
+// App.tsx・PlayScreen・ClearOverlay で共有する（ぴよぴよさんすうの src/layout.ts と同じ作り）。
 // ClearOverlay のスクロールの入れ物は枠の上下の余白まで広げて画面の上端〜下端を使うので、
 // 余白の値をここ1か所に置き、枠と入れ物が食い違わないようにする。
 
@@ -10,3 +11,15 @@ export const FRAME_MAX_W = 480;
 export const FRAME_PAD_TOP = space.lg;
 export const FRAME_PAD_BOTTOM = space.md;
 export const FRAME_PAD_H = space.md;
+// 背の低い横向きで、めいろ画面だけに使う広い枠の最大幅（盤と方向パッドを左右に並べるため）。
+export const FRAME_MAX_W_WIDE = 960;
+
+// 「背の低い横向き」（スマホの横持ち。例: 844x390・932x430・640x360・568x320）。
+// 縦持ち前提の1列の並び（上段＋盤＋方向パッド）では盤の置き場所が足りず、level-05（4x4）の盤が
+// 上段に重なっていたので、めいろ画面は盤と方向パッドを左右に分ける。
+// 1280x800 のように横長でも高さが足りる画面は対象外（従来どおり1列）。境界は ぴよぴよさんすうと同じ。
+const COMPACT_LANDSCAPE_MAX_H = 600;
+
+export function isCompactLandscape(windowW: number, windowH: number): boolean {
+  return windowW > windowH && windowH < COMPACT_LANDSCAPE_MAX_H;
+}

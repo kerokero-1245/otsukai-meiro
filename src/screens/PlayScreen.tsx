@@ -12,6 +12,11 @@
 // どちらで遊ぶかは おとなモードの設定（settings.ts / localStorage `meiro.mode`）。既定は①なので、
 // 親が有効化するまで こども側の見た目・挙動はフェーズ1と完全に同一。
 // めいろ生成・移動判定（maze.ts）・⭐（progress.ts）・クリア演出は **両モード共通**。②が足すのは UI だけ。
+//
+// 背の低い横向き（src/layout.ts の isCompactLandscape。例: 844x390・568x320）では、1列に積むと盤の置き場所が
+// 足りず level-05 の盤が上段に重なっていたので、左に「上段＋盤」、右に「（②の命令の列）＋方向パッド」を並べる。
+// どちらの並びでも盤まわりの要素の木（mainCol / boardArea）は同じにして、回転しても盤やアバターを作り直さない
+// （置き場所が変わるのは②の命令の列だけ。列の中身は PlayScreen の状態なので消えない）。
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -33,12 +38,20 @@ import { allCleared, bumpTotalStars, hasCelebratedAll, markCleared } from '../pr
 import { getPlayMode } from '../settings';
 import { useReducedMotion } from '../a11y';
 import MazeGrid, { BOARD_BORDER } from '../components/MazeGrid';
+import {
+  FRAME_MAX_W,
+  FRAME_MAX_W_WIDE,
+  FRAME_PAD_BOTTOM,
+  FRAME_PAD_H,
+  FRAME_PAD_TOP,
+  isCompactLandscape,
+} from '../layout';
 import DirPad from '../components/DirPad';
 import ClearOverlay from '../components/ClearOverlay';
 import BigButton from '../components/BigButton';
 import GoalArt from '../components/GoalArt';
 import GoButton from '../components/GoButton';
-import CommandQueue, { measureQueueStrip } from '../components/CommandQueue';
+import CommandQueue, { BAND_H, measureQueueStrip } from '../components/CommandQueue';
 import { pickGoalPhotoUrl } from '../personal/store';
 
 interface Props {
@@ -97,8 +110,12 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
   const cols = level?.cols ?? 1;
   const rows = level?.rows ?? 1;
 
-  const contentW = Math.min(width, 480) - space.md * 2; // 横に使える幅（frame の左右パディングぶん）
-  const availH = Math.max(height - (space.lg + space.md), 320); // 縦に使える高さ（frame の上下パディングぶん）
+  const side = isCompactLandscape(width, height); // 背の低い横向き＝盤と方向パッドを左右に並べる
+  const frameW = Math.min(width, side ? FRAME_MAX_W_WIDE : FRAME_MAX_W) - FRAME_PAD_H * 2; // 枠の内側の幅
+  // 縦に使える高さ（frame の上下パディングぶん）。縦持ちは従来どおり下限 320（横向きは実寸で組む）。
+  const availH = side
+    ? height - (FRAME_PAD_TOP + FRAME_PAD_BOTTOM)
+    : Math.max(height - (FRAME_PAD_TOP + FRAME_PAD_BOTTOM), 320);
   const HEADER_H = 64; // 上段（おうち＋ゴール案内）にみておく高さ
   const GAP = space.md; // 盤と方向パッドのあいだの最小余白
   const CELL_MIN = 44; // めいろのマスの下限
@@ -106,15 +123,37 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
   // 盤の外寸はマス目全体＋枠線（MazeGrid の BOARD_BORDER×2）。下限のマスで組むときも枠線のぶんを数える。
   const frameLine = BOARD_BORDER * 2;
 
+  // 背の低い横向き: 右の列の方向パッドは列の高さ（②は命令の列のぶんを引いた残り）から、左の列には
+  // 上段（🏠＋ゴール案内。実測 320）が収まる幅（MAIN_MIN_W）を残した幅から大きさを決める。
+  // 下限 DIR_MIN・上限 100 は縦持ちと同じ。②の命令の列は右の列（方向パッドの上）に置く。
+  // 左の列に置くと、568x320 で level-05 の盤が下限のマスでも帯に重なるため。
+  const MAIN_MIN_W = 320;
+  const DIR_GAP_W = 10 * 2; // DirPad の列間（columnGap 10）×2
+  const sideStripH = side && isQueue ? BAND_H + space.sm : 0; // 右の列の命令の列（帯＋下マージン）
+  const sideDir = side
+    ? Math.max(
+        DIR_MIN,
+        Math.min(
+          Math.floor((availH - sideStripH - space.md) / 3.3),
+          Math.floor((frameW - GAP - MAIN_MIN_W - DIR_GAP_W) / 3),
+          100
+        )
+      )
+    : 0;
+  const sidePadW = side ? sideDir * 3 + DIR_GAP_W : 0;
+  // 盤・命令の列に使える幅。縦持ちは枠の内側いっぱい、横向きは方向パッドの列とすき間を引いた残り。
+  const contentW = side ? frameW - sidePadW - GAP : frameW;
+
   // ②だけ増える「命令の列」の帯。高さは上限本数によらず一定（CommandQueue の BAND_H）。
-  const strip = isQueue ? measureQueueStrip(contentW, capacity) : null;
-  const stripH = strip ? strip.height + space.sm : 0; // 帯の高さ＋上マージン
+  // 横向きでは右の列（方向パッドと同じ幅）に置くので、盤の高さからは引かない。
+  const strip = isQueue ? measureQueueStrip(side ? sidePadW : contentW, capacity) : null;
+  const stripH = strip && !side ? strip.height + space.sm : 0; // 帯の高さ＋上マージン
 
   // 縦の配りかた。②で帯が1段増えても、**タップ標的（方向ボタン・ゴー!）は①と同じ大きさ**を保つ
   // （§4 の巨大タップ領域は遊びかたで変わってはいけない）。帯が食う縦は、優先度の低いほうから
   // 　タップ標的 ＞ 盤面のマス ＞ 帯のマスの見た目
   // の順で返す。＝ 帯の高さは方向パッドの取り分から引かない（引くのは盤面から）。
-  const bodyH = Math.max(availH - HEADER_H, 200);
+  const bodyH = side ? availH - HEADER_H : Math.max(availH - HEADER_H, 200);
   let padBudget = Math.min(bodyH * 0.42, 340); // 方向パッド帯に割り当てる高さの上限
   if (stripH > 0) {
     // 例外: 盤面が下限のマスすら置けないほど縦が足りない画面では、足りないぶんだけ方向パッドが譲る
@@ -124,14 +163,18 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
   }
   const dirByH = Math.floor((padBudget - space.md) / 3.3); // 3行＋行間＋下パディングぶん
   const dirByW = Math.floor(contentW / 3.4);
-  const dirSize = Math.max(DIR_MIN, Math.min(dirByH, dirByW, 100));
-  const padAreaH = Math.ceil(dirSize * 3.3) + space.md; // 実際に方向パッド帯が占める高さの見積り
+  const dirSize = side ? sideDir : Math.max(DIR_MIN, Math.min(dirByH, dirByW, 100));
+  // 実際に方向パッド帯が占める高さの見積り（横向きは右の列なので盤の高さからは引かない）。
+  const padAreaH = side ? 0 : Math.ceil(dirSize * 3.3) + space.md;
 
   // めいろのマス: 残り高さと幅の小さいほうに収める。下限も小さめにして絶対にあふれさせない。
   // 盤の外寸はマス目全体＋枠線（MazeGrid の BOARD_BORDER）なので、枠線のぶんを引いてから割る。
   // 下限も「下限のマス×行数＋枠線」にする（以前は枠線を入れておらず、マスが下限に張り付く画面で
   // 盤が予算より 6px 大きくなっていた）。
-  const boardBudgetH = Math.max(bodyH - stripH - padAreaH - GAP, rows * CELL_MIN + frameLine);
+  const boardBudgetH = Math.max(
+    bodyH - stripH - (side ? 0 : padAreaH + GAP),
+    rows * CELL_MIN + frameLine
+  );
   const cell = Math.max(
     CELL_MIN,
     Math.floor(Math.min((contentW - frameLine) / cols, (boardBudgetH - frameLine) / rows, 116))
@@ -438,70 +481,90 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
 
   const nextId = getNextTemplateId(templateId);
 
+  const queueStrip =
+    isQueue && strip ? (
+      <View style={side ? styles.queueAreaSide : styles.queueArea}>
+        <CommandQueue
+          queue={queue}
+          capacity={capacity}
+          activeIndex={stepIndex}
+          metrics={strip}
+          onUndo={onUndo}
+          disabled={running || arrived}
+        />
+      </View>
+    ) : null;
+
+  // 方向パッド（②は十字のまんなかが「ゴー!」）。実行中は うすくする（②のみ）。横向きでは命令の列が
+  // 同じ右の列に入るので、うすくするのは方向パッドだけにする（実行中に光る命令の列は うすくしない）。
+  const padDim = isQueue && running ? styles.padRunning : null;
+  const dirPad = (
+    <DirPad
+      onDir={isQueue ? onArrow : onDir}
+      size={dirSize}
+      disabled={isQueue && (running || arrived) ? true : undefined}
+      center={
+        isQueue ? (
+          <GoButton
+            size={dirSize}
+            onPress={() => void onGo()}
+            ready={queue.length > 0 && !arrived}
+            running={running}
+          />
+        ) : undefined
+      }
+    />
+  );
+
   return (
-    <View style={styles.root}>
-      {/* 上段: おうちボタン＋ゴール案内 */}
-      <View style={styles.top}>
-        <Pressable onPress={onHome} hitSlop={10} style={styles.homeBtn} accessibilityLabel="おうちへ">
-          <Text style={styles.homeGlyph}>🏠</Text>
-        </Pressable>
-        <View style={styles.banner}>
-          <Text style={styles.bannerLabel} numberOfLines={1}>
-            ここまで いこう
-          </Text>
-          <GoalArt
-            glyph={level.goalEmoji}
-            photoUri={level.goalImage}
-            size={34}
-            emojiSize={32}
-          />
+    <View style={[styles.root, side && styles.rootSide]}>
+      {/* 左（縦持ちでは上〜中段）: 上段・命令の列・めいろ盤面 */}
+      <View style={styles.mainCol}>
+        {/* 上段: おうちボタン＋ゴール案内 */}
+        <View style={styles.top}>
+          <Pressable onPress={onHome} hitSlop={10} style={styles.homeBtn} accessibilityLabel="おうちへ">
+            <Text style={styles.homeGlyph}>🏠</Text>
+          </Pressable>
+          <View style={styles.banner}>
+            <Text style={styles.bannerLabel} numberOfLines={1}>
+              ここまで いこう
+            </Text>
+            <GoalArt
+              glyph={level.goalEmoji}
+              photoUri={level.goalImage}
+              size={34}
+              emojiSize={32}
+            />
 
+          </View>
+          <View style={styles.homeBtn} />
         </View>
-        <View style={styles.homeBtn} />
+
+        {/* ②だけ: 命令の列（積んだ矢印と ⌫）。横向きでは右の列に置く */}
+        {!side ? queueStrip : null}
+
+        {/* 中段: めいろ盤面 */}
+        <View style={styles.boardArea}>
+          <MazeGrid
+            level={level}
+            cell={cell}
+            avatarPos={avatarPos}
+            avatarTilt={avatarTilt}
+            goalEmoji={level.goalEmoji}
+          />
+        </View>
       </View>
 
-      {/* ②だけ: 命令の列（積んだ矢印と ⌫） */}
-      {isQueue && strip ? (
-        <View style={styles.queueArea}>
-          <CommandQueue
-            queue={queue}
-            capacity={capacity}
-            activeIndex={stepIndex}
-            metrics={strip}
-            onUndo={onUndo}
-            disabled={running || arrived}
-          />
-        </View>
-      ) : null}
-
-      {/* 中段: めいろ盤面 */}
-      <View style={styles.boardArea}>
-        <MazeGrid
-          level={level}
-          cell={cell}
-          avatarPos={avatarPos}
-          avatarTilt={avatarTilt}
-          goalEmoji={level.goalEmoji}
-        />
-      </View>
-
-      {/* 下段: 方向パッド（②は十字のまんなかが「ゴー!」） */}
-      <View style={[styles.padArea, isQueue && running ? styles.padRunning : null]}>
-        <DirPad
-          onDir={isQueue ? onArrow : onDir}
-          size={dirSize}
-          disabled={isQueue && (running || arrived) ? true : undefined}
-          center={
-            isQueue ? (
-              <GoButton
-                size={dirSize}
-                onPress={() => void onGo()}
-                ready={queue.length > 0 && !arrived}
-                running={running}
-              />
-            ) : undefined
-          }
-        />
+      {/* 右（縦持ちでは下段）: 方向パッド（②は十字のまんなかが「ゴー!」） */}
+      <View style={[styles.padArea, side && { width: sidePadW }, !side && padDim]}>
+        {side ? (
+          <>
+            {queueStrip}
+            <View style={padDim}>{dirPad}</View>
+          </>
+        ) : (
+          dirPad
+        )}
       </View>
 
       {arrived ? (
@@ -529,6 +592,15 @@ function sleep(ms: number): Promise<void> {
 
 const styles = StyleSheet.create({
   root: {
+    flex: 1,
+  },
+  // 背の低い横向き: 左に mainCol、右に方向パッドを並べる（すき間は盤と方向パッドの最小余白 space.md）。
+  rootSide: {
+    flexDirection: 'row',
+    columnGap: space.md,
+  },
+  // 上段＋命令の列＋盤。縦持ちでは従来の root の中身と同じ縦の並び（boardArea が残りを取る）。
+  mainCol: {
     flex: 1,
   },
   top: {
@@ -565,6 +637,10 @@ const styles = StyleSheet.create({
   // 高さバジェットに算入済みなので、盤面・方向パッドと重ならない。
   queueArea: {
     marginTop: space.sm,
+  },
+  // 横向き: 右の列の方向パッドの上（すき間は下に取る）。
+  queueAreaSide: {
+    marginBottom: space.sm,
   },
   boardArea: {
     flex: 1,
