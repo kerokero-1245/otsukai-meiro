@@ -13,6 +13,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, Platform, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { colors, font, space } from '../theme';
+import { FRAME_PAD_BOTTOM, FRAME_PAD_TOP } from '../layout';
 import { playSound } from '../audio/sounds';
 import { sayPhrase, cancelVoice } from '../audio/voice';
 import BigButton from './BigButton';
@@ -26,10 +27,10 @@ import GoalArt from './GoalArt';
 const BACKDROP_FULL: ViewStyle | null =
   Platform.OS === 'web' ? ({ position: 'fixed' } as unknown as ViewStyle) : null;
 
-// スクロールの入れ物は、枠（App.tsx の frame）の上下の余白（上 space.lg・下 space.md）まで広げて画面の上端〜下端を使う。
+// スクロールの入れ物は、枠（App.tsx の frame）の上下の余白（上 FRAME_PAD_TOP・下 FRAME_PAD_BOTTOM。src/layout.ts）まで広げて画面の上端〜下端を使う。
 // 従来は中身を枠の中央に置き、背が足りない画面（360x640 など）では中身が枠の余白にはみ出したまま画面内に
-// 収まっていた。入れ物を画面の高さまで広げ、中央の位置（枠の中央＝画面の中央より (space.lg − space.md)/2 下）を
-// 上下の余白の差で保つので、中身が画面に収まる限り見た目は従来と同じ。収まらないときだけスクロールになる。
+// 収まっていた。入れ物を画面の高さまで広げ、中央の位置（枠の中央＝画面の中央より (FRAME_PAD_TOP − FRAME_PAD_BOTTOM)/2 下）を
+// 上下の余白の差（FRAME_PAD_TOP − FRAME_PAD_BOTTOM）で保つので、中身が画面に収まる限り見た目は従来と同じ。収まらないときだけスクロールになる。
 const SCROLL_EDGE = 4; // スクロールになったときの上下の最小のすき間
 
 interface Props {
@@ -179,8 +180,8 @@ const styles = StyleSheet.create({
   },
   scroll: {
     position: 'absolute',
-    top: -space.lg,
-    bottom: -space.md,
+    top: -FRAME_PAD_TOP,
+    bottom: -FRAME_PAD_BOTTOM,
     left: 0,
     right: 0,
   },
@@ -190,7 +191,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: space.lg,
-    paddingTop: space.lg - space.md + SCROLL_EDGE,
+    paddingTop: FRAME_PAD_TOP - FRAME_PAD_BOTTOM + SCROLL_EDGE,
     paddingBottom: SCROLL_EDGE,
   },
   backdrop: {

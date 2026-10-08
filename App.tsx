@@ -6,7 +6,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 import { Route } from './src/types';
-import { colors, space } from './src/theme';
+import { colors } from './src/theme';
+import { FRAME_MAX_W, FRAME_PAD_BOTTOM, FRAME_PAD_H, FRAME_PAD_TOP } from './src/layout';
 import TitleScreen from './src/screens/TitleScreen';
 import LevelSelectScreen from './src/screens/LevelSelectScreen';
 import PlayScreen from './src/screens/PlayScreen';
@@ -88,10 +89,10 @@ const styles = StyleSheet.create({
   frame: {
     flex: 1,
     width: '100%',
-    maxWidth: 480,
-    paddingTop: space.lg,
-    paddingBottom: space.md,
-    paddingHorizontal: space.md,
+    maxWidth: FRAME_MAX_W,
+    paddingTop: FRAME_PAD_TOP,
+    paddingBottom: FRAME_PAD_BOTTOM,
+    paddingHorizontal: FRAME_PAD_H,
   },
   // フルブリード（レベルえらび）: 横の最大幅と横パディングを外す。縦の余白は維持。
   frameFull: {
