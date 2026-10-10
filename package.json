@@ -23,6 +23,7 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "test": "node --test --import ./tests/register.mjs \"tests/**/*.test.ts\"",
     "web": "expo start --web"
   },
   "private": true
