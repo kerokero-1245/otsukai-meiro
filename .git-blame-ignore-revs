@@ -1,0 +1,3 @@
+# git blame で無視するコミット（git config blame.ignoreRevsFile .git-blame-ignore-revs で手元にも効く）
+# 整形: Prettier の既定設定で全ファイルを整形する（挙動は変えない）
+38ba6a8c33d327f4b6abbf153fe853e078c5eb16
