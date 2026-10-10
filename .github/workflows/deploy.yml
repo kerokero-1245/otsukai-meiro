@@ -38,6 +38,9 @@ jobs:
       - name: 型チェック（tsc --noEmit）
         run: npm run typecheck
 
+      - name: テスト（node --test）
+        run: npm test
+
       - name: Web を書き出し（サブパス /otsukai-meiro/ 前提）
         # EXPO_BASE_URL は app.config.js が experiments.baseUrl に反映する。
         # これによりビルド時のみサブパスが適用され、ローカル開発には影響しない。
