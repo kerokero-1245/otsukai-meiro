@@ -2,15 +2,15 @@
 // アバターの位置(avatarPos)と首かしげ(avatarTilt)は親(PlayScreen)が Animated 値で駆動する
 // 制御コンポーネント。ここでは描画とゴールのゆるやかな“きらきら”だけを持つ。
 
-import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, View } from 'react-native';
-import { Level } from '../types';
-import { colors, radius } from '../theme';
-import Avatar from './Avatar';
-import PiyoArt from './PiyoArt';
-import GoalArt from './GoalArt';
+import React, { useEffect, useRef } from "react";
+import { Animated, Easing, StyleSheet, View } from "react-native";
+import { Level } from "../types";
+import { colors, radius } from "../theme";
+import Avatar from "./Avatar";
+import PiyoArt from "./PiyoArt";
+import GoalArt from "./GoalArt";
 
-const OBSTACLE_EMOJI = '🌳';
+const OBSTACLE_EMOJI = "🌳";
 
 // 盤の枠線の太さ。枠の大きさは「マス目全体＋左右（上下）の枠線」にする。
 // 以前はマス目全体の大きさ（cell×列数）を枠の外寸にしていたため、枠線のぶん内側が狭くなり、
@@ -26,7 +26,13 @@ interface Props {
   goalEmoji: string;
 }
 
-export default function MazeGrid({ level, cell, avatarPos, avatarTilt, goalEmoji }: Props) {
+export default function MazeGrid({
+  level,
+  cell,
+  avatarPos,
+  avatarTilt,
+  goalEmoji,
+}: Props) {
   // 外寸（枠線こみ）。枠線の内側がちょうどマス目全体になる。
   const boardW = cell * level.cols + BOARD_BORDER * 2;
   const boardH = cell * level.rows + BOARD_BORDER * 2;
@@ -48,7 +54,7 @@ export default function MazeGrid({ level, cell, avatarPos, avatarTilt, goalEmoji
           easing: Easing.inOut(Easing.quad),
           useNativeDriver: false,
         }),
-      ])
+      ]),
     );
     loop.start();
     return () => loop.stop();
@@ -59,24 +65,36 @@ export default function MazeGrid({ level, cell, avatarPos, avatarTilt, goalEmoji
   for (let y = 0; y < level.rows; y++) {
     for (let x = 0; x < level.cols; x++) {
       const isGoalTile = x === level.goal.x && y === level.goal.y;
-      const isObstacleTile = level.obstacles.some((o) => o.x === x && o.y === y);
+      const isObstacleTile = level.obstacles.some(
+        (o) => o.x === x && o.y === y,
+      );
       const base = (x + y) % 2 === 0 ? colors.tileLight : colors.tileDark;
-      const bg = isGoalTile ? colors.goalTile : isObstacleTile ? colors.obstacleTile : base;
+      const bg = isGoalTile
+        ? colors.goalTile
+        : isObstacleTile
+          ? colors.obstacleTile
+          : base;
       tiles.push(
         <View
           key={`t-${x}-${y}`}
           style={[
             styles.tile,
-            { left: x * cell, top: y * cell, width: cell, height: cell, backgroundColor: bg },
+            {
+              left: x * cell,
+              top: y * cell,
+              width: cell,
+              height: cell,
+              backgroundColor: bg,
+            },
           ]}
-        />
+        />,
       );
     }
   }
 
   const rotate = avatarTilt.interpolate({
     inputRange: [-1, 0, 1],
-    outputRange: ['-14deg', '0deg', '14deg'],
+    outputRange: ["-14deg", "0deg", "14deg"],
   });
 
   return (
@@ -92,10 +110,17 @@ export default function MazeGrid({ level, cell, avatarPos, avatarTilt, goalEmoji
       {level.obstacles.map((o, i) => (
         <View
           key={`o-${i}`}
-          style={[styles.cellOverlay, { left: o.x * cell, top: o.y * cell, width: cell, height: cell }]}
+          style={[
+            styles.cellOverlay,
+            { left: o.x * cell, top: o.y * cell, width: cell, height: cell },
+          ]}
           pointerEvents="none"
         >
-          <PiyoArt glyph={OBSTACLE_EMOJI} size={cell * 0.78} emojiSize={cell * 0.58} />
+          <PiyoArt
+            glyph={OBSTACLE_EMOJI}
+            size={cell * 0.78}
+            emojiSize={cell * 0.58}
+          />
         </View>
       ))}
 
@@ -116,7 +141,11 @@ export default function MazeGrid({ level, cell, avatarPos, avatarTilt, goalEmoji
         <View
           style={[
             styles.goalHalo,
-            { width: cell * 0.82, height: cell * 0.82, borderRadius: cell * 0.41 },
+            {
+              width: cell * 0.82,
+              height: cell * 0.82,
+              borderRadius: cell * 0.41,
+            },
           ]}
         >
           <GoalArt
@@ -156,8 +185,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: BOARD_BORDER,
     borderColor: colors.tileBorder,
-    position: 'relative',
-    shadowColor: '#00000055',
+    position: "relative",
+    shadowColor: "#00000055",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -165,34 +194,34 @@ const styles = StyleSheet.create({
   },
   // 枠線の内側いっぱい。角丸は枠の角丸から枠線の太さを引いた内側の丸み。
   tileLayer: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
     borderRadius: radius.md - BOARD_BORDER,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   tile: {
-    position: 'absolute',
+    position: "absolute",
     borderWidth: 1,
     borderColor: colors.tileBorder,
   },
   cellOverlay: {
-    position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
+    position: "absolute",
+    alignItems: "center",
+    justifyContent: "center",
   },
   goalHalo: {
     backgroundColor: colors.goalHalo,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   avatarWrap: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

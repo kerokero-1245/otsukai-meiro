@@ -11,10 +11,10 @@
 // - progress.ts / audio/bgm.ts と同じ流儀: どの API も例外を投げず、読めないときは既定へ倒す。
 //   消えても遊びは壊れない（既定 = これまでどおりのタップモード）。
 
-import { Platform } from 'react-native';
-import { LevelMode } from './types';
+import { Platform } from "react-native";
+import { LevelMode } from "./types";
 
-const KEY_MODE = 'meiro.mode'; // 'queue' のときだけ②。それ以外（未設定・壊れた値）は①。
+const KEY_MODE = "meiro.mode"; // 'queue' のときだけ②。それ以外（未設定・壊れた値）は①。
 
 // 型の都合で最小限だけ宣言（DOM lib に依存しない。progress.ts / bgm.ts と同じ流儀）。
 interface WebStorage {
@@ -22,9 +22,10 @@ interface WebStorage {
   setItem(key: string, value: string): void;
 }
 function ls(): WebStorage | null {
-  if (Platform.OS !== 'web') return null;
+  if (Platform.OS !== "web") return null;
   try {
-    const s = (globalThis as unknown as { localStorage?: WebStorage }).localStorage;
+    const s = (globalThis as unknown as { localStorage?: WebStorage })
+      .localStorage;
     return s ?? null;
   } catch {
     return null;
@@ -38,11 +39,11 @@ let modeCache: LevelMode | null = null;
 export function getPlayMode(): LevelMode {
   if (modeCache !== null) return modeCache;
   const store = ls();
-  if (!store) return (modeCache = 'tap');
+  if (!store) return (modeCache = "tap");
   try {
-    return (modeCache = store.getItem(KEY_MODE) === 'queue' ? 'queue' : 'tap');
+    return (modeCache = store.getItem(KEY_MODE) === "queue" ? "queue" : "tap");
   } catch {
-    return (modeCache = 'tap');
+    return (modeCache = "tap");
   }
 }
 

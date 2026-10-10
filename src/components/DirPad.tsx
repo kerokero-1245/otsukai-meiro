@@ -2,10 +2,10 @@
 // 「誤操作に寛容」= どのボタンも常に押せる。動けない向きでも無効化せず、
 // 押した結果は PlayScreen 側で「首をかしげる」に変える（§4）。
 
-import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Direction } from '../types';
-import { colors, radius } from '../theme';
+import React from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Direction } from "../types";
+import { colors, radius } from "../theme";
 
 interface Props {
   onDir: (d: Direction) => void;
@@ -19,17 +19,17 @@ interface Props {
 }
 
 const GLYPH: Record<Direction, string> = {
-  up: '▲',
-  down: '▼',
-  left: '◀',
-  right: '▶',
+  up: "▲",
+  down: "▼",
+  left: "◀",
+  right: "▶",
 };
 
 const LABEL: Record<Direction, string> = {
-  up: 'うえ',
-  down: 'した',
-  left: 'ひだり',
-  right: 'みぎ',
+  up: "うえ",
+  down: "した",
+  left: "ひだり",
+  right: "みぎ",
 };
 
 function DirButton({
@@ -52,10 +52,16 @@ function DirButton({
       hitSlop={8}
       style={({ pressed }) => [
         styles.btn,
-        { width: size, height: size, backgroundColor: pressed ? colors.buttonPressed : colors.button },
+        {
+          width: size,
+          height: size,
+          backgroundColor: pressed ? colors.buttonPressed : colors.button,
+        },
       ]}
     >
-      <Text style={[styles.glyph, { fontSize: size * 0.46 }]}>{GLYPH[dir]}</Text>
+      <Text style={[styles.glyph, { fontSize: size * 0.46 }]}>
+        {GLYPH[dir]}
+      </Text>
     </Pressable>
   );
 }
@@ -64,7 +70,7 @@ export default function DirPad({ onDir, size, center, disabled }: Props) {
   const gap = Math.round(size * 0.14);
   const Spacer = () => <View style={{ width: size, height: size }} />;
   return (
-    <View style={{ alignItems: 'center' }}>
+    <View style={{ alignItems: "center" }}>
       <View style={[styles.row, { marginBottom: gap }]}>
         <Spacer />
         <DirButton dir="up" size={size} onDir={onDir} disabled={disabled} />
@@ -72,7 +78,9 @@ export default function DirPad({ onDir, size, center, disabled }: Props) {
       </View>
       <View style={[styles.row, { marginBottom: gap }]}>
         <DirButton dir="left" size={size} onDir={onDir} disabled={disabled} />
-        <View style={[styles.centerGap, { width: size, height: size }]}>{center}</View>
+        <View style={[styles.centerGap, { width: size, height: size }]}>
+          {center}
+        </View>
         <DirButton dir="right" size={size} onDir={onDir} disabled={disabled} />
       </View>
       <View style={styles.row}>
@@ -86,17 +94,17 @@ export default function DirPad({ onDir, size, center, disabled }: Props) {
 
 const styles = StyleSheet.create({
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     // ボタン間の左右の間隔（押し間違い防止に少しあける）。
     columnGap: 10,
   },
   centerGap: {},
   btn: {
     borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#00000055',
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#00000055",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
@@ -104,6 +112,6 @@ const styles = StyleSheet.create({
   },
   glyph: {
     color: colors.buttonGlyph,
-    fontWeight: '900',
+    fontWeight: "900",
   },
 });

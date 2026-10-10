@@ -17,11 +17,17 @@
 //
 // iOS Safari の自動再生制限（最初のユーザー操作より前に音を出せない）は warmUpVoice() で守る。
 
-import { isClipAvailable, playClip, playAudioUrl, warmUpClips, cancelClip } from './clips';
-import { CLIP_URLS } from './voiceClips';
-import { speak, warmUpSpeech, cancelSpeech, isSpeechAvailable } from './speech';
-import { duckForVoice, unduckForVoice } from './bgm';
-import { VoiceSlot, voiceUrl } from '../personal/store';
+import {
+  isClipAvailable,
+  playClip,
+  playAudioUrl,
+  warmUpClips,
+  cancelClip,
+} from "./clips";
+import { CLIP_URLS } from "./voiceClips";
+import { speak, warmUpSpeech, cancelSpeech, isSpeechAvailable } from "./speech";
+import { duckForVoice, unduckForVoice } from "./bgm";
+import { VoiceSlot, voiceUrl } from "../personal/store";
 
 // 読み上げ1回ぶんの指定。
 //   slot … おとなモードの録音スロット（tier0）。録音があればここが最優先。
@@ -40,11 +46,11 @@ export interface VoiceSpec {
 // clip 基名は assets/voice/ に置いた VOICEVOX ずんだもんクリップのファイル基名と一致している。
 // slot はおとなモードで録れる「おじの声」の置き場（tsuita / zenbu の2つ）。title は同梱のまま
 // （アプリ名の読み上げなので差し替えの必要が薄い）。
-export type PhraseKey = 'title' | 'tsuita' | 'zenbu';
+export type PhraseKey = "title" | "tsuita" | "zenbu";
 export const PHRASE_VOICE: Record<PhraseKey, VoiceSpec> = {
-  title: { clip: 'p_title', text: 'おつかいめいろ' },
-  tsuita: { slot: 'tsuita', clip: 'p_tsuita', text: 'ついたね' },
-  zenbu: { slot: 'zenbu', clip: 'p_zenbu', text: 'ぜんぶ できたね' },
+  title: { clip: "p_title", text: "おつかいめいろ" },
+  tsuita: { slot: "tsuita", clip: "p_tsuita", text: "ついたね" },
+  zenbu: { slot: "zenbu", clip: "p_zenbu", text: "ぜんぶ できたね" },
 };
 
 // ── BGM ダッキング（声の再生中だけ BGM を沈める）─────────────────────
@@ -94,7 +100,8 @@ export function playVoice(spec: VoiceSpec, opts?: { enabled?: boolean }): void {
   const personal = spec.slot ? voiceUrl(spec.slot) : null;
   if (personal && playAudioUrl(personal, finish)) return;
   // ① 同梱クリップ
-  if (isClipAvailable(spec.clip) && playClip(spec.clip as string, finish)) return;
+  if (isClipAvailable(spec.clip) && playClip(spec.clip as string, finish))
+    return;
   // ② speechSynthesis
   if (speak(spec.text, { enabled: true }, finish)) return;
   // ③ 無音（どれも鳴らせない）: ダッキングを即解除

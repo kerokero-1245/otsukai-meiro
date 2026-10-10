@@ -7,10 +7,10 @@ export interface Coord {
 }
 
 // 移動の向き。▲=up(y-1) / ▼=down(y+1) / ◀=left(x-1) / ▶=right(x+1)。
-export type Direction = 'up' | 'down' | 'left' | 'right';
+export type Direction = "up" | "down" | "left" | "right";
 
 // めいろの遊びモード。MVP（フェーズ1）は 'tap' のみ。'queue' はフェーズ4。
-export type LevelMode = 'tap' | 'queue';
+export type LevelMode = "tap" | "queue";
 
 // むずかしさテンプレート（アプリ同梱の静的JSON templates.json の1件 ＝ レベルえらびのカード1枚）。
 // カードを選ぶたびに、このテンプレートから迷路(Level)を「その場で」ランダム生成する（DESIGN §7）。
@@ -54,8 +54,8 @@ export interface Level {
 // 画面ルート（App.tsx の簡易ステートルーターで使用）。
 // react-navigation を使わず、文字ヘッダの無い全画面遷移にするための最小ルーター。
 export type Route =
-  | { name: 'title' }
-  | { name: 'select' }
-  | { name: 'play'; templateId: string } // むずかしさテンプレートのid。画面側で迷路を生成する
-  | { name: 'ganbari' } // 全5レベルの⭐が揃ったときの「ぜんぶ できたね! がんばりカード」
-  | { name: 'otona' };
+  | { name: "title" }
+  | { name: "select" }
+  | { name: "play"; templateId: string } // むずかしさテンプレートのid。画面側で迷路を生成する
+  | { name: "ganbari" } // 全5レベルの⭐が揃ったときの「ぜんぶ できたね! がんばりカード」
+  | { name: "otona" };

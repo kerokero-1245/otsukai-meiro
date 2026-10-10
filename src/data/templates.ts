@@ -2,8 +2,8 @@
 // 5枚のカードは「固定レベル」ではなく「むずかしさテンプレート」で持つ（templates.json）。
 // カードを選ぶたびに、テンプレートから迷路(Level)をその場でランダム生成する（src/game/generate.ts）。
 
-import rawTemplates from './templates.json';
-import { Template } from '../types';
+import rawTemplates from "./templates.json";
+import { Template } from "../types";
 
 // JSON の推論型は緩いので Template[] として扱う。
 export const TEMPLATES: Template[] = rawTemplates as unknown as Template[];

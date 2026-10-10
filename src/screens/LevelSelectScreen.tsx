@@ -9,7 +9,7 @@
 //  3) 初回ナッジ: 表示の約1秒後、スクロール可能なときだけ軽く右へ動いて戻る（1回だけ）。
 //  4) 画面が広く全カードが収まる場合（PC等）は、誘導サイン・ナッジとも出さない。
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Easing,
@@ -21,13 +21,13 @@ import {
   Text,
   useWindowDimensions,
   View,
-} from 'react-native';
-import { colors, font, radius, space } from '../theme';
-import { TEMPLATES } from '../data/templates';
-import { Coord, Template } from '../types';
-import { playSound } from '../audio/sounds';
-import { allCleared, isCleared } from '../progress';
-import PiyoArt from '../components/PiyoArt';
+} from "react-native";
+import { colors, font, radius, space } from "../theme";
+import { TEMPLATES } from "../data/templates";
+import { Coord, Template } from "../types";
+import { playSound } from "../audio/sounds";
+import { allCleared, isCleared } from "../progress";
+import PiyoArt from "../components/PiyoArt";
 
 interface Props {
   onPick: (levelId: string) => void;
@@ -54,7 +54,8 @@ const CROWN_W = 26 + space.xs;
 const PROMPT_PER_PX = 6.31;
 const RIGHT_GIVE = 4;
 function promptFontSize(winW: number, crowned: boolean): number {
-  const room = winW - space.md * 2 - BACK_W * 2 + RIGHT_GIVE - (crowned ? CROWN_W : 0);
+  const room =
+    winW - space.md * 2 - BACK_W * 2 + RIGHT_GIVE - (crowned ? CROWN_W : 0);
   return Math.max(18, Math.min(font.title, Math.floor(room / PROMPT_PER_PX)));
 }
 
@@ -80,9 +81,13 @@ function previewObstacles(cols: number, rows: number, count: number): Coord[] {
 // 「どこから どこまで」を4歳にも一目で伝える（実プレイのゴール絵文字は毎回ランダム）。
 function MazePreview({ template }: { template: Template }) {
   const { cols, rows, obstacleMax } = template;
-  const cellPx = Math.max(20, Math.min(38, Math.floor(PREVIEW_MAX / Math.max(cols, rows))));
+  const cellPx = Math.max(
+    20,
+    Math.min(38, Math.floor(PREVIEW_MAX / Math.max(cols, rows))),
+  );
   const obstacles = previewObstacles(cols, rows, obstacleMax);
-  const isTree = (x: number, y: number) => obstacles.some((o) => o.x === x && o.y === y);
+  const isTree = (x: number, y: number) =>
+    obstacles.some((o) => o.x === x && o.y === y);
 
   const rowEls: React.ReactNode[] = [];
   for (let y = 0; y < rows; y++) {
@@ -94,21 +99,27 @@ function MazePreview({ template }: { template: Template }) {
       const base = (x + y) % 2 === 0 ? colors.tileLight : colors.tileDark;
       const bg = goal ? colors.goalTile : tree ? colors.obstacleTile : base;
       cellEls.push(
-        <View key={x} style={[styles.pvCell, { width: cellPx, height: cellPx, backgroundColor: bg }]}>
+        <View
+          key={x}
+          style={[
+            styles.pvCell,
+            { width: cellPx, height: cellPx, backgroundColor: bg },
+          ]}
+        >
           {start || goal || tree ? (
             <PiyoArt
-              glyph={start ? '🐥' : goal ? '🎁' : '🌳'}
+              glyph={start ? "🐥" : goal ? "🎁" : "🌳"}
               size={cellPx * 0.86}
               emojiSize={cellPx * 0.6}
             />
           ) : null}
-        </View>
+        </View>,
       );
     }
     rowEls.push(
       <View key={y} style={styles.pvRow}>
         {cellEls}
-      </View>
+      </View>,
     );
   }
   return <View style={styles.pvBoard}>{rowEls}</View>;
@@ -130,12 +141,18 @@ function LevelCard({
   return (
     <Pressable
       onPress={() => {
-        playSound('tap');
+        playSound("tap");
         onPick(template.id);
       }}
       accessibilityRole="button"
-      accessibilityLabel={cleared ? `${template.label}（クリアずみ）` : template.label}
-      style={({ pressed }) => [styles.card, { width }, pressed && styles.cardPressed]}
+      accessibilityLabel={
+        cleared ? `${template.label}（クリアずみ）` : template.label
+      }
+      style={({ pressed }) => [
+        styles.card,
+        { width },
+        pressed && styles.cardPressed,
+      ]}
     >
       <View style={styles.numberBadge}>
         <Text style={styles.numberText}>{index + 1}</Text>
@@ -160,7 +177,7 @@ function LevelCard({
 
 // 端の誘導サイン。柔らかい三角を、ゆっくり明滅＋小さく左右に揺らす（4歳向けに派手すぎない）。
 // 装飾なので pointerEvents="none"（タップは下のスクロールへ通す）。
-function HintArrow({ side }: { side: 'left' | 'right' }) {
+function HintArrow({ side }: { side: "left" | "right" }) {
   const a = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     const loop = Animated.loop(
@@ -177,7 +194,7 @@ function HintArrow({ side }: { side: 'left' | 'right' }) {
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: false,
         }),
-      ])
+      ]),
     );
     loop.start();
     return () => loop.stop();
@@ -186,16 +203,24 @@ function HintArrow({ side }: { side: 'left' | 'right' }) {
   const opacity = a.interpolate({ inputRange: [0, 1], outputRange: [0.55, 1] });
   const sway = a.interpolate({
     inputRange: [0, 1],
-    outputRange: side === 'right' ? [-3, 4] : [3, -4],
+    outputRange: side === "right" ? [-3, 4] : [3, -4],
   });
 
   return (
     <View
-      style={[styles.hintWrap, side === 'right' ? styles.hintRight : styles.hintLeft]}
+      style={[
+        styles.hintWrap,
+        side === "right" ? styles.hintRight : styles.hintLeft,
+      ]}
       pointerEvents="none"
     >
-      <Animated.View style={[styles.hintBubble, { opacity, transform: [{ translateX: sway }] }]}>
-        <Text style={styles.hintGlyph}>{side === 'right' ? '▶︎' : '◀︎'}</Text>
+      <Animated.View
+        style={[
+          styles.hintBubble,
+          { opacity, transform: [{ translateX: sway }] },
+        ]}
+      >
+        <Text style={styles.hintGlyph}>{side === "right" ? "▶︎" : "◀︎"}</Text>
       </Animated.View>
     </View>
   );
@@ -259,12 +284,20 @@ export default function LevelSelectScreen({ onPick, onBack }: Props) {
   return (
     <View style={styles.root}>
       <View style={styles.header}>
-        <Pressable onPress={onBack} hitSlop={12} style={styles.backBtn} accessibilityLabel="もどる">
+        <Pressable
+          onPress={onBack}
+          hitSlop={12}
+          style={styles.backBtn}
+          accessibilityLabel="もどる"
+        >
           <Text style={styles.backGlyph}>◀️</Text>
         </Pressable>
         <View style={styles.promptRow}>
           {crowned ? <Text style={styles.crown}>👑</Text> : null}
-          <Text style={[styles.prompt, { fontSize: promptSize }]} numberOfLines={1}>
+          <Text
+            style={[styles.prompt, { fontSize: promptSize }]}
+            numberOfLines={1}
+          >
             どれで あそぶ?
           </Text>
         </View>
@@ -282,7 +315,10 @@ export default function LevelSelectScreen({ onPick, onBack }: Props) {
           onScroll={onScroll}
           scrollEventThrottle={16}
           style={styles.scrollView}
-          contentContainerStyle={[styles.scroll, allFit && styles.scrollCentered]}
+          contentContainerStyle={[
+            styles.scroll,
+            allFit && styles.scrollCentered,
+          ]}
         >
           {TEMPLATES.map((template, i) => (
             <LevelCard
@@ -308,17 +344,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: space.md,
     paddingHorizontal: space.md, // フルブリードなので横の余白は画面側で持つ
   },
   backBtn: {
     width: 52,
     height: 52,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   backGlyph: {
     fontSize: 26,
@@ -329,8 +365,8 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   promptRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     columnGap: space.xs,
     flexShrink: 0,
   },
@@ -339,37 +375,37 @@ const styles = StyleSheet.create({
   },
   prompt: {
     fontSize: font.title,
-    fontWeight: '800',
+    fontWeight: "800",
     color: colors.text,
   },
   // カルーセル領域（縦方向中央にカードを置き、端に誘導サインを重ねる）。
   carousel: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   scrollView: {
     flexGrow: 0,
-    width: '100%',
+    width: "100%",
   },
   scroll: {
     paddingHorizontal: H_PAD,
     paddingVertical: space.md,
-    alignItems: 'center',
+    alignItems: "center",
     columnGap: GAP,
   },
   // 全カードが収まる広い画面: 横方向に中央寄せ（誘導サインは出さない）。
   scrollCentered: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   // 誘導サイン（端に重ねる、縦中央）。
   hintWrap: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     bottom: 0,
     width: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   hintRight: {
     right: 2,
@@ -381,12 +417,12 @@ const styles = StyleSheet.create({
     width: 46,
     height: 46,
     borderRadius: 23,
-    backgroundColor: 'rgba(255,255,255,0.78)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "rgba(255,255,255,0.78)",
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 2,
     borderColor: colors.tileBorder,
-    shadowColor: '#00000055',
+    shadowColor: "#00000055",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -394,7 +430,7 @@ const styles = StyleSheet.create({
   },
   hintGlyph: {
     fontSize: 24,
-    fontWeight: '900',
+    fontWeight: "900",
     color: colors.button,
   },
   card: {
@@ -402,10 +438,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     paddingVertical: space.lg,
     paddingHorizontal: space.md,
-    alignItems: 'center',
+    alignItems: "center",
     borderWidth: 2,
     borderColor: colors.tileBorder,
-    shadowColor: '#00000055',
+    shadowColor: "#00000055",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.18,
     shadowRadius: 6,
@@ -416,18 +452,18 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.98 }],
   },
   starBadge: {
-    position: 'absolute',
+    position: "absolute",
     top: space.sm,
     right: space.sm,
     width: 44,
     height: 44,
     borderRadius: 22,
     backgroundColor: colors.goalHalo,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 3,
     borderColor: colors.white,
-    shadowColor: '#00000055',
+    shadowColor: "#00000055",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
@@ -441,13 +477,13 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     backgroundColor: colors.button,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: space.sm,
   },
   numberText: {
     fontSize: font.big,
-    fontWeight: '900',
+    fontWeight: "900",
     color: colors.white,
   },
   // ミニめいろ（プレビュー）。実際の盤面(MazeGrid)の縮小版。
@@ -460,18 +496,18 @@ const styles = StyleSheet.create({
     marginTop: space.xs,
   },
   pvRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   pvCell: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 1,
     borderColor: colors.tileBorder,
   },
   cardTitle: {
     marginTop: space.sm,
     fontSize: font.body,
-    fontWeight: '700',
+    fontWeight: "700",
     color: colors.text,
     maxWidth: 176,
   },

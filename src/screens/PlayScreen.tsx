@@ -18,7 +18,7 @@
 // どちらの並びでも盤まわりの要素の木（mainCol / boardArea）は同じにして、回転しても盤やアバターを作り直さない
 // （置き場所が変わるのは②の命令の列だけ。列の中身は PlayScreen の状態なので消えない）。
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Animated,
   Easing,
@@ -27,17 +27,22 @@ import {
   Text,
   View,
   useWindowDimensions,
-} from 'react-native';
-import { colors, font, radius, space } from '../theme';
-import { getTemplate, getNextTemplateId } from '../data/templates';
-import { generateLevel, QUEUE_MIN_CAPACITY } from '../game/generate';
-import { Coord, Direction, Level, LevelMode } from '../types';
-import { canMove, isGoal, move } from '../game/maze';
-import { playSound } from '../audio/sounds';
-import { allCleared, bumpTotalStars, hasCelebratedAll, markCleared } from '../progress';
-import { getPlayMode } from '../settings';
-import { useReducedMotion } from '../a11y';
-import MazeGrid, { BOARD_BORDER } from '../components/MazeGrid';
+} from "react-native";
+import { colors, font, radius, space } from "../theme";
+import { getTemplate, getNextTemplateId } from "../data/templates";
+import { generateLevel, QUEUE_MIN_CAPACITY } from "../game/generate";
+import { Coord, Direction, Level, LevelMode } from "../types";
+import { canMove, isGoal, move } from "../game/maze";
+import { playSound } from "../audio/sounds";
+import {
+  allCleared,
+  bumpTotalStars,
+  hasCelebratedAll,
+  markCleared,
+} from "../progress";
+import { getPlayMode } from "../settings";
+import { useReducedMotion } from "../a11y";
+import MazeGrid, { BOARD_BORDER } from "../components/MazeGrid";
 import {
   FRAME_MAX_W,
   FRAME_MAX_W_WIDE,
@@ -45,14 +50,17 @@ import {
   FRAME_PAD_H,
   FRAME_PAD_TOP,
   isCompactLandscape,
-} from '../layout';
-import DirPad from '../components/DirPad';
-import ClearOverlay from '../components/ClearOverlay';
-import BigButton from '../components/BigButton';
-import GoalArt from '../components/GoalArt';
-import GoButton from '../components/GoButton';
-import CommandQueue, { BAND_H, measureQueueStrip } from '../components/CommandQueue';
-import { pickGoalPhotoUrl } from '../personal/store';
+} from "../layout";
+import DirPad from "../components/DirPad";
+import ClearOverlay from "../components/ClearOverlay";
+import BigButton from "../components/BigButton";
+import GoalArt from "../components/GoalArt";
+import GoButton from "../components/GoButton";
+import CommandQueue, {
+  BAND_H,
+  measureQueueStrip,
+} from "../components/CommandQueue";
+import { pickGoalPhotoUrl } from "../personal/store";
 
 interface Props {
   templateId: string;
@@ -78,21 +86,26 @@ function decorate(level: Level): Level {
   return photo ? { ...level, goalImage: photo } : level;
 }
 
-export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll }: Props) {
+export default function PlayScreen({
+  templateId,
+  onHome,
+  onNext,
+  onCelebrateAll,
+}: Props) {
   const template = getTemplate(templateId);
   const { width, height } = useWindowDimensions();
 
   // あそびかたは画面に入った時点の設定で固定する（遊んでいる最中に切り替わらない）。
   // おとなモードで変えたあとは タイトル→レベルえらび→プレイ と入り直すので必ず反映される。
   const [playMode] = useState<LevelMode>(() => getPlayMode());
-  const isQueue = playMode === 'queue';
+  const isQueue = playMode === "queue";
   const reduceMotion = useReducedMotion();
 
   // このテンプレートから生成した「いまの迷路」。カードを開くたび／「もういちど」のたびに
   // 新しい迷路を作る（さんすうドリルのように何回も遊べる）。テンプレートが無い保険では null。
   // key={templateId}（App.tsx）で画面はテンプレートごとに作り直されるので、初期生成は1回。
   const [level, setLevel] = useState<Level | null>(() =>
-    template ? decorate(generateLevel(template)) : null
+    template ? decorate(generateLevel(template)) : null,
   );
 
   // --- ②ならべてゴー の状態（①では触らない）---
@@ -111,7 +124,8 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
   const rows = level?.rows ?? 1;
 
   const side = isCompactLandscape(width, height); // 背の低い横向き＝盤と方向パッドを左右に並べる
-  const frameW = Math.min(width, side ? FRAME_MAX_W_WIDE : FRAME_MAX_W) - FRAME_PAD_H * 2; // 枠の内側の幅
+  const frameW =
+    Math.min(width, side ? FRAME_MAX_W_WIDE : FRAME_MAX_W) - FRAME_PAD_H * 2; // 枠の内側の幅
   // 縦に使える高さ（frame の上下パディングぶん）。縦持ちは従来どおり下限 320（横向きは実寸で組む）。
   const availH = side
     ? height - (FRAME_PAD_TOP + FRAME_PAD_BOTTOM)
@@ -136,8 +150,8 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
         Math.min(
           Math.floor((availH - sideStripH - space.md) / 3.3),
           Math.floor((frameW - GAP - MAIN_MIN_W - DIR_GAP_W) / 3),
-          100
-        )
+          100,
+        ),
       )
     : 0;
   const sidePadW = side ? sideDir * 3 + DIR_GAP_W : 0;
@@ -146,7 +160,9 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
 
   // ②だけ増える「命令の列」の帯。高さは上限本数によらず一定（CommandQueue の BAND_H）。
   // 横向きでは右の列（方向パッドと同じ幅）に置くので、盤の高さからは引かない。
-  const strip = isQueue ? measureQueueStrip(side ? sidePadW : contentW, capacity) : null;
+  const strip = isQueue
+    ? measureQueueStrip(side ? sidePadW : contentW, capacity)
+    : null;
   const stripH = strip && !side ? strip.height + space.sm : 0; // 帯の高さ＋上マージン
 
   // 縦の配りかた。②で帯が1段増えても、**タップ標的（方向ボタン・ゴー!）は①と同じ大きさ**を保つ
@@ -159,11 +175,16 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
     // 例外: 盤面が下限のマスすら置けないほど縦が足りない画面では、足りないぶんだけ方向パッドが譲る
     //（重なりを出さないことが最優先。DIR_MIN より小さくはしない）。
     const padRoom = bodyH - stripH - GAP - (rows * CELL_MIN + frameLine);
-    padBudget = Math.min(padBudget, Math.max(padRoom, DIR_MIN * 3.3 + space.md));
+    padBudget = Math.min(
+      padBudget,
+      Math.max(padRoom, DIR_MIN * 3.3 + space.md),
+    );
   }
   const dirByH = Math.floor((padBudget - space.md) / 3.3); // 3行＋行間＋下パディングぶん
   const dirByW = Math.floor(contentW / 3.4);
-  const dirSize = side ? sideDir : Math.max(DIR_MIN, Math.min(dirByH, dirByW, 100));
+  const dirSize = side
+    ? sideDir
+    : Math.max(DIR_MIN, Math.min(dirByH, dirByW, 100));
   // 実際に方向パッド帯が占める高さの見積り（横向きは右の列なので盤の高さからは引かない）。
   const padAreaH = side ? 0 : Math.ceil(dirSize * 3.3) + space.md;
 
@@ -173,17 +194,25 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
   // 盤が予算より 6px 大きくなっていた）。
   const boardBudgetH = Math.max(
     bodyH - stripH - (side ? 0 : padAreaH + GAP),
-    rows * CELL_MIN + frameLine
+    rows * CELL_MIN + frameLine,
   );
   const cell = Math.max(
     CELL_MIN,
-    Math.floor(Math.min((contentW - frameLine) / cols, (boardBudgetH - frameLine) / rows, 116))
+    Math.floor(
+      Math.min(
+        (contentW - frameLine) / cols,
+        (boardBudgetH - frameLine) / rows,
+        116,
+      ),
+    ),
   );
 
   // --- アバターの状態（論理位置は ref、見た目は Animated 値で駆動）---
   const start = level?.start ?? { x: 0, y: 0 };
   const posRef = useRef<Coord>(start);
-  const avatarPos = useRef(new Animated.ValueXY({ x: start.x * cell, y: start.y * cell })).current;
+  const avatarPos = useRef(
+    new Animated.ValueXY({ x: start.x * cell, y: start.y * cell }),
+  ).current;
   const avatarTilt = useRef(new Animated.Value(0)).current;
   const animatingRef = useRef(false);
   const [arrived, setArrived] = useState(false);
@@ -197,14 +226,20 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
   // ②の実行を打ち切るための世代番号。もういちど／画面を離れる で増やすと、走っている
   // 実行ループは次のステップの手前で静かに抜ける（後片付けは打ち切った側が行う）。
   const runTokenRef = useRef(0);
-  useEffect(() => () => {
-    runTokenRef.current++;
-  }, []);
+  useEffect(
+    () => () => {
+      runTokenRef.current++;
+    },
+    [],
+  );
 
   // 画面リサイズ時、アニメ中でなければアバターを論理位置に合わせ直す。
   useEffect(() => {
     if (!animatingRef.current) {
-      avatarPos.setValue({ x: posRef.current.x * cell, y: posRef.current.y * cell });
+      avatarPos.setValue({
+        x: posRef.current.x * cell,
+        y: posRef.current.y * cell,
+      });
     }
   }, [cell, avatarPos]);
 
@@ -217,7 +252,10 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
     setLevel(nextLevel);
     animatingRef.current = false;
     posRef.current = nextLevel.start;
-    avatarPos.setValue({ x: nextLevel.start.x * cell, y: nextLevel.start.y * cell });
+    avatarPos.setValue({
+      x: nextLevel.start.x * cell,
+      y: nextLevel.start.y * cell,
+    });
     avatarTilt.setValue(0);
     setArrived(false);
     setCompletedAll(false);
@@ -242,16 +280,31 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
       }
       return new Promise<void>((resolve) => {
         Animated.sequence([
-          Animated.timing(avatarTilt, { toValue: 1, duration: 90, easing: Easing.out(Easing.quad), useNativeDriver: false }),
-          Animated.timing(avatarTilt, { toValue: -1, duration: 150, easing: Easing.inOut(Easing.quad), useNativeDriver: false }),
-          Animated.timing(avatarTilt, { toValue: 0, duration: 90, easing: Easing.in(Easing.quad), useNativeDriver: false }),
+          Animated.timing(avatarTilt, {
+            toValue: 1,
+            duration: 90,
+            easing: Easing.out(Easing.quad),
+            useNativeDriver: false,
+          }),
+          Animated.timing(avatarTilt, {
+            toValue: -1,
+            duration: 150,
+            easing: Easing.inOut(Easing.quad),
+            useNativeDriver: false,
+          }),
+          Animated.timing(avatarTilt, {
+            toValue: 0,
+            duration: 90,
+            easing: Easing.in(Easing.quad),
+            useNativeDriver: false,
+          }),
         ]).start(() => {
           animatingRef.current = false;
           resolve();
         });
       });
     },
-    [avatarTilt]
+    [avatarTilt],
   );
 
   // ①タップモードの首かしげ（従来と同じ挙動。結果は待たない）。
@@ -265,13 +318,13 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
       const cur = posRef.current;
       if (!canMove(level, cur, dir)) {
         // 壁・障害物・盤外 → 失敗ではなく首をかしげるだけ。
-        playSound('blocked');
+        playSound("blocked");
         wiggle();
         return;
       }
       const next = move(cur, dir);
       animatingRef.current = true;
-      playSound('move');
+      playSound("move");
       Animated.timing(avatarPos, {
         toValue: { x: next.x * cell, y: next.y * cell },
         duration: 240,
@@ -289,12 +342,12 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
           markCleared(level.id);
           // このクリアで全部そろい、まだ大祝福を見せていなければ「がんばりカード」へ。
           setCompletedAll(allCleared() && !hasCelebratedAll());
-          playSound('clear');
+          playSound("clear");
           setArrived(true);
         }
       });
     },
-    [level, arrived, cell, avatarPos, wiggle]
+    [level, arrived, cell, avatarPos, wiggle],
   );
 
   // ── ②ならべてゴー ───────────────────────────────────────────────
@@ -303,7 +356,7 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
     bumpTotalStars();
     markCleared(lv.id);
     setCompletedAll(allCleared() && !hasCelebratedAll());
-    playSound('clear');
+    playSound("clear");
     setArrived(true);
   }, []);
 
@@ -312,16 +365,16 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
     (dir: Direction) => {
       if (!level || arrived || running) return;
       if (queue.length >= capacity) return;
-      playSound('tap');
+      playSound("tap");
       setQueue((q) => (q.length >= capacity ? q : [...q, dir]));
     },
-    [level, arrived, running, queue.length, capacity]
+    [level, arrived, running, queue.length, capacity],
   );
 
   // 取り消しは「さいごの1つを消す」だけ（単発タップ・ドラッグや長押しは使わない / §4）。
   const onUndo = useCallback(() => {
     if (arrived || running || queue.length === 0) return;
-    playSound('tap');
+    playSound("tap");
     setQueue((q) => q.slice(0, -1));
   }, [arrived, running, queue.length]);
 
@@ -338,7 +391,7 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
         }).start(() => resolve());
       });
     },
-    [avatarPos]
+    [avatarPos],
   );
 
   // ゴールに届かなかったとき、スタートへ ぴょんと戻る（失敗ではないので罰の表現はしない）。
@@ -388,7 +441,7 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
         ]).start(done(resolve));
       });
     },
-    [avatarPos]
+    [avatarPos],
   );
 
   // 「ゴー!」= 先頭から1マスずつ実行する。
@@ -399,7 +452,7 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
   //    タイマー・ライフ・減点は無い（§4）。
   const onGo = useCallback(async () => {
     if (!level || arrived || running || queue.length === 0) return;
-    playSound('tap'); // 「ゴー!」は効果音だけ（新しい声は増やさない）
+    playSound("tap"); // 「ゴー!」は効果音だけ（新しい声は増やさない）
     const token = ++runTokenRef.current;
     const alive = () => runTokenRef.current === token;
     const steps = queue;
@@ -415,7 +468,7 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
       const dir = steps[i];
       if (canMove(level, pos, dir)) {
         const next = move(pos, dir);
-        playSound('move');
+        playSound("move");
         await stepTo(next);
         if (!alive()) return;
         pos = next;
@@ -426,7 +479,7 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
         }
       } else {
         // 動けない歩。止めずに次へ進む（＝ロボットの正直な実行を見せる）。
-        playSound('blocked');
+        playSound("blocked");
         await tiltAsync(reduceMotion);
         if (!alive()) return;
       }
@@ -447,7 +500,7 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
     // 届かなかった: 失敗にしない。首をかしげて、スタートへ ぴょんと戻って、また組み直す。
     await sleep(MISS_PAUSE_MS);
     if (!alive()) return;
-    playSound('blocked');
+    playSound("blocked");
     await tiltAsync(reduceMotion);
     if (!alive()) return;
     await hopHome(pos, level.start, reduceMotion);
@@ -474,7 +527,12 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
     return (
       <View style={styles.fallback}>
         <Text style={styles.fallbackText}>レベルが みつかりません</Text>
-        <BigButton emoji="🏠" label="おうちへ" onPress={onHome} color={colors.button} />
+        <BigButton
+          emoji="🏠"
+          label="おうちへ"
+          onPress={onHome}
+          color={colors.button}
+        />
       </View>
     );
   }
@@ -522,7 +580,12 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
       <View style={styles.mainCol}>
         {/* 上段: おうちボタン＋ゴール案内 */}
         <View style={styles.top}>
-          <Pressable onPress={onHome} hitSlop={10} style={styles.homeBtn} accessibilityLabel="おうちへ">
+          <Pressable
+            onPress={onHome}
+            hitSlop={10}
+            style={styles.homeBtn}
+            accessibilityLabel="おうちへ"
+          >
             <Text style={styles.homeGlyph}>🏠</Text>
           </Pressable>
           <View style={styles.banner}>
@@ -535,7 +598,6 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
               size={34}
               emojiSize={32}
             />
-
           </View>
           <View style={styles.homeBtn} />
         </View>
@@ -556,7 +618,9 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
       </View>
 
       {/* 右（縦持ちでは下段）: 方向パッド（②は十字のまんなかが「ゴー!」） */}
-      <View style={[styles.padArea, side && { width: sidePadW }, !side && padDim]}>
+      <View
+        style={[styles.padArea, side && { width: sidePadW }, !side && padDim]}
+      >
         {side ? (
           <>
             {queueStrip}
@@ -572,7 +636,7 @@ export default function PlayScreen({ templateId, onHome, onNext, onCelebrateAll 
           goalEmoji={level.goalEmoji}
           goalPhoto={level.goalImage}
           onReplay={() => {
-            playSound('tap');
+            playSound("tap");
             reset();
           }}
           onNext={nextId ? () => onNext(nextId) : undefined}
@@ -596,7 +660,7 @@ const styles = StyleSheet.create({
   },
   // 背の低い横向き: 左に mainCol、右に方向パッドを並べる（すき間は盤と方向パッドの最小余白 space.md）。
   rootSide: {
-    flexDirection: 'row',
+    flexDirection: "row",
     columnGap: space.md,
   },
   // 上段＋命令の列＋盤。縦持ちでは従来の root の中身と同じ縦の並び（boardArea が残りを取る）。
@@ -604,22 +668,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   top: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   homeBtn: {
     width: 48,
     height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   homeGlyph: {
     fontSize: 30,
   },
   banner: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: colors.surface,
     borderRadius: radius.pill,
     paddingVertical: space.xs,
@@ -629,7 +693,7 @@ const styles = StyleSheet.create({
   },
   bannerLabel: {
     fontSize: font.body,
-    fontWeight: '800',
+    fontWeight: "800",
     color: colors.text,
     marginRight: space.sm,
   },
@@ -644,12 +708,12 @@ const styles = StyleSheet.create({
   },
   boardArea: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   padArea: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingBottom: space.md,
   },
   // 実行中は方向パッドをうすくして「いまは見るじかん」を伝える（②のみ）。
@@ -658,8 +722,8 @@ const styles = StyleSheet.create({
   },
   fallback: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     rowGap: space.lg,
   },
   fallbackText: {

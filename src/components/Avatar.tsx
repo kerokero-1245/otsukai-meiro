@@ -2,10 +2,10 @@
 // 白い丸いバッジに、シールポップ画風のぴよ（PiyoArt。🐥 → assets/piyo/piyo.svg）を載せる。
 // 対応する素材が無いグリフのときだけ、PiyoArt が絵文字の文字で描く。
 
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { colors } from '../theme';
-import PiyoArt from './PiyoArt';
+import React from "react";
+import { StyleSheet, View } from "react-native";
+import { colors } from "../theme";
+import PiyoArt from "./PiyoArt";
 
 interface Props {
   emoji: string;
@@ -28,11 +28,11 @@ export default function Avatar({ emoji, size }: Props) {
 const styles = StyleSheet.create({
   badge: {
     backgroundColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 2,
-    borderColor: '#FFE0B2',
-    shadowColor: '#00000055',
+    borderColor: "#FFE0B2",
+    shadowColor: "#00000055",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3,

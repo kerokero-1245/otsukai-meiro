@@ -13,13 +13,15 @@
 
 // key = クリップ基名, value = 再生可能な URL（require の戻り値）。
 export const CLIP_URLS: Record<string, string> = {
-  p_title: require('../../assets/voice/p_title.m4a'), // おつかいめいろ
-  p_tsuita: require('../../assets/voice/p_tsuita.m4a'), // ついたね！
-  p_zenbu: require('../../assets/voice/p_zenbu.m4a'), // ぜんぶ できたね！
+  p_title: require("../../assets/voice/p_title.m4a"), // おつかいめいろ
+  p_tsuita: require("../../assets/voice/p_tsuita.m4a"), // ついたね！
+  p_zenbu: require("../../assets/voice/p_zenbu.m4a"), // ぜんぶ できたね！
 };
 
 // 指定した基名のクリップが登録済みか。
 export function hasClip(name: string | undefined): boolean {
   if (!name) return false;
-  return Object.prototype.hasOwnProperty.call(CLIP_URLS, name) && !!CLIP_URLS[name];
+  return (
+    Object.prototype.hasOwnProperty.call(CLIP_URLS, name) && !!CLIP_URLS[name]
+  );
 }

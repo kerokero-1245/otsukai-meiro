@@ -6,12 +6,12 @@
 // - 取得失敗時は「まだ何も無い」状態にフォールバック。消えても遊びは壊れない（進捗ロック無し）。
 // - settings.ts（piyopiyo-sansu）の localStorage パターンを移植。
 
-import { Platform } from 'react-native';
-import { TEMPLATES } from './data/templates';
+import { Platform } from "react-native";
+import { TEMPLATES } from "./data/templates";
 
-const KEY_STARS = 'meiro.stars'; // クリア済みレベルidの配列（JSON）
-const KEY_CELEBRATED = 'meiro.celebratedAll'; // 「ぜんぶ できたね!」を一度見せたか（'1'）
-const KEY_TOTAL = 'meiro.totalStars'; // 累計クリア回数（再クリアも+1）。街（ランチャー）の燃料。DESIGN §7。
+const KEY_STARS = "meiro.stars"; // クリア済みレベルidの配列（JSON）
+const KEY_CELEBRATED = "meiro.celebratedAll"; // 「ぜんぶ できたね!」を一度見せたか（'1'）
+const KEY_TOTAL = "meiro.totalStars"; // 累計クリア回数（再クリアも+1）。街（ランチャー）の燃料。DESIGN §7。
 
 // 型の都合で最小限だけ宣言（DOM lib に依存しない）。
 interface WebStorage {
@@ -20,9 +20,10 @@ interface WebStorage {
   removeItem(key: string): void;
 }
 function ls(): WebStorage | null {
-  if (Platform.OS !== 'web') return null;
+  if (Platform.OS !== "web") return null;
   try {
-    const s = (globalThis as unknown as { localStorage?: WebStorage }).localStorage;
+    const s = (globalThis as unknown as { localStorage?: WebStorage })
+      .localStorage;
     return s ?? null;
   } catch {
     return null;
@@ -44,7 +45,7 @@ function loadStars(): Set<string> {
       if (raw) {
         const arr = JSON.parse(raw);
         if (Array.isArray(arr)) {
-          for (const id of arr) if (typeof id === 'string') set.add(id);
+          for (const id of arr) if (typeof id === "string") set.add(id);
         }
       }
     } catch {
@@ -133,7 +134,7 @@ export function hasCelebratedAll(): boolean {
   const store = ls();
   if (store) {
     try {
-      return (celebratedCache = store.getItem(KEY_CELEBRATED) === '1');
+      return (celebratedCache = store.getItem(KEY_CELEBRATED) === "1");
     } catch {
       // 無視して未祝福へ
     }
@@ -146,7 +147,7 @@ export function setCelebratedAll(v: boolean): void {
   const store = ls();
   if (store) {
     try {
-      if (v) store.setItem(KEY_CELEBRATED, '1');
+      if (v) store.setItem(KEY_CELEBRATED, "1");
       else store.removeItem(KEY_CELEBRATED);
     } catch {
       // 保存できなくても遊びは壊さない

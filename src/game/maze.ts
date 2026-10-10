@@ -1,18 +1,18 @@
 // めいろの移動ロジック（純粋関数）。画面から切り離してテスト・再利用しやすくする。
 // フェーズ4の②キュー方式でも、この move/canMove をそのまま使い回す設計。
 
-import { Coord, Direction, Level } from '../types';
+import { Coord, Direction, Level } from "../types";
 
 // 1マス動いた先の座標を返す（盤内かどうかは判定しない）。
 export function move(pos: Coord, dir: Direction): Coord {
   switch (dir) {
-    case 'up':
+    case "up":
       return { x: pos.x, y: pos.y - 1 };
-    case 'down':
+    case "down":
       return { x: pos.x, y: pos.y + 1 };
-    case 'left':
+    case "left":
       return { x: pos.x - 1, y: pos.y };
-    case 'right':
+    case "right":
       return { x: pos.x + 1, y: pos.y };
   }
 }

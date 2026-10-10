@@ -7,15 +7,22 @@
 // ときは全体をスクロールして全部に届く。並びの順がそのまま Tab の順（まちへ もどる → 題字 → あそぶ → 歯車）になる。
 // ぴよぴよさんすうのタイトルと同じ作り。
 
-import React, { useRef } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { colors, font, space } from '../theme';
-import BigButton from '../components/BigButton';
-import PiyoArt from '../components/PiyoArt';
-import TownLink, { SHOW_TOWN, TOWN_LINK_HEIGHT } from '../components/TownLink';
-import { playSound } from '../audio/sounds';
-import { sayPhrase, warmUpVoice } from '../audio/voice';
-import { startMeiroBgm } from '../audio/bgm';
+import React, { useRef } from "react";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
+import { colors, font, space } from "../theme";
+import BigButton from "../components/BigButton";
+import PiyoArt from "../components/PiyoArt";
+import TownLink, { SHOW_TOWN, TOWN_LINK_HEIGHT } from "../components/TownLink";
+import { playSound } from "../audio/sounds";
+import { sayPhrase, warmUpVoice } from "../audio/voice";
+import { startMeiroBgm } from "../audio/bgm";
 
 interface Props {
   onPlay: () => void;
@@ -35,7 +42,10 @@ const TITLE_EDGE = 8;
 const FRAME_MAX_W = 480; // App.tsx の frame の最大幅
 function titleFontSize(windowW: number): number {
   const avail = Math.min(windowW, FRAME_MAX_W) - TITLE_EDGE * 2;
-  return Math.min(font.huge, Math.floor((avail - TITLE_LETTER_SPACING * TITLE_CHARS) / TITLE_CHARS));
+  return Math.min(
+    font.huge,
+    Math.floor((avail - TITLE_LETTER_SPACING * TITLE_CHARS) / TITLE_CHARS),
+  );
 }
 
 export default function TitleScreen({ onPlay, onOtona }: Props) {
@@ -66,7 +76,7 @@ export default function TitleScreen({ onPlay, onOtona }: Props) {
         {/* 街へ戻る（タイトルにだけ置く）。上に専用の行を取り、題字以下はその下に流す。 */}
         {SHOW_TOWN ? (
           <View style={styles.townRow}>
-            <TownLink onPress={() => playSound('tap')} />
+            <TownLink onPress={() => playSound("tap")} />
           </View>
         ) : null}
 
@@ -80,13 +90,17 @@ export default function TitleScreen({ onPlay, onOtona }: Props) {
                 // 最初のタップ起点で BGM（オルゴール）も流し始める（同一曲の再呼び出しは冪等）。
                 startMeiroBgm();
                 warmUpVoice();
-                sayPhrase('title');
+                sayPhrase("title");
               }}
               accessibilityRole="button"
               accessibilityLabel="おつかいめいろ（こえ）"
               style={styles.titleTap}
             >
-              <Text style={[styles.title, { fontSize: titleFontSize(windowW) }]}>おつかいめいろ</Text>
+              <Text
+                style={[styles.title, { fontSize: titleFontSize(windowW) }]}
+              >
+                おつかいめいろ
+              </Text>
 
               <View style={styles.concept}>
                 <PiyoArt glyph="🐥" size={82} emojiSize={64} />
@@ -109,7 +123,7 @@ export default function TitleScreen({ onPlay, onOtona }: Props) {
                 // BGM も同じタップ起点で流し始める（以降の画面遷移でも途切れず続く）。
                 startMeiroBgm();
                 warmUpVoice();
-                playSound('tap');
+                playSound("tap");
                 onPlay();
               }}
             />
@@ -151,31 +165,31 @@ const styles = StyleSheet.create({
   townRow: {
     height: TOWN_LINK_HEIGHT,
     marginBottom: space.sm,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    alignItems: "flex-start",
   },
   center: {
     flexGrow: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   titleRow: {
-    alignSelf: 'stretch',
+    alignSelf: "stretch",
     marginHorizontal: -space.md,
-    alignItems: 'center',
+    alignItems: "center",
   },
   titleTap: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   title: {
     fontSize: font.huge,
-    fontWeight: '900',
+    fontWeight: "900",
     color: colors.text,
     letterSpacing: TITLE_LETTER_SPACING,
   },
   concept: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: space.lg,
     marginBottom: space.xl,
   },
@@ -184,13 +198,13 @@ const styles = StyleSheet.create({
     marginHorizontal: space.sm,
   },
   playWrap: {
-    width: '100%',
+    width: "100%",
     maxWidth: 320,
   },
   // 歯車の行（右下）。歯車の位置は従来（右 space.sm・下 space.sm）と同じ。
   gearRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
+    flexDirection: "row",
+    justifyContent: "flex-end",
     paddingRight: space.sm,
     paddingBottom: space.sm,
   },

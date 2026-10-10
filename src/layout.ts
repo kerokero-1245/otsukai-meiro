@@ -3,7 +3,7 @@
 // ClearOverlay のスクロールの入れ物は枠の上下の余白まで広げて画面の上端〜下端を使うので、
 // 余白の値をここ1か所に置き、枠と入れ物が食い違わないようにする。
 
-import { space } from './theme';
+import { space } from "./theme";
 
 // 縦持ち前提の枠の最大幅。
 export const FRAME_MAX_W = 480;

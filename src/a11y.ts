@@ -8,8 +8,8 @@
 // ①タップモードの見た目・挙動はフェーズ1のまま **一切変えない**（既定のリグレッションゼロ）。
 // 1歩ずつの移動そのものは「観察」の核なので、動きを減らす設定でも省かない（弧と回転だけ控える）。
 
-import { useEffect, useState } from 'react';
-import { AccessibilityInfo } from 'react-native';
+import { useEffect, useState } from "react";
+import { AccessibilityInfo } from "react-native";
 
 export function useReducedMotion(): boolean {
   const [reduced, setReduced] = useState(false);
@@ -30,9 +30,12 @@ export function useReducedMotion(): boolean {
 
     let sub: { remove?: () => void } | undefined;
     try {
-      sub = AccessibilityInfo.addEventListener('reduceMotionChanged', (v: boolean) => {
-        if (alive) setReduced(!!v);
-      });
+      sub = AccessibilityInfo.addEventListener(
+        "reduceMotionChanged",
+        (v: boolean) => {
+          if (alive) setReduced(!!v);
+        },
+      );
     } catch {
       // 購読できなくてもよい。
     }

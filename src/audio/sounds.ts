@@ -7,15 +7,15 @@
 //   に差し替える際は playSound() の中身だけ置き換えればよい（呼び出し側は変更不要）。
 // - おじの声（掛け声「ついたね!」等）の差し替えもフェーズ2。ここに voice 種別を足して繋ぐ。
 
-import { Platform } from 'react-native';
+import { Platform } from "react-native";
 
 export type SoundName =
-  | 'tap' // ボタン反応「ぽん」
-  | 'move' // 1マス移動「てくてく」
-  | 'blocked' // 動けないとき やさしい「?」
-  | 'clear' // ゴール到達 ファンファーレ
-  | 'star' // ⭐ゲットの瞬間「きらっ」
-  | 'fanfare'; // ぜんぶ できたね! の大きな祝福
+  | "tap" // ボタン反応「ぽん」
+  | "move" // 1マス移動「てくてく」
+  | "blocked" // 動けないとき やさしい「?」
+  | "clear" // ゴール到達 ファンファーレ
+  | "star" // ⭐ゲットの瞬間「きらっ」
+  | "fanfare"; // ぜんぶ できたね! の大きな祝福
 
 // 1音のパラメータ（周波数・長さ・波形）。
 interface Note {
@@ -26,28 +26,28 @@ interface Note {
 
 // name ごとの音色。強い音を避け、やさしい音を意図（§4 感覚にやさしく）。
 const TONES: Record<SoundName, Note[]> = {
-  tap: [{ freq: 660, dur: 0.08, type: 'sine' }],
-  move: [{ freq: 523, dur: 0.1, type: 'triangle' }],
-  blocked: [{ freq: 300, dur: 0.16, type: 'sine' }],
+  tap: [{ freq: 660, dur: 0.08, type: "sine" }],
+  move: [{ freq: 523, dur: 0.1, type: "triangle" }],
+  blocked: [{ freq: 300, dur: 0.16, type: "sine" }],
   clear: [
-    { freq: 523, dur: 0.13, type: 'sine' }, // ド
-    { freq: 659, dur: 0.13, type: 'sine' }, // ミ
-    { freq: 784, dur: 0.13, type: 'sine' }, // ソ
-    { freq: 1047, dur: 0.3, type: 'sine' }, // 高いド
+    { freq: 523, dur: 0.13, type: "sine" }, // ド
+    { freq: 659, dur: 0.13, type: "sine" }, // ミ
+    { freq: 784, dur: 0.13, type: "sine" }, // ソ
+    { freq: 1047, dur: 0.3, type: "sine" }, // 高いド
   ],
   // ⭐ゲットの「きらっ」。高めの2音を軽くはねさせる（強すぎない）。
   star: [
-    { freq: 988, dur: 0.09, type: 'sine' }, // シ
-    { freq: 1319, dur: 0.22, type: 'sine' }, // 高いミ
+    { freq: 988, dur: 0.09, type: "sine" }, // シ
+    { freq: 1319, dur: 0.22, type: "sine" }, // 高いミ
   ],
   // ぜんぶ できたね! の大きな祝福。上がっていくやさしいアルペジオ。
   fanfare: [
-    { freq: 523, dur: 0.14, type: 'sine' }, // ド
-    { freq: 659, dur: 0.14, type: 'sine' }, // ミ
-    { freq: 784, dur: 0.14, type: 'sine' }, // ソ
-    { freq: 1047, dur: 0.14, type: 'sine' }, // 高いド
-    { freq: 1319, dur: 0.14, type: 'sine' }, // 高いミ
-    { freq: 1568, dur: 0.36, type: 'sine' }, // 高いソ
+    { freq: 523, dur: 0.14, type: "sine" }, // ド
+    { freq: 659, dur: 0.14, type: "sine" }, // ミ
+    { freq: 784, dur: 0.14, type: "sine" }, // ソ
+    { freq: 1047, dur: 0.14, type: "sine" }, // 高いド
+    { freq: 1319, dur: 0.14, type: "sine" }, // 高いミ
+    { freq: 1568, dur: 0.36, type: "sine" }, // 高いソ
   ],
 };
 
@@ -55,7 +55,7 @@ const TONES: Record<SoundName, Note[]> = {
 let ctx: AudioContext | null = null;
 
 function getCtx(): AudioContext | null {
-  if (Platform.OS !== 'web') return null;
+  if (Platform.OS !== "web") return null;
   try {
     if (!ctx) {
       const g = globalThis as unknown as {
@@ -67,7 +67,7 @@ function getCtx(): AudioContext | null {
       ctx = new AC();
     }
     // ユーザー操作起点で resume（iOS Safari 対策）。
-    if (ctx.state === 'suspended') void ctx.resume();
+    if (ctx.state === "suspended") void ctx.resume();
     return ctx;
   } catch {
     return null;

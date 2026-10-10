@@ -11,20 +11,26 @@
 // fit: 'cover'  … マスの上・バナーなど小さい枠（正方形にきれいに収める。端は少し切れる）
 //      'contain' … クリア演出のズーム（写真の全体を見せる。周りは白い台紙）
 
-import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, View } from 'react-native';
-import { colors } from '../theme';
-import PiyoArt from './PiyoArt';
+import React, { useEffect, useState } from "react";
+import { Image, StyleSheet, View } from "react-native";
+import { colors } from "../theme";
+import PiyoArt from "./PiyoArt";
 
 interface Props {
   glyph: string; // 写真が無いときのグリフ（＝従来の goalEmoji）
   photoUri?: string | null; // おとなモードの写真（blob: URL）。null なら glyph を描く
   size: number; // 一辺(px)
   emojiSize?: number; // フォールバック絵文字の fontSize
-  fit?: 'cover' | 'contain';
+  fit?: "cover" | "contain";
 }
 
-export default function GoalArt({ glyph, photoUri, size, emojiSize, fit = 'cover' }: Props) {
+export default function GoalArt({
+  glyph,
+  photoUri,
+  size,
+  emojiSize,
+  fit = "cover",
+}: Props) {
   // 写真が読めなかったら（消えた blob URL など）絵に戻す。
   const [failed, setFailed] = useState(false);
   useEffect(() => {
@@ -65,18 +71,18 @@ const styles = StyleSheet.create({
   frame: {
     borderColor: colors.white,
     backgroundColor: colors.white,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
     // シールらしいやわらかい影（PiyoArt の素材と同じ空気に）。
-    shadowColor: '#00000055',
+    shadowColor: "#00000055",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 3,
   },
   photo: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
 });

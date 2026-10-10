@@ -12,7 +12,7 @@
 //
 // BGM: オリジナル（Web Audio 生成）。録音物・外部素材は使っていない。
 
-import { Platform } from 'react-native';
+import { Platform } from "react-native";
 import {
   configureBgm,
   startBgm,
@@ -20,10 +20,10 @@ import {
   duckBgm,
   unduckBgm,
   getBgmState,
-} from './bgm/engine';
-import { getSharedAudioContext } from './sounds';
+} from "./bgm/engine";
+import { getSharedAudioContext } from "./sounds";
 
-const BGM_KEY = 'meiro.bgm'; // localStorage: '0'=OFF / それ以外（未設定含む）=ON（既定）
+const BGM_KEY = "meiro.bgm"; // localStorage: '0'=OFF / それ以外（未設定含む）=ON（既定）
 
 // 型の都合で最小限だけ宣言（DOM lib に依存しない。progress.ts と同じ流儀）。
 interface WebStorage {
@@ -31,9 +31,10 @@ interface WebStorage {
   setItem(key: string, value: string): void;
 }
 function ls(): WebStorage | null {
-  if (Platform.OS !== 'web') return null;
+  if (Platform.OS !== "web") return null;
   try {
-    const s = (globalThis as unknown as { localStorage?: WebStorage }).localStorage;
+    const s = (globalThis as unknown as { localStorage?: WebStorage })
+      .localStorage;
     return s ?? null;
   } catch {
     return null;
@@ -45,7 +46,7 @@ function readEnabled(): boolean {
   const store = ls();
   if (!store) return true;
   try {
-    return store.getItem(BGM_KEY) !== '0';
+    return store.getItem(BGM_KEY) !== "0";
   } catch {
     return true;
   }
@@ -54,7 +55,7 @@ function writeEnabled(on: boolean): void {
   const store = ls();
   if (!store) return;
   try {
-    store.setItem(BGM_KEY, on ? '1' : '0');
+    store.setItem(BGM_KEY, on ? "1" : "0");
   } catch {
     // 保存できなくても遊びは壊さない
   }
@@ -86,7 +87,7 @@ function ensureInit(): void {
 export function startMeiroBgm(): void {
   ensureInit();
   try {
-    startBgm('meiro');
+    startBgm("meiro");
   } catch {
     // 音が出せなくても遊びは壊さない
   }

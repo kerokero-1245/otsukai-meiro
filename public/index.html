@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <!--
   Web 書き出しの HTML の型。Expo は public/index.html があればこれを使い、題名の置き場所に app.json の name、
   head の終わりに favicon、body の終わりに JS を差し込む（置き換えは文字列の最初の一致なので、
@@ -9,9 +9,15 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
     <title>%WEB_TITLE%</title>
-    <meta name="description" content="4さいの はじめての プログラミング。やじるしで ひよこを ゴールまで つれて いこう。" />
+    <meta
+      name="description"
+      content="4さいの はじめての プログラミング。やじるしで ひよこを ゴールまで つれて いこう。"
+    />
 
     <!-- スマホ表示・ホーム画面に追加 -->
     <meta name="theme-color" content="#FFF6E5" />
@@ -24,10 +30,19 @@
 
     <!-- SNS で共有したときの見出し（OGP） -->
     <meta property="og:title" content="おつかいめいろ" />
-    <meta property="og:description" content="4さいの はじめての プログラミング。やじるしで ひよこを ゴールまで つれて いこう。" />
+    <meta
+      property="og:description"
+      content="4さいの はじめての プログラミング。やじるしで ひよこを ゴールまで つれて いこう。"
+    />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://kerokero-1245.github.io/otsukai-meiro/" />
-    <meta property="og:image" content="https://kerokero-1245.github.io/otsukai-meiro/og.png" />
+    <meta
+      property="og:url"
+      content="https://kerokero-1245.github.io/otsukai-meiro/"
+    />
+    <meta
+      property="og:image"
+      content="https://kerokero-1245.github.io/otsukai-meiro/og.png"
+    />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -43,7 +58,7 @@
       body {
         overflow: hidden;
         /* 読み込み中（JS が動く前）も白一色にしない。アプリの地の色 colors.bg（src/theme.ts）と同じクリーム */
-        background-color: #FFF6E5;
+        background-color: #fff6e5;
       }
       /* These styles make the root element full-height */
       #root {
@@ -56,9 +71,7 @@
 
   <body>
     <!-- Use static rendering with Expo Router to support running without JavaScript. -->
-    <noscript>
-      JavaScript を オンに すると あそべます。
-    </noscript>
+    <noscript> JavaScript を オンに すると あそべます。 </noscript>
     <!-- The root element for your Expo app. -->
     <div id="root"></div>
   </body>

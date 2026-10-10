@@ -10,17 +10,25 @@
 // 街は web にしか無いので、native では何も出さない（SHOW_TOWN）。
 // あそんでいる途中の画面（レベルえらび・プレイ・祝福・がんばりカード・おとなモード）には置かない（タイトルにだけ置く）。
 
-import React from 'react';
-import { Image, Platform, Pressable, PressableProps, StyleSheet, Text, View } from 'react-native';
-import { colors, radius, space } from '../theme';
+import React from "react";
+import {
+  Image,
+  Platform,
+  Pressable,
+  PressableProps,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { colors, radius, space } from "../theme";
 
-export const TOWN_URL = '/';
-export const SHOW_TOWN = Platform.OS === 'web';
+export const TOWN_URL = "/";
+export const SHOW_TOWN = Platform.OS === "web";
 
 // 行の高さ（押せる大きさ 44 を確保）。タイトル画面はこの高さの行を上に取り、題字以下はその下に流す。
 export const TOWN_LINK_HEIGHT = 44;
 
-const KI = require('../../assets/piyo/ki.svg');
+const KI = require("../../assets/piyo/ki.svg");
 
 const FONT_SIZE = 18;
 // 絵の一辺。404 ページ（文字 22px に絵 34px）と同じ比率。
@@ -31,8 +39,13 @@ interface Props {
   onPress?: () => void;
 }
 
-type KeyEventLike = { key: string; repeat?: boolean; preventDefault(): void; currentTarget: unknown };
-const isSpace = (key: string) => key === ' ' || key === 'Spacebar';
+type KeyEventLike = {
+  key: string;
+  repeat?: boolean;
+  preventDefault(): void;
+  currentTarget: unknown;
+};
+const isSpace = (key: string) => key === " " || key === "Spacebar";
 
 // react-native-web だけが解釈する props（href・キー操作）。RN の型に無いので型だけ合わせる。
 const WEB_LINK_PROPS = {
@@ -58,7 +71,13 @@ export default function TownLink({ onPress }: Props) {
       style={({ pressed }) => [styles.link, pressed && styles.linkPressed]}
     >
       <View style={styles.row}>
-        <Image source={KI} resizeMode="contain" style={styles.icon} accessible={false} fadeDuration={0} />
+        <Image
+          source={KI}
+          resizeMode="contain"
+          style={styles.icon}
+          accessible={false}
+          fadeDuration={0}
+        />
         <Text style={styles.text} numberOfLines={1}>
           まちへ もどる
         </Text>
@@ -76,15 +95,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderWidth: 2,
     borderColor: colors.tileBorder,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   linkPressed: {
     backgroundColor: colors.surfacePressed,
   },
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     columnGap: Math.round(FONT_SIZE * 0.4),
   },
   icon: {
@@ -93,7 +112,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: FONT_SIZE,
-    fontWeight: '800',
+    fontWeight: "800",
     color: colors.text,
   },
 });

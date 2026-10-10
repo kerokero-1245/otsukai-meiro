@@ -13,18 +13,18 @@
 //
 // DOM lib に依存しないよう、必要な形だけ最小宣言して globalThis から取り出す。
 
-import { Platform } from 'react-native';
-import { BlobLike } from './idb';
+import { Platform } from "react-native";
+import { BlobLike } from "./idb";
 
 export const MAX_MS = 6000; // 「ついたね！」は数秒。長すぎる録音を防ぐ自動停止。
 
 // 上から順に試す mime 候補（Chrome/Firefox → Safari → ブラウザ既定）。
 const MIME_CANDIDATES = [
-  'audio/webm;codecs=opus',
-  'audio/webm',
-  'audio/mp4;codecs=mp4a.40.2',
-  'audio/mp4',
-  'audio/ogg;codecs=opus',
+  "audio/webm;codecs=opus",
+  "audio/webm",
+  "audio/mp4;codecs=mp4a.40.2",
+  "audio/mp4",
+  "audio/ogg;codecs=opus",
 ];
 
 // ── 最小型宣言 ───────────────────────────────────────────────────────
@@ -52,7 +52,7 @@ interface MediaDevicesLike {
 }
 
 function getRecorderCtor(): RecorderCtor | null {
-  if (Platform.OS !== 'web') return null;
+  if (Platform.OS !== "web") return null;
   try {
     const g = globalThis as unknown as { MediaRecorder?: RecorderCtor };
     return g.MediaRecorder ?? null;
@@ -62,18 +62,21 @@ function getRecorderCtor(): RecorderCtor | null {
 }
 
 function getMediaDevices(): MediaDevicesLike | null {
-  if (Platform.OS !== 'web') return null;
+  if (Platform.OS !== "web") return null;
   try {
-    const g = globalThis as unknown as { navigator?: { mediaDevices?: MediaDevicesLike } };
+    const g = globalThis as unknown as {
+      navigator?: { mediaDevices?: MediaDevicesLike };
+    };
     const md = g.navigator?.mediaDevices;
-    if (!md || typeof md.getUserMedia !== 'function') return null;
+    if (!md || typeof md.getUserMedia !== "function") return null;
     return md;
   } catch {
     return null;
   }
 }
 
-function getBlobCtor(): (new (parts: unknown[], opts?: { type?: string }) => BlobLike) | null {
+function getBlobCtor():
+  (new (parts: unknown[], opts?: { type?: string }) => BlobLike) | null {
   try {
     const g = globalThis as unknown as {
       Blob?: new (parts: unknown[], opts?: { type?: string }) => BlobLike;
@@ -86,12 +89,16 @@ function getBlobCtor(): (new (parts: unknown[], opts?: { type?: string }) => Blo
 
 // この環境で録音できそうか（実際の権限は start してみるまで分からない）。
 export function canRecord(): boolean {
-  return getRecorderCtor() != null && getMediaDevices() != null && getBlobCtor() != null;
+  return (
+    getRecorderCtor() != null &&
+    getMediaDevices() != null &&
+    getBlobCtor() != null
+  );
 }
 
 function pickMime(Ctor: RecorderCtor): string | undefined {
   try {
-    if (typeof Ctor.isTypeSupported !== 'function') return undefined;
+    if (typeof Ctor.isTypeSupported !== "function") return undefined;
     for (const m of MIME_CANDIDATES) {
       if (Ctor.isTypeSupported(m)) return m;
     }
@@ -114,7 +121,9 @@ export interface ActiveRecording {
 }
 
 // 録音を始める。権限拒否・非対応なら null。
-export async function startRecording(onAutoStop?: () => void): Promise<ActiveRecording | null> {
+export async function startRecording(
+  onAutoStop?: () => void,
+): Promise<ActiveRecording | null> {
   const Ctor = getRecorderCtor();
   const md = getMediaDevices();
   const B = getBlobCtor();
@@ -187,7 +196,7 @@ export async function startRecording(onAutoStop?: () => void): Promise<ActiveRec
   rec.onstop = () => {
     let out: RecordedVoice | null = null;
     try {
-      const type = rec.mimeType || mime || 'audio/webm';
+      const type = rec.mimeType || mime || "audio/webm";
       const blob = new B(chunks, { type });
       out = blob.size > 0 ? { blob, mime: type } : null;
     } catch {
@@ -208,7 +217,7 @@ export async function startRecording(onAutoStop?: () => void): Promise<ActiveRec
   autoTimer = setTimeout(() => {
     autoTimer = null;
     try {
-      if (rec.state !== 'inactive') rec.stop();
+      if (rec.state !== "inactive") rec.stop();
     } catch {
       settle(null);
     }
@@ -229,7 +238,7 @@ export async function startRecording(onAutoStop?: () => void): Promise<ActiveRec
         waiters.push(resolve);
         try {
           // すでに inactive（自動停止が走っている最中）なら止め直さず onstop を待つ。
-          if (rec.state !== 'inactive') rec.stop();
+          if (rec.state !== "inactive") rec.stop();
         } catch {
           settle(null);
         }
@@ -240,7 +249,7 @@ export async function startRecording(onAutoStop?: () => void): Promise<ActiveRec
     cancel(): void {
       clearAuto();
       try {
-        if (rec.state !== 'inactive') rec.stop();
+        if (rec.state !== "inactive") rec.stop();
       } catch {
         // 無視
       }

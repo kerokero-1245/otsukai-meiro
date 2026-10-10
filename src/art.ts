@@ -9,28 +9,28 @@
 //    ソース（web では <img src> に解決）を返す。react-native-svg などの追加依存は不要（web優先）。
 //  - 対応が無いグリフは undefined を返し、呼び出し側（PiyoArt）は絵文字のまま表示する。
 
-import { ImageSourcePropType } from 'react-native';
+import { ImageSourcePropType } from "react-native";
 
 const GLYPH_ART: Record<string, ImageSourcePropType> = {
   // ゴール絵文字プール（src/game/generate.ts の GOAL_EMOJIS 12種と1対1）
-  '🍎': require('../assets/piyo/ringo.svg'),
-  '🏠': require('../assets/piyo/ie.svg'),
-  '🍰': require('../assets/piyo/cake.svg'),
-  '🍓': require('../assets/piyo/ichigo.svg'),
-  '🎈': require('../assets/piyo/fuusen.svg'),
-  '🍦': require('../assets/piyo/aisu.svg'),
-  '🎁': require('../assets/piyo/purezento.svg'),
-  '🌷': require('../assets/piyo/chuurippu.svg'),
-  '🍭': require('../assets/piyo/ame.svg'),
-  '🐰': require('../assets/piyo/usagi.svg'),
-  '🚗': require('../assets/piyo/kuruma.svg'),
-  '🍩': require('../assets/piyo/doonatsu.svg'),
+  "🍎": require("../assets/piyo/ringo.svg"),
+  "🏠": require("../assets/piyo/ie.svg"),
+  "🍰": require("../assets/piyo/cake.svg"),
+  "🍓": require("../assets/piyo/ichigo.svg"),
+  "🎈": require("../assets/piyo/fuusen.svg"),
+  "🍦": require("../assets/piyo/aisu.svg"),
+  "🎁": require("../assets/piyo/purezento.svg"),
+  "🌷": require("../assets/piyo/chuurippu.svg"),
+  "🍭": require("../assets/piyo/ame.svg"),
+  "🐰": require("../assets/piyo/usagi.svg"),
+  "🚗": require("../assets/piyo/kuruma.svg"),
+  "🍩": require("../assets/piyo/doonatsu.svg"),
 
   // アバター（言われた順にしか歩けないおともだち）＝相棒ぴよ
-  '🐥': require('../assets/piyo/piyo.svg'),
+  "🐥": require("../assets/piyo/piyo.svg"),
 
   // 障害物（通れないマス）＝き
-  '🌳': require('../assets/piyo/ki.svg'),
+  "🌳": require("../assets/piyo/ki.svg"),
 };
 
 // グリフに対応するSVG素材を返す。無ければ undefined（呼び出し側で絵文字フォールバック）。

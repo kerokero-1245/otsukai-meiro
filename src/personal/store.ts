@@ -16,7 +16,7 @@
 //
 // 命名: 写真は最大 MAX_PHOTOS 枚。ゴールは「写真を混ぜたプール」から選ぶ（PHOTO_GOAL_CHANCE）。
 
-import { Platform } from 'react-native';
+import { Platform } from "react-native";
 import {
   BlobLike,
   STORE_PHOTOS,
@@ -27,8 +27,8 @@ import {
   idbGetAll,
   idbPut,
   probeStorage,
-} from './idb';
-import { objectUrl, resizeImageFile } from './image';
+} from "./idb";
+import { objectUrl, resizeImageFile } from "./image";
 
 export const MAX_PHOTOS = 6;
 
@@ -37,8 +37,8 @@ export const MAX_PHOTOS = 6;
 // 逆に低すぎると「おばあちゃんの家をゴールにした」という差別化の核が埋もれる。→ 2/3 を既定にする。
 export const PHOTO_GOAL_CHANCE = 2 / 3;
 
-export type VoiceSlot = 'tsuita' | 'zenbu';
-export const VOICE_SLOTS: VoiceSlot[] = ['tsuita', 'zenbu'];
+export type VoiceSlot = "tsuita" | "zenbu";
+export const VOICE_SLOTS: VoiceSlot[] = ["tsuita", "zenbu"];
 
 // IndexedDB に入るレコード（そのまま構造化複製される）。
 interface PhotoRecord {
@@ -126,7 +126,7 @@ function newId(): string {
 // App.tsx のマウントで1回呼ぶ。失敗しても例外は投げない。
 export function initPersonal(): Promise<void> {
   if (initPromise) return initPromise;
-  if (Platform.OS !== 'web' || !hasIndexedDb()) {
+  if (Platform.OS !== "web" || !hasIndexedDb()) {
     available = false;
     ready = true;
     initPromise = Promise.resolve();
@@ -181,7 +181,7 @@ async function reloadVoices(): Promise<void> {
     voices.set(slot, {
       slot,
       url,
-      mime: String(r.mime || ''),
+      mime: String(r.mime || ""),
       createdAt: Number(r.createdAt) || 0,
     });
   }
@@ -217,15 +217,15 @@ export function pickGoalPhotoUrl(): string | null {
 
 // ── 追加・削除 ───────────────────────────────────────────────────────
 
-export type AddPhotoResult = 'ok' | 'full' | 'unavailable' | 'failed';
+export type AddPhotoResult = "ok" | "full" | "unavailable" | "failed";
 
 // 選ばれた画像ファイルを縮小して保存する（長辺512px・JPEG 0.8 / image.ts）。
 export async function addPhotoFile(file: unknown): Promise<AddPhotoResult> {
   await initPersonal();
-  if (!available) return 'unavailable';
-  if (photos.length >= MAX_PHOTOS) return 'full';
+  if (!available) return "unavailable";
+  if (photos.length >= MAX_PHOTOS) return "full";
   const resized = await resizeImageFile(file);
-  if (!resized) return 'failed';
+  if (!resized) return "failed";
   const rec: PhotoRecord = {
     id: newId(),
     blob: resized.blob,
@@ -235,23 +235,23 @@ export async function addPhotoFile(file: unknown): Promise<AddPhotoResult> {
     createdAt: Date.now(),
   };
   const ok = await idbPut(STORE_PHOTOS, rec);
-  if (!ok) return 'failed';
+  if (!ok) return "failed";
   await reloadPhotos();
   notify();
-  return 'ok';
+  return "ok";
 }
 
 // 複数枚をまとめて。空きぶんだけ入れる（残りは 'full'）。結果の内訳を返す。
 export async function addPhotoFiles(
-  files: unknown[]
+  files: unknown[],
 ): Promise<{ added: number; full: boolean; failed: number }> {
   let added = 0;
   let failed = 0;
   let full = false;
   for (const f of files) {
     const r = await addPhotoFile(f);
-    if (r === 'ok') added++;
-    else if (r === 'full') {
+    if (r === "ok") added++;
+    else if (r === "full") {
       full = true;
       break;
     } else failed++;
@@ -277,7 +277,11 @@ export async function clearAllPhotos(): Promise<boolean> {
   return ok;
 }
 
-export async function saveVoice(slot: VoiceSlot, blob: BlobLike, mime: string): Promise<boolean> {
+export async function saveVoice(
+  slot: VoiceSlot,
+  blob: BlobLike,
+  mime: string,
+): Promise<boolean> {
   await initPersonal();
   if (!available) return false;
   const rec: VoiceRecord = { slot, blob, mime, createdAt: Date.now() };

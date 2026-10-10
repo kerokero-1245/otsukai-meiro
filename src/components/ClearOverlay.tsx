@@ -11,22 +11,33 @@
 // （さんすうは横向きでカードとボタンを左右に並べるが、めいろはスクロールだけ。背の低い横向きではめいろ画面の枠が
 // 最大 960 に広がるが（src/layout.ts）、中身は中央の1列のまま）。
 
-import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, Platform, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native';
-import { colors, font, space } from '../theme';
-import { FRAME_PAD_BOTTOM, FRAME_PAD_TOP } from '../layout';
-import { playSound } from '../audio/sounds';
-import { sayPhrase, cancelVoice } from '../audio/voice';
-import BigButton from './BigButton';
-import Confetti from './Confetti';
-import PiyoArt from './PiyoArt';
-import GoalArt from './GoalArt';
+import React, { useEffect, useRef } from "react";
+import {
+  Animated,
+  Easing,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  ViewStyle,
+} from "react-native";
+import { colors, font, space } from "../theme";
+import { FRAME_PAD_BOTTOM, FRAME_PAD_TOP } from "../layout";
+import { playSound } from "../audio/sounds";
+import { sayPhrase, cancelVoice } from "../audio/voice";
+import BigButton from "./BigButton";
+import Confetti from "./Confetti";
+import PiyoArt from "./PiyoArt";
+import GoalArt from "./GoalArt";
 
 // 暗幕は画面全体に敷く。このオーバーレイは最大幅 480 の枠（App.tsx の frame）の内側に置かれるので、
 // absolute のままだと広い画面では枠の中だけが暗くなる。web では position: fixed でビューポート全体を覆う
 // （react-native-web は fixed をそのまま CSS に渡す。RN の型には無いので型だけ合わせる）。
 const BACKDROP_FULL: ViewStyle | null =
-  Platform.OS === 'web' ? ({ position: 'fixed' } as unknown as ViewStyle) : null;
+  Platform.OS === "web"
+    ? ({ position: "fixed" } as unknown as ViewStyle)
+    : null;
 
 // スクロールの入れ物は、枠（App.tsx の frame）の上下の余白（上 FRAME_PAD_TOP・下 FRAME_PAD_BOTTOM。src/layout.ts）まで広げて画面の上端〜下端を使う。
 // 従来は中身を枠の中央に置き、背が足りない画面（360x640 など）では中身が枠の余白にはみ出したまま画面内に
@@ -78,7 +89,7 @@ export default function ClearOverlay({
 
     // ⭐ゲットの瞬間: ゴールが出たあとに星がぽんっと弾む＋「きらっ」。
     const starDelay = setTimeout(() => {
-      playSound('star');
+      playSound("star");
       Animated.spring(starScale, {
         toValue: 1,
         friction: 4,
@@ -92,7 +103,7 @@ export default function ClearOverlay({
     // 鳴る声は おじの録音 → 同梱クリップ（p_tsuita）→ speechSynthesis → 無音 の順（voice.ts）。
     // どれも鳴らせない環境でも文字だけで成立する。
     const voiceDelay = setTimeout(() => {
-      sayPhrase('tsuita');
+      sayPhrase("tsuita");
     }, 750);
 
     return () => {
@@ -116,7 +127,7 @@ export default function ClearOverlay({
 
   const starRotate = starScale.interpolate({
     inputRange: [0, 1],
-    outputRange: ['-40deg', '0deg'],
+    outputRange: ["-40deg", "0deg"],
   });
 
   return (
@@ -129,12 +140,21 @@ export default function ClearOverlay({
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <Animated.View style={[styles.card, { opacity, transform: [{ scale }] }]}>
+        <Animated.View
+          style={[styles.card, { opacity, transform: [{ scale }] }]}
+        >
           {/* 写真があるときは丸い台紙をやめ、白い台紙の「写真ズーム」にする（DESIGN §1）。
               fit='contain' なので、おばあちゃんの家の写真が端まで欠けずに大きく出る。 */}
-          <View style={[styles.zoomCircle, goalPhoto ? styles.zoomPhoto : null]}>
+          <View
+            style={[styles.zoomCircle, goalPhoto ? styles.zoomPhoto : null]}
+          >
             {goalPhoto ? (
-              <GoalArt glyph={goalEmoji} photoUri={goalPhoto} size={168} fit="contain" />
+              <GoalArt
+                glyph={goalEmoji}
+                photoUri={goalPhoto}
+                size={168}
+                fit="contain"
+              />
             ) : (
               <PiyoArt glyph={goalEmoji} size={128} emojiSize={104} />
             )}
@@ -159,9 +179,20 @@ export default function ClearOverlay({
         {/* 全部そろった瞬間はボタンを出さず自動で大祝福へ。それ以外は次の行動ボタン。 */}
         {justCompletedAll ? null : (
           <View style={styles.buttons}>
-            <BigButton emoji="🔁" label="もういちど" onPress={onReplay} color={colors.button} />
+            <BigButton
+              emoji="🔁"
+              label="もういちど"
+              onPress={onReplay}
+              color={colors.button}
+            />
             {onNext ? (
-              <BigButton emoji="👉" label="つぎへ" onPress={onNext} color={colors.play} pressedColor={colors.playPressed} />
+              <BigButton
+                emoji="👉"
+                label="つぎへ"
+                onPress={onNext}
+                color={colors.play}
+                pressedColor={colors.playPressed}
+              />
             ) : null}
             <BigButton emoji="🏠" label="おうちへ" onPress={onHome} />
           </View>
@@ -173,14 +204,14 @@ export default function ClearOverlay({
 
 const styles = StyleSheet.create({
   root: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
   },
   scroll: {
-    position: 'absolute',
+    position: "absolute",
     top: -FRAME_PAD_TOP,
     bottom: -FRAME_PAD_BOTTOM,
     left: 0,
@@ -189,14 +220,14 @@ const styles = StyleSheet.create({
   // 縦持ちでは従来の root と同じ中央寄せ（横の余白 space.lg）。高さが足りないときはスクロールで届く。
   content: {
     flexGrow: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: space.lg,
     paddingTop: FRAME_PAD_TOP - FRAME_PAD_BOTTOM + SCROLL_EDGE,
     paddingBottom: SCROLL_EDGE,
   },
   backdrop: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
@@ -204,7 +235,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.overlay,
   },
   card: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: space.xl,
   },
   zoomCircle: {
@@ -212,11 +243,11 @@ const styles = StyleSheet.create({
     height: 180,
     borderRadius: 90,
     backgroundColor: colors.goalHalo,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 6,
     borderColor: colors.white,
-    shadowColor: '#00000066',
+    shadowColor: "#00000066",
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.35,
     shadowRadius: 12,
@@ -228,40 +259,40 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   starStamp: {
-    position: 'absolute',
+    position: "absolute",
     top: -10,
     right: -10,
     width: 72,
     height: 72,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   starGlyph: {
     fontSize: 64,
-    textShadowColor: '#00000055',
+    textShadowColor: "#00000055",
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
   },
   headline: {
     marginTop: space.md,
     fontSize: font.huge,
-    fontWeight: '900',
+    fontWeight: "900",
     color: colors.white,
-    textShadowColor: '#00000088',
+    textShadowColor: "#00000088",
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 6,
   },
   starGot: {
     marginTop: space.xs,
     fontSize: font.big,
-    fontWeight: '900',
-    color: '#FFE270',
-    textShadowColor: '#00000088',
+    fontWeight: "900",
+    color: "#FFE270",
+    textShadowColor: "#00000088",
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 5,
   },
   buttons: {
-    width: '100%',
+    width: "100%",
     maxWidth: 360,
     rowGap: space.sm,
   },

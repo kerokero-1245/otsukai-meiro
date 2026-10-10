@@ -12,9 +12,9 @@
 //
 // 外部送信ゼロ: 選ばれた File はメモリ上で縮小して IndexedDB に入るだけ。どこにも送らない。
 
-import { Platform } from 'react-native';
+import { Platform } from "react-native";
 
-export const PHOTO_INPUT_ID = 'meiro-photo-input';
+export const PHOTO_INPUT_ID = "meiro-photo-input";
 
 interface FileListLike {
   length: number;
@@ -38,11 +38,11 @@ interface DocLike {
 }
 
 function doc(): DocLike | null {
-  if (Platform.OS !== 'web') return null;
+  if (Platform.OS !== "web") return null;
   try {
     const g = globalThis as unknown as { document?: DocLike };
     const d = g.document;
-    if (!d || typeof d.createElement !== 'function' || !d.body) return null;
+    if (!d || typeof d.createElement !== "function" || !d.body) return null;
     return d;
   } catch {
     return null;
@@ -60,15 +60,15 @@ function ensureInput(): InputEl | null {
   try {
     const existing = d.getElementById(PHOTO_INPUT_ID);
     if (existing) return existing;
-    const el = d.createElement('input') as InputEl;
+    const el = d.createElement("input") as InputEl;
     el.id = PHOTO_INPUT_ID;
-    el.type = 'file';
-    el.accept = 'image/*';
+    el.type = "file";
+    el.accept = "image/*";
     el.multiple = true;
     // 画面には出さないが、要素としては存在させる（自動テストからも触れるように）。
     el.setAttribute(
-      'style',
-      'position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none;z-index:-1;'
+      "style",
+      "position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none;z-index:-1;",
     );
     d.body?.appendChild(el);
     return el;
@@ -94,14 +94,14 @@ export function pickPhotoFiles(onFiles: (files: unknown[]) => void): boolean {
       }
       // 同じファイルを続けて選んでも change が鳴るように空にしておく。
       try {
-        el.value = '';
+        el.value = "";
       } catch {
         // 無視
       }
       if (out.length > 0) onFiles(out);
     };
     try {
-      el.value = '';
+      el.value = "";
     } catch {
       // 無視
     }

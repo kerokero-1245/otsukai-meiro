@@ -9,9 +9,9 @@
 //  - emojiSize : 素材が無いときのフォールバック絵文字の fontSize（既定は size）。
 //               従来コードの fontSize をそのまま渡せば見た目・行の高さが変わらない。
 
-import React from 'react';
-import { Image, ImageStyle, StyleProp, Text, TextStyle } from 'react-native';
-import { artForGlyph } from '../art';
+import React from "react";
+import { Image, ImageStyle, StyleProp, Text, TextStyle } from "react-native";
+import { artForGlyph } from "../art";
 
 interface Props {
   glyph: string; // 表示する絵文字（＝素材の識別子）
@@ -21,7 +21,13 @@ interface Props {
   textStyle?: StyleProp<TextStyle>;
 }
 
-export default function PiyoArt({ glyph, size, emojiSize, imageStyle, textStyle }: Props) {
+export default function PiyoArt({
+  glyph,
+  size,
+  emojiSize,
+  imageStyle,
+  textStyle,
+}: Props) {
   const source = artForGlyph(glyph);
   if (source) {
     return (
@@ -34,5 +40,7 @@ export default function PiyoArt({ glyph, size, emojiSize, imageStyle, textStyle 
       />
     );
   }
-  return <Text style={[{ fontSize: emojiSize ?? size }, textStyle]}>{glyph}</Text>;
+  return (
+    <Text style={[{ fontSize: emojiSize ?? size }, textStyle]}>{glyph}</Text>
+  );
 }

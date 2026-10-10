@@ -24,8 +24,8 @@
 //   // 声を鳴らす直前／直後:
 //   duckBgm(); ... unduckBgm();
 
-import { Platform } from 'react-native';
-import { SONGS, type SongId, type BgmSong } from './songs';
+import { Platform } from "react-native";
+import { SONGS, type SongId, type BgmSong } from "./songs";
 
 // ── 音色パラメータ（オルゴール風）────────────────────────────────────
 const MASTER_VOLUME = 0.1; // 控えめ既定音量（マスターゲイン）
@@ -53,9 +53,12 @@ type AC = AudioContext;
 type ACtor = new () => AC;
 
 function getACtor(): ACtor | null {
-  if (Platform.OS !== 'web') return null;
+  if (Platform.OS !== "web") return null;
   try {
-    const g = globalThis as unknown as { AudioContext?: ACtor; webkitAudioContext?: ACtor };
+    const g = globalThis as unknown as {
+      AudioContext?: ACtor;
+      webkitAudioContext?: ACtor;
+    };
     return g.AudioContext ?? g.webkitAudioContext ?? null;
   } catch {
     return null;
@@ -78,14 +81,18 @@ function voice(
   midi: number,
   durBeats: number,
   vel: number,
-  secPerBeat: number
+  secPerBeat: number,
 ): void {
   const freq = midiToFreq(midi);
-  const decay = clamp(durBeats * secPerBeat * DECAY_SCALE, DECAY_MIN, DECAY_MAX);
+  const decay = clamp(
+    durBeats * secPerBeat * DECAY_SCALE,
+    DECAY_MIN,
+    DECAY_MAX,
+  );
   const peak = Math.max(0.0002, vel);
 
   const osc1 = ctx.createOscillator();
-  osc1.type = 'triangle';
+  osc1.type = "triangle";
   osc1.frequency.value = freq;
   const g1 = ctx.createGain();
   g1.gain.setValueAtTime(0.0001, t);
@@ -97,12 +104,15 @@ function voice(
   osc1.stop(t + decay + 0.05);
 
   const osc2 = ctx.createOscillator();
-  osc2.type = 'sine';
+  osc2.type = "sine";
   osc2.frequency.value = freq * OVERTONE_RATIO;
   const g2 = ctx.createGain();
   const pdecay = clamp(decay * PARTIAL_DECAY_RATIO, 0.3, DECAY_MAX);
   g2.gain.setValueAtTime(0.0001, t);
-  g2.gain.exponentialRampToValueAtTime(peak * OVERTONE_GAIN, t + PARTIAL_ATTACK);
+  g2.gain.exponentialRampToValueAtTime(
+    peak * OVERTONE_GAIN,
+    t + PARTIAL_ATTACK,
+  );
   g2.gain.exponentialRampToValueAtTime(0.0001, t + pdecay);
   osc2.connect(g2);
   g2.connect(out);
@@ -114,7 +124,7 @@ interface PreppedSong {
   secPerBeat: number;
   loopDur: number;
   mix: number;
-  notes: BgmSong['notes'];
+  notes: BgmSong["notes"];
 }
 function prepSong(song: BgmSong): PreppedSong {
   const secPerBeat = 60 / song.bpm;
@@ -122,7 +132,7 @@ function prepSong(song: BgmSong): PreppedSong {
   return {
     secPerBeat,
     loopDur: loopBeats * secPerBeat,
-    mix: typeof song.mix === 'number' ? song.mix : 1,
+    mix: typeof song.mix === "number" ? song.mix : 1,
     notes: song.notes,
   };
 }
@@ -163,8 +173,8 @@ function supported(): boolean {
 
 // 外部 ctx の注入など（アプリ初期化時に1回。任意）。
 export function configureBgm(cfg: BgmConfig): void {
-  if (typeof cfg.getCtx === 'function') injectedGetCtx = cfg.getCtx;
-  if (typeof cfg.masterVolume === 'number') {
+  if (typeof cfg.getCtx === "function") injectedGetCtx = cfg.getCtx;
+  if (typeof cfg.masterVolume === "number") {
     masterVolume = cfg.masterVolume;
     baseVolume = masterVolume;
   }
@@ -204,7 +214,7 @@ function ensureGraph(): boolean {
     master = ctx.createGain();
     master.gain.value = baseVolume;
     lowpass = ctx.createBiquadFilter();
-    lowpass.type = 'lowpass';
+    lowpass.type = "lowpass";
     lowpass.frequency.value = LOWPASS_HZ;
     lowpass.Q.value = LOWPASS_Q;
     master.connect(lowpass);
@@ -290,7 +300,7 @@ export function startBgm(id: SongId): void {
   if (!ensureCtx()) return;
   if (!ensureGraph()) return;
   try {
-    if (ctx!.state === 'suspended') void ctx!.resume();
+    if (ctx!.state === "suspended") void ctx!.resume();
   } catch {
     /* noop */
   }
@@ -312,7 +322,7 @@ export function stopBgm(fadeSec?: number): void {
   stopTimer();
   running = false;
   if (!ctx || !master) return;
-  const f = typeof fadeSec === 'number' && fadeSec >= 0 ? fadeSec : 0.4;
+  const f = typeof fadeSec === "number" && fadeSec >= 0 ? fadeSec : 0.4;
   try {
     const now = ctx.currentTime;
     master.gain.cancelScheduledValues(now);
@@ -364,7 +374,11 @@ export function duckBgm(): void {
   duckCount += 1;
   if (!ctx || !master) return;
   try {
-    master.gain.setTargetAtTime(baseVolume * DUCK_RATIO, ctx.currentTime, DUCK_TAU);
+    master.gain.setTargetAtTime(
+      baseVolume * DUCK_RATIO,
+      ctx.currentTime,
+      DUCK_TAU,
+    );
   } catch {
     /* noop */
   }
@@ -386,13 +400,14 @@ export function unduckBgm(): void {
 function onVisibility(): void {
   try {
     if (!ctx) return;
-    const doc = (globalThis as unknown as { document?: { hidden?: boolean } }).document;
+    const doc = (globalThis as unknown as { document?: { hidden?: boolean } })
+      .document;
     if (doc && doc.hidden) {
       stopTimer();
-      if (ownsCtx && ctx.state === 'running') void ctx.suspend();
+      if (ownsCtx && ctx.state === "running") void ctx.suspend();
     } else {
       if (running && enabled) {
-        if (ctx.state === 'suspended') void ctx.resume();
+        if (ctx.state === "suspended") void ctx.resume();
         startTimer();
       }
     }
@@ -402,13 +417,15 @@ function onVisibility(): void {
 }
 function bindVisibility(): void {
   if (visibilityBound) return;
-  if (Platform.OS !== 'web') return;
-  const doc = (globalThis as unknown as {
-    document?: { addEventListener?: (t: string, cb: () => void) => void };
-  }).document;
-  if (doc && typeof doc.addEventListener === 'function') {
+  if (Platform.OS !== "web") return;
+  const doc = (
+    globalThis as unknown as {
+      document?: { addEventListener?: (t: string, cb: () => void) => void };
+    }
+  ).document;
+  if (doc && typeof doc.addEventListener === "function") {
     try {
-      doc.addEventListener('visibilitychange', onVisibility);
+      doc.addEventListener("visibilitychange", onVisibility);
       visibilityBound = true;
     } catch {
       /* noop */

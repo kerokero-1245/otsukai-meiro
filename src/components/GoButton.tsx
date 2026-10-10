@@ -9,9 +9,9 @@
 // 矢印が1本も無いあいだは うすく（押せない）。まず矢印を並べる → それから ゴー!、の順番が
 // 文字を読まなくても伝わるようにするため。
 
-import React from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
-import { colors } from '../theme';
+import React from "react";
+import { Pressable, StyleSheet, Text } from "react-native";
+import { colors } from "../theme";
 
 interface Props {
   size: number; // 一辺（＝方向ボタンと同じ）
@@ -40,7 +40,10 @@ export default function GoButton({ size, onPress, ready, running }: Props) {
         },
       ]}
     >
-      <Text style={[styles.label, { fontSize: Math.round(size * 0.3) }]} numberOfLines={1}>
+      <Text
+        style={[styles.label, { fontSize: Math.round(size * 0.3) }]}
+        numberOfLines={1}
+      >
         ゴー!
       </Text>
     </Pressable>
@@ -49,9 +52,9 @@ export default function GoButton({ size, onPress, ready, running }: Props) {
 
 const styles = StyleSheet.create({
   btn: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#00000055',
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#00000055",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
@@ -59,6 +62,6 @@ const styles = StyleSheet.create({
   },
   label: {
     color: colors.white,
-    fontWeight: '900',
+    fontWeight: "900",
   },
 });

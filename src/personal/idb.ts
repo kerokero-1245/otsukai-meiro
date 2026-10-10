@@ -16,7 +16,7 @@
 //
 // DOM lib に依存しないよう、必要な形だけ最小宣言して globalThis から取り出す（progress.ts / speech.ts と同じ流儀）。
 
-import { Platform } from 'react-native';
+import { Platform } from "react-native";
 
 // ── 最小型宣言 ───────────────────────────────────────────────────────
 // Blob をそのままは持たない（RN と DOM の型が衝突しうる）。必要な形だけ。
@@ -50,8 +50,14 @@ interface IdbTransaction {
 }
 interface IdbDatabase {
   objectStoreNames: { contains(name: string): boolean };
-  createObjectStore(name: string, options?: { keyPath?: string }): IdbObjectStore;
-  transaction(names: string | string[], mode?: 'readonly' | 'readwrite'): IdbTransaction;
+  createObjectStore(
+    name: string,
+    options?: { keyPath?: string },
+  ): IdbObjectStore;
+  transaction(
+    names: string | string[],
+    mode?: "readonly" | "readwrite",
+  ): IdbTransaction;
   close(): void;
   onversionchange: (() => void) | null;
 }
@@ -59,20 +65,20 @@ interface IdbFactory {
   open(name: string, version?: number): IdbOpenRequest;
 }
 
-export const DB_NAME = 'meiro-personal'; // 姉妹アプリと混ざらないよう、このアプリ専用の名前空間
+export const DB_NAME = "meiro-personal"; // 姉妹アプリと混ざらないよう、このアプリ専用の名前空間
 const DB_VERSION = 1;
-export const STORE_PHOTOS = 'photos'; // keyPath 'id'   … ゴール写真
-export const STORE_VOICES = 'voices'; // keyPath 'slot' … おじの声（スロットは 'tsuita' | 'zenbu'）
+export const STORE_PHOTOS = "photos"; // keyPath 'id'   … ゴール写真
+export const STORE_VOICES = "voices"; // keyPath 'slot' … おじの声（スロットは 'tsuita' | 'zenbu'）
 
 const OPEN_TIMEOUT_MS = 4000; // open が返ってこない環境（壊れたプロファイル等）で固まらないための保険
 
 function getFactory(): IdbFactory | null {
-  if (Platform.OS !== 'web') return null;
+  if (Platform.OS !== "web") return null;
   try {
     const g = globalThis as unknown as { indexedDB?: IdbFactory | null };
     const f = g.indexedDB;
     // 「undefined を差し込んで潰す」テストも通す: 関数として使えなければ無しとみなす。
-    if (!f || typeof f.open !== 'function') return null;
+    if (!f || typeof f.open !== "function") return null;
     return f;
   } catch {
     return null;
@@ -113,10 +119,10 @@ function openDb(): Promise<IdbDatabase | null> {
         try {
           const db = req.result;
           if (!db.objectStoreNames.contains(STORE_PHOTOS)) {
-            db.createObjectStore(STORE_PHOTOS, { keyPath: 'id' });
+            db.createObjectStore(STORE_PHOTOS, { keyPath: "id" });
           }
           if (!db.objectStoreNames.contains(STORE_VOICES)) {
-            db.createObjectStore(STORE_VOICES, { keyPath: 'slot' });
+            db.createObjectStore(STORE_VOICES, { keyPath: "slot" });
           }
         } catch {
           // ここで失敗しても onerror / タイムアウトで null に落ちる
@@ -158,7 +164,10 @@ function openDb(): Promise<IdbDatabase | null> {
 }
 
 // 読み取り: リクエストの結果をそのまま返す。失敗はすべて null に丸める（例外を投げない）。
-function readOp<T>(store: string, run: (s: IdbObjectStore) => IdbRequest<unknown>): Promise<T | null> {
+function readOp<T>(
+  store: string,
+  run: (s: IdbObjectStore) => IdbRequest<unknown>,
+): Promise<T | null> {
   return openDb().then(
     (db) =>
       new Promise<T | null>((resolve) => {
@@ -173,7 +182,7 @@ function readOp<T>(store: string, run: (s: IdbObjectStore) => IdbRequest<unknown
           resolve(v);
         };
         try {
-          const tx = db.transaction(store, 'readonly');
+          const tx = db.transaction(store, "readonly");
           tx.onerror = () => done(null);
           tx.onabort = () => done(null);
           const req = run(tx.objectStore(store));
@@ -182,13 +191,16 @@ function readOp<T>(store: string, run: (s: IdbObjectStore) => IdbRequest<unknown
         } catch {
           done(null);
         }
-      })
+      }),
   );
 }
 
 // 書き込み: 成否は「トランザクションが commit したか」で判定する。
 // リクエストの onsuccess は commit 前に鳴るので、容量超過などで後からアボートすると取りこぼす。
-function writeOp(store: string, run: (s: IdbObjectStore) => void): Promise<boolean> {
+function writeOp(
+  store: string,
+  run: (s: IdbObjectStore) => void,
+): Promise<boolean> {
   return openDb().then(
     (db) =>
       new Promise<boolean>((resolve) => {
@@ -203,7 +215,7 @@ function writeOp(store: string, run: (s: IdbObjectStore) => void): Promise<boole
           resolve(v);
         };
         try {
-          const tx = db.transaction(store, 'readwrite');
+          const tx = db.transaction(store, "readwrite");
           tx.oncomplete = () => done(true);
           tx.onerror = () => done(false);
           tx.onabort = () => done(false);
@@ -211,14 +223,16 @@ function writeOp(store: string, run: (s: IdbObjectStore) => void): Promise<boole
         } catch {
           done(false);
         }
-      })
+      }),
   );
 }
 
 // ── 公開 API（すべて失敗を null/[]/false に丸める）───────────────────
 
 export function idbGetAll<T>(store: string): Promise<T[]> {
-  return readOp<T[]>(store, (s) => s.getAll()).then((v) => (Array.isArray(v) ? v : []));
+  return readOp<T[]>(store, (s) => s.getAll()).then((v) =>
+    Array.isArray(v) ? v : [],
+  );
 }
 
 export function idbGet<T>(store: string, key: unknown): Promise<T | null> {

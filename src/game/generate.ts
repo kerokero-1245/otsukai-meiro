@@ -11,28 +11,28 @@
 //
 // 乱数は Math.random でよい（アプリ実行時コード）。
 
-import { Coord, Level, Template } from '../types';
-import { inBounds, isObstacle, sameCoord } from './maze';
+import { Coord, Level, Template } from "../types";
+import { inBounds, isObstacle, sameCoord } from "./maze";
 
 // ゴールの既定イラスト（絵文字）プール。生成のたびここから1つランダムに選ぶ。
 // 差し替え写真（goalImage）が入るまでのプレースホルダ（外部素材ゼロ）。
 export const GOAL_EMOJIS = [
-  '🍎',
-  '🏠',
-  '🍰',
-  '🍓',
-  '🎈',
-  '🍦',
-  '🎁',
-  '🌷',
-  '🍭',
-  '🐰',
-  '🚗',
-  '🍩',
+  "🍎",
+  "🏠",
+  "🍰",
+  "🍓",
+  "🎈",
+  "🍦",
+  "🎁",
+  "🌷",
+  "🍭",
+  "🐰",
+  "🚗",
+  "🍩",
 ];
 
 // アバター（言われた順にしか歩けないおともだち）の既定絵文字。
-const AVATAR_EMOJI = '🐥';
+const AVATAR_EMOJI = "🐥";
 
 // 1テンプレートあたりの作り直し上限。これを超えたらフォールバックへ。
 const MAX_ATTEMPTS = 50;
@@ -105,7 +105,7 @@ export function bfsShortest(level: Level): number | null {
 }
 
 // どのフォールバック段まで使ったか（プロパティ検証・デバッグ用）。
-export type GenStage = 'natural' | 'reduced' | 'corner';
+export type GenStage = "natural" | "reduced" | "corner";
 
 export interface GenResult {
   level: Level;
@@ -144,12 +144,16 @@ export function generateLevelDebug(template: Template): GenResult {
   });
 
   // 障害物 obstacleCount 個で1回だけ試す。条件を満たせば Level、駄目なら null。
-  const attempt = (obstacleCount: number): { level: Level; shortest: number } | null => {
+  const attempt = (
+    obstacleCount: number,
+  ): { level: Level; shortest: number } | null => {
     const start = pick(cells);
     const goal = pick(cells);
     if (sameCoord(start, goal)) return null;
 
-    const pool = cells.filter((c) => !sameCoord(c, start) && !sameCoord(c, goal));
+    const pool = cells.filter(
+      (c) => !sameCoord(c, start) && !sameCoord(c, goal),
+    );
     if (pool.length < obstacleCount) return null;
     const obstacles = shuffled(pool).slice(0, obstacleCount);
 
@@ -160,7 +164,11 @@ export function generateLevelDebug(template: Template): GenResult {
   };
 
   // 採用が決まってから maxSteps（②で並べられる矢印の上限）を実際の最短手数で入れ直す。
-  const finish = (level: Level, stage: GenStage, shortest: number): GenResult => ({
+  const finish = (
+    level: Level,
+    stage: GenStage,
+    shortest: number,
+  ): GenResult => ({
     level: { ...level, maxSteps: queueCapacity(shortest) },
     stage,
     shortest,
@@ -170,14 +178,14 @@ export function generateLevelDebug(template: Template): GenResult {
   for (let a = 0; a < MAX_ATTEMPTS; a++) {
     const obstacleCount = obstacleMin + randInt(obstacleMax - obstacleMin + 1);
     const r = attempt(obstacleCount);
-    if (r) return finish(r.level, 'natural', r.shortest);
+    if (r) return finish(r.level, "natural", r.shortest);
   }
 
   // フォールバック1: 障害物を段階的に減らして通す（それでも遊べる迷路にする）。
   for (let oc = obstacleMin; oc >= 0; oc--) {
     for (let a = 0; a < MAX_ATTEMPTS; a++) {
       const r = attempt(oc);
-      if (r) return finish(r.level, 'reduced', r.shortest);
+      if (r) return finish(r.level, "reduced", r.shortest);
     }
   }
 
@@ -187,7 +195,7 @@ export function generateLevelDebug(template: Template): GenResult {
   const goal: Coord = { x: cols - 1, y: rows - 1 };
   const level = build(start, goal, []);
   const shortest = bfsShortest(level) ?? cols - 1 + (rows - 1);
-  return finish(level, 'corner', shortest);
+  return finish(level, "corner", shortest);
 }
 
 // テンプレートから迷路を1つ生成する（アプリ本体が使う公開API）。

@@ -11,10 +11,10 @@
 //   こうしないと「上限9本＝2行×大きいマス」が「上限14本＝2行×小さいマス」より帯が厚くなり、
 //   いちばんよく出る迷路がいちばん盤面を損する（非単調）という逆転が起きる。
 
-import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Direction } from '../types';
-import { colors, radius } from '../theme';
+import React from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Direction } from "../types";
+import { colors, radius } from "../theme";
 
 export const CHIP_GAP = 8; // マスとマスのすきま
 // ⌫ の一辺。§4 の巨大タップ領域（64pt以上）をボタンの実寸で満たす。
@@ -27,17 +27,17 @@ const CHIP_MIN = 6; // 極端に細い画面での保険（表示だけなので
 const CHIP_MAX = 44;
 
 const GLYPH: Record<Direction, string> = {
-  up: '▲',
-  down: '▼',
-  left: '◀',
-  right: '▶',
+  up: "▲",
+  down: "▼",
+  left: "◀",
+  right: "▶",
 };
 
 const LABEL: Record<Direction, string> = {
-  up: 'うえ',
-  down: 'した',
-  left: 'ひだり',
-  right: 'みぎ',
+  up: "うえ",
+  down: "した",
+  left: "ひだり",
+  right: "みぎ",
 };
 
 export interface QueueStripMetrics {
@@ -51,7 +51,10 @@ export interface QueueStripMetrics {
 // 高さは常に BAND_H。上限本数（capacity）は迷路ごとに変わる（generate.ts の queueCapacity）ので、
 // **その一定の高さと横幅の両方に収まる中でいちばん大きくなる並べ方** を選ぶ。
 // 1行に収まるなら1行（並べた順が左から右に素直に読める）、幅が足りなければ折り返す。
-export function measureQueueStrip(width: number, capacity: number): QueueStripMetrics {
+export function measureQueueStrip(
+  width: number,
+  capacity: number,
+): QueueStripMetrics {
   const cap = Math.max(1, Math.floor(capacity));
   const usable = Math.max(60, width - UNDO_SIZE - CHIP_GAP);
 
@@ -66,7 +69,12 @@ export function measureQueueStrip(width: number, capacity: number): QueueStripMe
     if (chip > best.chip) best = { chip, perRow, rows };
   }
 
-  return { chip: Math.max(CHIP_MIN, best.chip), perRow: best.perRow, rows: best.rows, height: BAND_H };
+  return {
+    chip: Math.max(CHIP_MIN, best.chip),
+    perRow: best.perRow,
+    rows: best.rows,
+    height: BAND_H,
+  };
 }
 
 interface Props {
@@ -109,22 +117,26 @@ export default function CommandQueue({
             active ? styles.slotActive : null,
           ]}
         >
-          {dir ? <Text style={[styles.glyph, { fontSize: glyphSize }]}>{GLYPH[dir]}</Text> : null}
-        </View>
+          {dir ? (
+            <Text style={[styles.glyph, { fontSize: glyphSize }]}>
+              {GLYPH[dir]}
+            </Text>
+          ) : null}
+        </View>,
       );
     }
     rowNodes.push(
       <View key={`row-${r}`} style={styles.row}>
         {cells}
-      </View>
+      </View>,
     );
   }
 
   // 読み上げ用（画面には出さない）。文字に頼らない原則は保ちつつ、支援技術には中身を伝える。
   const readOut =
     queue.length === 0
-      ? 'めいれいの れつ: まだ ありません'
-      : `めいれいの れつ: ${queue.map((d) => LABEL[d]).join('、')}`;
+      ? "めいれいの れつ: まだ ありません"
+      : `めいれいの れつ: ${queue.map((d) => LABEL[d]).join("、")}`;
 
   const undoOff = disabled || queue.length === 0;
 
@@ -145,7 +157,7 @@ export default function CommandQueue({
             width: UNDO_SIZE,
             height: UNDO_SIZE,
             opacity: undoOff ? 0.3 : 1,
-            backgroundColor: pressed ? '#F0EADD' : colors.surface,
+            backgroundColor: pressed ? "#F0EADD" : colors.surface,
           },
         ]}
       >
@@ -159,21 +171,21 @@ const styles = StyleSheet.create({
   // 帯の中身（マスの列と ⌫）はひとかたまりで中央寄せにする。
   // 両端に離して置くと、⌫ が「列のさいごを消すもの」に見えなくなるため。
   band: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   slots: {
     rowGap: CHIP_GAP,
   },
   row: {
-    flexDirection: 'row',
+    flexDirection: "row",
     columnGap: CHIP_GAP,
   },
   // 空きマス: そこに置けることだけを示すうすい下地（未達成マークにはしない / §14 の流儀）。
   slot: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: colors.tileDark,
     borderWidth: 1,
     borderColor: colors.tileBorder,
@@ -195,19 +207,19 @@ const styles = StyleSheet.create({
   },
   glyph: {
     color: colors.buttonGlyph,
-    fontWeight: '900',
+    fontWeight: "900",
   },
   undo: {
     marginLeft: CHIP_GAP,
     borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 2,
     borderColor: colors.tileBorder,
   },
   undoGlyph: {
     fontSize: 26,
-    fontWeight: '900',
+    fontWeight: "900",
     color: colors.text,
   },
 });

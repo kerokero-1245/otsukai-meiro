@@ -7,9 +7,9 @@
 // 縦は枠の下端までで止め、降り終えた小片は取り除く。以前は枠の 40px 下まで降りて透明のまま残り、
 // 文書の高さを伸ばしていた（クリア後に約 +43px）。
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, LayoutChangeEvent, StyleSheet } from 'react-native';
-import { colors } from '../theme';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Animated, Easing, LayoutChangeEvent, StyleSheet } from "react-native";
+import { colors } from "../theme";
 
 // 回転した正方形の角が、回転していない正方形の外へ出る長さ（一辺に対する割合。(√2−1)/2 ≒ 0.2071 を切り上げ）。
 const ROTATE_OVERHANG = 0.21;
@@ -36,7 +36,7 @@ function Piece({ spec, fallH }: { spec: PieceSpec; fallH: number }) {
         easing: Easing.linear,
         useNativeDriver: false,
       }),
-      { iterations: 2 }
+      { iterations: 2 },
     );
     // 降り終えたら取り除く（止めたとき＝画面を離れたときは finished が false なので何もしない）。
     anim.start(({ finished }) => {
@@ -47,16 +47,28 @@ function Piece({ spec, fallH }: { spec: PieceSpec; fallH: number }) {
 
   // 降りる先は、回転した角まで含めて枠の下端に収まる位置（fallH は枠の高さ）。
   const endY = Math.max(0, fallH - spec.size * (1 + ROTATE_OVERHANG));
-  const translateY = p.interpolate({ inputRange: [0, 1], outputRange: [-40, endY] });
-  const translateX = p.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, spec.drift, 0] });
-  const rotate = p.interpolate({ inputRange: [0, 1], outputRange: ['0deg', `${spec.spin}deg`] });
-  const opacity = p.interpolate({ inputRange: [0, 0.85, 1], outputRange: [1, 1, 0] });
+  const translateY = p.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-40, endY],
+  });
+  const translateX = p.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0, spec.drift, 0],
+  });
+  const rotate = p.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", `${spec.spin}deg`],
+  });
+  const opacity = p.interpolate({
+    inputRange: [0, 0.85, 1],
+    outputRange: [1, 1, 0],
+  });
 
   if (done) return null;
   return (
     <Animated.View
       style={{
-        position: 'absolute',
+        position: "absolute",
         left: spec.x,
         top: 0,
         width: spec.size,
@@ -74,7 +86,9 @@ export default function Confetti({ count = 18 }: { count?: number }) {
   const [box, setBox] = useState({ w: 0, h: 0 });
   const onLayout = (e: LayoutChangeEvent) => {
     const { width, height } = e.nativeEvent.layout;
-    setBox((b) => (b.w === width && b.h === height ? b : { w: width, h: height }));
+    setBox((b) =>
+      b.w === width && b.h === height ? b : { w: width, h: height },
+    );
   };
   const width = box.w;
   const specs = useMemo<PieceSpec[]>(() => {
@@ -87,7 +101,10 @@ export default function Confetti({ count = 18 }: { count?: number }) {
       const minX = inset;
       const maxX = Math.max(minX, width - size - inset);
       const x = minX + Math.random() * (maxX - minX);
-      const drift = Math.min(Math.max((Math.random() - 0.5) * 90, minX - x), maxX - x);
+      const drift = Math.min(
+        Math.max((Math.random() - 0.5) * 90, minX - x),
+        maxX - x,
+      );
       return {
         x,
         size,
@@ -101,7 +118,11 @@ export default function Confetti({ count = 18 }: { count?: number }) {
   }, [count, width]);
 
   return (
-    <Animated.View style={StyleSheet.absoluteFill} pointerEvents="none" onLayout={onLayout}>
+    <Animated.View
+      style={StyleSheet.absoluteFill}
+      pointerEvents="none"
+      onLayout={onLayout}
+    >
       {specs.map((spec, i) => (
         <Piece key={i} spec={spec} fallH={box.h} />
       ))}

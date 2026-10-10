@@ -12,8 +12,8 @@
 //
 // DOM lib に依存しないよう、必要な形だけ最小宣言して globalThis から取り出す。
 
-import { Platform } from 'react-native';
-import { BlobLike } from './idb';
+import { Platform } from "react-native";
+import { BlobLike } from "./idb";
 
 export const MAX_EDGE = 512; // 長辺の上限(px)
 export const JPEG_QUALITY = 0.8;
@@ -32,7 +32,11 @@ interface CanvasEl {
   width: number;
   height: number;
   getContext(kind: string): Ctx2D | null;
-  toBlob(cb: (b: BlobLike | null) => void, type?: string, quality?: number): void;
+  toBlob(
+    cb: (b: BlobLike | null) => void,
+    type?: string,
+    quality?: number,
+  ): void;
 }
 interface ImgEl extends Sized {
   src: string;
@@ -51,7 +55,7 @@ interface UrlLike {
 }
 
 function doc(): DocLike | null {
-  if (Platform.OS !== 'web') return null;
+  if (Platform.OS !== "web") return null;
   try {
     const g = globalThis as unknown as { document?: DocLike };
     return g.document ?? null;
@@ -61,11 +65,11 @@ function doc(): DocLike | null {
 }
 
 export function objectUrl(): UrlLike | null {
-  if (Platform.OS !== 'web') return null;
+  if (Platform.OS !== "web") return null;
   try {
     const g = globalThis as unknown as { URL?: UrlLike };
     const u = g.URL;
-    if (!u || typeof u.createObjectURL !== 'function') return null;
+    if (!u || typeof u.createObjectURL !== "function") return null;
     return u;
   } catch {
     return null;
@@ -76,12 +80,17 @@ export function objectUrl(): UrlLike | null {
 function bitmapFactory():
   | ((blob: unknown, opts?: { imageOrientation?: string }) => Promise<Sized>)
   | null {
-  if (Platform.OS !== 'web') return null;
+  if (Platform.OS !== "web") return null;
   try {
     const g = globalThis as unknown as {
-      createImageBitmap?: (blob: unknown, opts?: { imageOrientation?: string }) => Promise<Sized>;
+      createImageBitmap?: (
+        blob: unknown,
+        opts?: { imageOrientation?: string },
+      ) => Promise<Sized>;
     };
-    return typeof g.createImageBitmap === 'function' ? g.createImageBitmap : null;
+    return typeof g.createImageBitmap === "function"
+      ? g.createImageBitmap
+      : null;
   } catch {
     return null;
   }
@@ -95,7 +104,7 @@ function loadViaImg(file: unknown): Promise<Sized | null> {
   return new Promise<Sized | null>((resolve) => {
     let url: string | null = null;
     try {
-      const img = d.createElement('img') as ImgEl;
+      const img = d.createElement("img") as ImgEl;
       url = u.createObjectURL(file);
       const cleanup = () => {
         if (url) {
@@ -141,7 +150,9 @@ export interface ResizedImage {
 
 // 選ばれたファイル（<input type=file> の File）を長辺 MAX_EDGE の JPEG に縮小する。
 // 失敗したら null（呼び出し側で「ふやせませんでした」）。
-export async function resizeImageFile(file: unknown): Promise<ResizedImage | null> {
+export async function resizeImageFile(
+  file: unknown,
+): Promise<ResizedImage | null> {
   const d = doc();
   if (!d || !file) return null;
 
@@ -150,7 +161,7 @@ export async function resizeImageFile(file: unknown): Promise<ResizedImage | nul
   const makeBitmap = bitmapFactory();
   if (makeBitmap) {
     try {
-      source = await makeBitmap(file, { imageOrientation: 'from-image' });
+      source = await makeBitmap(file, { imageOrientation: "from-image" });
     } catch {
       source = null;
     }
@@ -172,27 +183,27 @@ export async function resizeImageFile(file: unknown): Promise<ResizedImage | nul
 
   // ③ canvas へ描いて JPEG 化。
   try {
-    const canvas = d.createElement('canvas') as CanvasEl;
+    const canvas = d.createElement("canvas") as CanvasEl;
     canvas.width = w;
     canvas.height = h;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return null;
     try {
       ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
+      ctx.imageSmoothingQuality = "high";
     } catch {
       // 無視（画質のヒントだけ）
     }
     ctx.drawImage(source, 0, 0, w, h);
     const blob = await new Promise<BlobLike | null>((resolve) => {
       try {
-        canvas.toBlob((b) => resolve(b), 'image/jpeg', JPEG_QUALITY);
+        canvas.toBlob((b) => resolve(b), "image/jpeg", JPEG_QUALITY);
       } catch {
         resolve(null);
       }
     });
     if (!blob || !blob.size) return null;
-    return { blob, width: w, height: h, mime: 'image/jpeg' };
+    return { blob, width: w, height: h, mime: "image/jpeg" };
   } catch {
     return null;
   }

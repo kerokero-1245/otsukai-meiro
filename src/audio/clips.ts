@@ -14,8 +14,8 @@
 //
 // DOM lib に依存しないよう、必要な形だけ最小宣言して globalThis から取り出す。
 
-import { Platform } from 'react-native';
-import { CLIP_URLS, hasClip } from './voiceClips';
+import { Platform } from "react-native";
+import { CLIP_URLS, hasClip } from "./voiceClips";
 
 interface AudioEl {
   play(): Promise<void> | void;
@@ -27,7 +27,7 @@ interface AudioEl {
 type AudioCtor = new (src?: string) => AudioEl;
 
 function getAudioCtor(): AudioCtor | null {
-  if (Platform.OS !== 'web') return null;
+  if (Platform.OS !== "web") return null;
   try {
     const g = globalThis as unknown as { Audio?: AudioCtor };
     return g.Audio ?? null;
@@ -101,8 +101,8 @@ function playSrc(src: string, onEnd?: () => void): boolean {
       currentOnEnd = fire;
       // 自然終了・読み込み失敗で終了通知（停止は cancelClip 側で通知）。
       try {
-        a.addEventListener?.('ended', fire);
-        a.addEventListener?.('error', fire);
+        a.addEventListener?.("ended", fire);
+        a.addEventListener?.("error", fire);
       } catch {
         // リスナを付けられなくても cancelClip / 呼び出し側の保険で解除される
       }
@@ -111,7 +111,7 @@ function playSrc(src: string, onEnd?: () => void): boolean {
     }
     const p = a.play();
     // play() の Promise 拒否（ユーザー操作前など）は握りつぶす（遊びは壊さない）。
-    if (p && typeof (p as Promise<void>).catch === 'function') {
+    if (p && typeof (p as Promise<void>).catch === "function") {
       (p as Promise<void>).catch(() => {});
     }
     return true;
@@ -134,7 +134,7 @@ export function warmUpClips(): void {
     const a = new A(CLIP_URLS[first]);
     a.muted = true;
     const p = a.play();
-    if (p && typeof (p as Promise<void>).then === 'function') {
+    if (p && typeof (p as Promise<void>).then === "function") {
       (p as Promise<void>)
         .then(() => {
           try {

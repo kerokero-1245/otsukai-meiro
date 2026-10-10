@@ -2,13 +2,20 @@
 // ⭐×5 が順にぽんっと並び → 王冠＋大きな「ぜんぶ できたね!」＋紙吹雪。減点・失敗表示は一切なし。
 // 表示のたびに setCelebratedAll(true) 済みなので、以降はレベルえらびの控えめな王冠だけになる。
 
-import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { colors, font, space } from '../theme';
-import { playSound } from '../audio/sounds';
-import { sayPhrase, cancelVoice } from '../audio/voice';
-import BigButton from '../components/BigButton';
-import Confetti from '../components/Confetti';
+import React, { useEffect, useRef } from "react";
+import {
+  Animated,
+  Easing,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
+import { colors, font, space } from "../theme";
+import { playSound } from "../audio/sounds";
+import { sayPhrase, cancelVoice } from "../audio/voice";
+import BigButton from "../components/BigButton";
+import Confetti from "../components/Confetti";
 
 interface Props {
   onDone: () => void; // レベルえらびへ（王冠つきで戻る）
@@ -23,11 +30,17 @@ export default function GanbariScreen({ onDone }: Props) {
   const inner = Math.min(width, 480) - space.md * 2;
   const starSize = Math.max(
     40,
-    Math.min(72, Math.floor(inner / (STAR_COUNT + 1)), Math.floor(height * 0.11))
+    Math.min(
+      72,
+      Math.floor(inner / (STAR_COUNT + 1)),
+      Math.floor(height * 0.11),
+    ),
   );
 
   // ⭐×5 が順にぽんっと出るスプリング値。
-  const stars = useRef(Array.from({ length: STAR_COUNT }, () => new Animated.Value(0))).current;
+  const stars = useRef(
+    Array.from({ length: STAR_COUNT }, () => new Animated.Value(0)),
+  ).current;
   // 最後に王冠＋見出しがふわっと出る。
   const crown = useRef(new Animated.Value(0)).current;
 
@@ -35,27 +48,40 @@ export default function GanbariScreen({ onDone }: Props) {
     const timers: ReturnType<typeof setTimeout>[] = [];
     stars.forEach((v, i) => {
       timers.push(
-        setTimeout(() => {
-          playSound('star');
-          Animated.spring(v, { toValue: 1, friction: 4, tension: 120, useNativeDriver: false }).start();
-        }, 300 + i * 340)
+        setTimeout(
+          () => {
+            playSound("star");
+            Animated.spring(v, {
+              toValue: 1,
+              friction: 4,
+              tension: 120,
+              useNativeDriver: false,
+            }).start();
+          },
+          300 + i * 340,
+        ),
       );
     });
     // 全部そろったら大きな祝福（王冠＋ファンファーレ）。
     const fanfareAt = 300 + STAR_COUNT * 340 + 150;
     timers.push(
       setTimeout(() => {
-        playSound('fanfare');
-        Animated.spring(crown, { toValue: 1, friction: 5, tension: 90, useNativeDriver: false }).start();
-      }, fanfareAt)
+        playSound("fanfare");
+        Animated.spring(crown, {
+          toValue: 1,
+          friction: 5,
+          tension: 90,
+          useNativeDriver: false,
+        }).start();
+      }, fanfareAt),
     );
     // ずんだもんの声「ぜんぶ できたね」。fanfare 効果音（約1秒）のあとに鳴らして喧嘩させない。
     // 鳴る声は おじの録音 → 同梱クリップ（p_zenbu）→ speechSynthesis → 無音 の順（voice.ts）。
     // どれも鳴らせない環境でも文字だけで成立する。
     timers.push(
       setTimeout(() => {
-        sayPhrase('zenbu');
-      }, fanfareAt + 1050)
+        sayPhrase("zenbu");
+      }, fanfareAt + 1050),
     );
     return () => {
       timers.forEach(clearTimeout);
@@ -63,7 +89,10 @@ export default function GanbariScreen({ onDone }: Props) {
     };
   }, [stars, crown]);
 
-  const crownTranslate = crown.interpolate({ inputRange: [0, 1], outputRange: [16, 0] });
+  const crownTranslate = crown.interpolate({
+    inputRange: [0, 1],
+    outputRange: [16, 0],
+  });
 
   return (
     <View style={styles.root}>
@@ -80,14 +109,20 @@ export default function GanbariScreen({ onDone }: Props) {
         </Animated.View>
 
         <Animated.Text
-          style={[styles.headline, { opacity: crown, transform: [{ scale: crown }] }]}
+          style={[
+            styles.headline,
+            { opacity: crown, transform: [{ scale: crown }] },
+          ]}
         >
           ぜんぶ できたね!
         </Animated.Text>
 
         <View style={styles.starsRow}>
           {stars.map((v, i) => {
-            const rotate = v.interpolate({ inputRange: [0, 1], outputRange: ['-45deg', '0deg'] });
+            const rotate = v.interpolate({
+              inputRange: [0, 1],
+              outputRange: ["-45deg", "0deg"],
+            });
             return (
               <Animated.Text
                 key={i}
@@ -115,7 +150,7 @@ export default function GanbariScreen({ onDone }: Props) {
           color={colors.play}
           pressedColor={colors.playPressed}
           onPress={() => {
-            playSound('tap');
+            playSound("tap");
             onDone();
           }}
         />
@@ -130,8 +165,8 @@ const styles = StyleSheet.create({
   },
   center: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   crownWrap: {
     marginBottom: space.sm,
@@ -141,35 +176,35 @@ const styles = StyleSheet.create({
   },
   headline: {
     fontSize: font.huge,
-    fontWeight: '900',
+    fontWeight: "900",
     color: colors.text,
     letterSpacing: 1,
     marginBottom: space.lg,
-    textAlign: 'center',
+    textAlign: "center",
   },
   starsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     columnGap: space.xs,
-    flexWrap: 'nowrap',
+    flexWrap: "nowrap",
   },
   star: {
-    textShadowColor: '#00000033',
+    textShadowColor: "#00000033",
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
   },
   sub: {
     marginTop: space.lg,
     fontSize: font.big,
-    fontWeight: '800',
+    fontWeight: "800",
     color: colors.subtext,
-    textAlign: 'center',
+    textAlign: "center",
   },
   buttonWrap: {
-    width: '100%',
+    width: "100%",
     maxWidth: 320,
-    alignSelf: 'center',
+    alignSelf: "center",
     paddingBottom: space.md,
   },
 });
