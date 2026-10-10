@@ -32,6 +32,9 @@ jobs:
       - name: 依存関係をインストール
         run: npm ci
 
+      - name: 整形の検査（prettier --check）
+        run: npm run format:check
+
       - name: 型チェック（tsc --noEmit）
         run: npm run typecheck
 
