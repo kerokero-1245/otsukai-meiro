@@ -1,0 +1,13 @@
+# 依存・書き出し物・キャッシュ
+node_modules/
+dist/
+.expo/
+web-build/
+package-lock.json
+*.min.*
+
+# 素材（画像・音声と、その生成手順の README）
+assets/
+
+# 生成物: piyo-assets/bgm/songs.ts（compose.js が生成）の写し。元と同じバイト列に保つ
+src/audio/bgm/songs.ts
