@@ -609,8 +609,8 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginRight: space.sm,
   },
-  // ②の「命令の列」の帯。高さは measureQueueStrip が決めた値（+ この上マージン）で
-  // 高さバジェットに算入済みなので、盤面・方向パッドと重ならない。
+  // ②の「命令の列」の帯。高さは measureQueueStrip（game/queueStrip.ts）が決めた値（+ この上マージン）で
+  // 高さバジェット（game/playLayout.ts）に算入済みなので、盤面・方向パッドと重ならない。
   queueArea: {
     marginTop: space.sm,
   },

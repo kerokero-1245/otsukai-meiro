@@ -25,7 +25,7 @@ export const GAP = space.md; // 盤と方向パッドのあいだの最小余白
 export const CELL_MIN = 44; // めいろのマスの下限
 export const CELL_MAX = 116; // めいろのマスの上限
 export const DIR_MIN = 52; // 方向ボタンの下限（ここまで来たらもう譲らない）
-export const DIR_MAX = 110; // 方向ボタンの上限
+export const DIR_MAX = 100; // 方向ボタンの上限
 const PAD_BUDGET_RATIO = 0.42; // 方向パッド帯に割り当てる高さ ＝ 盤の下の本体の高さ × この割合（上限 PAD_BUDGET_MAX）
 const PAD_BUDGET_MAX = 340;
 // 背の低い横向き: 左の列に上段（🏠＋ゴール案内。実測 320）が収まる幅。
