@@ -42,24 +42,14 @@ import {
 } from "../progress";
 import { getPlayMode } from "../settings";
 import { useReducedMotion } from "../a11y";
-import MazeGrid, { BOARD_BORDER } from "../components/MazeGrid";
-import {
-  FRAME_MAX_W,
-  FRAME_MAX_W_WIDE,
-  FRAME_PAD_BOTTOM,
-  FRAME_PAD_H,
-  FRAME_PAD_TOP,
-  isCompactLandscape,
-} from "../layout";
+import MazeGrid from "../components/MazeGrid";
+import { computePlayLayout } from "../game/playLayout";
 import DirPad from "../components/DirPad";
 import ClearOverlay from "../components/ClearOverlay";
 import BigButton from "../components/BigButton";
 import GoalArt from "../components/GoalArt";
 import GoButton from "../components/GoButton";
-import CommandQueue, {
-  BAND_H,
-  measureQueueStrip,
-} from "../components/CommandQueue";
+import CommandQueue from "../components/CommandQueue";
 import { pickGoalPhotoUrl } from "../personal/store";
 
 interface Props {
@@ -116,96 +106,18 @@ export default function PlayScreen({
   const capacity = level?.maxSteps ?? QUEUE_MIN_CAPACITY;
 
   // --- 盤面・ボタンの寸法 ---
-  // 縦を「上段ヘッダー（＋②の命令の列）＋めいろ＋方向パッド」で必ず収める。
-  // 以前は maxBoardH = height*0.46 と最小64pxの固定寸法だったため、背の低い（横長でない）
-  // ウィンドウでは盤がはみ出し、RN Web の View 既定 overflow:visible により上のヘッダーへ
-  // 覆いかぶさって文言が隠れていた。ここでヘッダー/パッドのぶんを差し引いた高さに収める。
+  // 縦を「上段ヘッダー（＋②の命令の列）＋めいろ＋方向パッド」で必ず収める配分は、純粋関数
+  // computePlayLayout（src/game/playLayout.ts。DESIGN §16.2 の実測表をテストで固定）が決める。
   const cols = level?.cols ?? 1;
   const rows = level?.rows ?? 1;
-
-  const side = isCompactLandscape(width, height); // 背の低い横向き＝盤と方向パッドを左右に並べる
-  const frameW =
-    Math.min(width, side ? FRAME_MAX_W_WIDE : FRAME_MAX_W) - FRAME_PAD_H * 2; // 枠の内側の幅
-  // 縦に使える高さ（frame の上下パディングぶん）。縦持ちは従来どおり下限 320（横向きは実寸で組む）。
-  const availH = side
-    ? height - (FRAME_PAD_TOP + FRAME_PAD_BOTTOM)
-    : Math.max(height - (FRAME_PAD_TOP + FRAME_PAD_BOTTOM), 320);
-  const HEADER_H = 64; // 上段（おうち＋ゴール案内）にみておく高さ
-  const GAP = space.md; // 盤と方向パッドのあいだの最小余白
-  const CELL_MIN = 44; // めいろのマスの下限
-  const DIR_MIN = 52; // 方向ボタンの下限（ここまで来たらもう譲らない）
-  // 盤の外寸はマス目全体＋枠線（MazeGrid の BOARD_BORDER×2）。下限のマスで組むときも枠線のぶんを数える。
-  const frameLine = BOARD_BORDER * 2;
-
-  // 背の低い横向き: 右の列の方向パッドは列の高さ（②は命令の列のぶんを引いた残り）から、左の列には
-  // 上段（🏠＋ゴール案内。実測 320）が収まる幅（MAIN_MIN_W）を残した幅から大きさを決める。
-  // 下限 DIR_MIN・上限 100 は縦持ちと同じ。②の命令の列は右の列（方向パッドの上）に置く。
-  // 左の列に置くと、568x320 で level-05 の盤が下限のマスでも帯に重なるため。
-  const MAIN_MIN_W = 320;
-  const DIR_GAP_W = 10 * 2; // DirPad の列間（columnGap 10）×2
-  const sideStripH = side && isQueue ? BAND_H + space.sm : 0; // 右の列の命令の列（帯＋下マージン）
-  const sideDir = side
-    ? Math.max(
-        DIR_MIN,
-        Math.min(
-          Math.floor((availH - sideStripH - space.md) / 3.3),
-          Math.floor((frameW - GAP - MAIN_MIN_W - DIR_GAP_W) / 3),
-          100,
-        ),
-      )
-    : 0;
-  const sidePadW = side ? sideDir * 3 + DIR_GAP_W : 0;
-  // 盤・命令の列に使える幅。縦持ちは枠の内側いっぱい、横向きは方向パッドの列とすき間を引いた残り。
-  const contentW = side ? frameW - sidePadW - GAP : frameW;
-
-  // ②だけ増える「命令の列」の帯。高さは上限本数によらず一定（CommandQueue の BAND_H）。
-  // 横向きでは右の列（方向パッドと同じ幅）に置くので、盤の高さからは引かない。
-  const strip = isQueue
-    ? measureQueueStrip(side ? sidePadW : contentW, capacity)
-    : null;
-  const stripH = strip && !side ? strip.height + space.sm : 0; // 帯の高さ＋上マージン
-
-  // 縦の配りかた。②で帯が1段増えても、**タップ標的（方向ボタン・ゴー!）は①と同じ大きさ**を保つ
-  // （§4 の巨大タップ領域は遊びかたで変わってはいけない）。帯が食う縦は、優先度の低いほうから
-  // 　タップ標的 ＞ 盤面のマス ＞ 帯のマスの見た目
-  // の順で返す。＝ 帯の高さは方向パッドの取り分から引かない（引くのは盤面から）。
-  const bodyH = side ? availH - HEADER_H : Math.max(availH - HEADER_H, 200);
-  let padBudget = Math.min(bodyH * 0.42, 340); // 方向パッド帯に割り当てる高さの上限
-  if (stripH > 0) {
-    // 例外: 盤面が下限のマスすら置けないほど縦が足りない画面では、足りないぶんだけ方向パッドが譲る
-    //（重なりを出さないことが最優先。DIR_MIN より小さくはしない）。
-    const padRoom = bodyH - stripH - GAP - (rows * CELL_MIN + frameLine);
-    padBudget = Math.min(
-      padBudget,
-      Math.max(padRoom, DIR_MIN * 3.3 + space.md),
-    );
-  }
-  const dirByH = Math.floor((padBudget - space.md) / 3.3); // 3行＋行間＋下パディングぶん
-  const dirByW = Math.floor(contentW / 3.4);
-  const dirSize = side
-    ? sideDir
-    : Math.max(DIR_MIN, Math.min(dirByH, dirByW, 100));
-  // 実際に方向パッド帯が占める高さの見積り（横向きは右の列なので盤の高さからは引かない）。
-  const padAreaH = side ? 0 : Math.ceil(dirSize * 3.3) + space.md;
-
-  // めいろのマス: 残り高さと幅の小さいほうに収める。下限も小さめにして絶対にあふれさせない。
-  // 盤の外寸はマス目全体＋枠線（MazeGrid の BOARD_BORDER）なので、枠線のぶんを引いてから割る。
-  // 下限も「下限のマス×行数＋枠線」にする（以前は枠線を入れておらず、マスが下限に張り付く画面で
-  // 盤が予算より 6px 大きくなっていた）。
-  const boardBudgetH = Math.max(
-    bodyH - stripH - (side ? 0 : padAreaH + GAP),
-    rows * CELL_MIN + frameLine,
-  );
-  const cell = Math.max(
-    CELL_MIN,
-    Math.floor(
-      Math.min(
-        (contentW - frameLine) / cols,
-        (boardBudgetH - frameLine) / rows,
-        116,
-      ),
-    ),
-  );
+  const { side, strip, dirSize, sidePadW, cell } = computePlayLayout({
+    width,
+    height,
+    cols,
+    rows,
+    isQueue,
+    capacity,
+  });
 
   // --- アバターの状態（論理位置は ref、見た目は Animated 値で駆動）---
   const start = level?.start ?? { x: 0, y: 0 };

@@ -11,8 +11,8 @@
 //
 // 乱数は Math.random でよい（アプリ実行時コード）。
 
-import { Coord, Level, Template } from "../types";
-import { inBounds, isObstacle, sameCoord } from "./maze";
+import { Coord, Direction, Level, Template } from "../types";
+import { canMove, isGoal, isObstacle, move, sameCoord } from "./maze";
 
 // ゴールの既定イラスト（絵文字）プール。生成のたびここから1つランダムに選ぶ。
 // 差し替え写真（goalImage）が入るまでのプレースホルダ（外部素材ゼロ）。
@@ -69,6 +69,9 @@ function shuffled<T>(arr: readonly T[]): T[] {
   return a;
 }
 
+// 幅優先探索で隣のマスを見る向きの順（最短手数は見る順によらない）。
+const NEIGHBOR_DIRS: readonly Direction[] = ["right", "left", "down", "up"];
+
 // スタート → ゴールの最短手数（マス移動数）を返す。到達不能なら null。
 // 幅優先探索。障害物・盤外は通れない（maze.ts の判定を再利用）。
 export function bfsShortest(level: Level): number | null {
@@ -83,15 +86,10 @@ export function bfsShortest(level: Level): number | null {
   while (frontier.length > 0) {
     const next: Coord[] = [];
     for (const c of frontier) {
-      if (c.x === goal.x && c.y === goal.y) return dist;
-      const neighbors: Coord[] = [
-        { x: c.x + 1, y: c.y },
-        { x: c.x - 1, y: c.y },
-        { x: c.x, y: c.y + 1 },
-        { x: c.x, y: c.y - 1 },
-      ];
-      for (const nb of neighbors) {
-        if (!inBounds(level, nb) || isObstacle(level, nb)) continue;
+      if (isGoal(level, c)) return dist;
+      for (const dir of NEIGHBOR_DIRS) {
+        if (!canMove(level, c, dir)) continue;
+        const nb = move(c, dir);
         const k = key(nb);
         if (seen.has(k)) continue;
         seen.add(k);

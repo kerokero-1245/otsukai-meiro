@@ -6,17 +6,14 @@ import React, { useEffect, useRef } from "react";
 import { Animated, Easing, StyleSheet, View } from "react-native";
 import { Level } from "../types";
 import { colors, radius } from "../theme";
+import { BOARD_BORDER } from "../layout";
+import { isGoal, isObstacle } from "../game/maze";
+import { tileColor } from "../game/tileColor";
 import Avatar from "./Avatar";
 import PiyoArt from "./PiyoArt";
 import GoalArt from "./GoalArt";
 
 const OBSTACLE_EMOJI = "🌳";
-
-// 盤の枠線の太さ。枠の大きさは「マス目全体＋左右（上下）の枠線」にする。
-// 以前はマス目全体の大きさ（cell×列数）を枠の外寸にしていたため、枠線のぶん内側が狭くなり、
-// マス目が右と下で枠線に 6px かぶっていた（左上は枠線の内側から始まるので、右下だけずれる）。
-// PlayScreen のマスの大きさの計算でも、この太さを差し引いてから割る。
-export const BOARD_BORDER = 3;
 
 interface Props {
   level: Level;
@@ -64,16 +61,8 @@ export default function MazeGrid({
   const tiles: React.ReactNode[] = [];
   for (let y = 0; y < level.rows; y++) {
     for (let x = 0; x < level.cols; x++) {
-      const isGoalTile = x === level.goal.x && y === level.goal.y;
-      const isObstacleTile = level.obstacles.some(
-        (o) => o.x === x && o.y === y,
-      );
-      const base = (x + y) % 2 === 0 ? colors.tileLight : colors.tileDark;
-      const bg = isGoalTile
-        ? colors.goalTile
-        : isObstacleTile
-          ? colors.obstacleTile
-          : base;
+      const tile = { x, y };
+      const bg = tileColor(x, y, isGoal(level, tile), isObstacle(level, tile));
       tiles.push(
         <View
           key={`t-${x}-${y}`}

@@ -22,9 +22,14 @@ export function inBounds(level: Level, c: Coord): boolean {
   return c.x >= 0 && c.x < level.cols && c.y >= 0 && c.y < level.rows;
 }
 
+// 座標のリストに、その座標が含まれるか（障害物の判定・ミニめいろの木の判定が使う）。
+export function includesCoord(list: readonly Coord[], c: Coord): boolean {
+  return list.some((o) => sameCoord(o, c));
+}
+
 // そのマスが障害物（通れないマス）か。
 export function isObstacle(level: Level, c: Coord): boolean {
-  return level.obstacles.some((o) => o.x === c.x && o.y === c.y);
+  return includesCoord(level.obstacles, c);
 }
 
 // その向きに1マス進めるか。盤外・障害物なら false（＝首をかしげる）。
@@ -35,7 +40,7 @@ export function canMove(level: Level, pos: Coord, dir: Direction): boolean {
 
 // そのマスがゴールか。
 export function isGoal(level: Level, c: Coord): boolean {
-  return c.x === level.goal.x && c.y === level.goal.y;
+  return sameCoord(c, level.goal);
 }
 
 export function sameCoord(a: Coord, b: Coord): boolean {

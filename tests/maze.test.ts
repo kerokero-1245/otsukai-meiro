@@ -11,6 +11,7 @@ import assert from "node:assert/strict";
 import {
   canMove,
   inBounds,
+  includesCoord,
   isGoal,
   isObstacle,
   move,
@@ -77,6 +78,39 @@ test("isObstacle: 障害物のない盤は、どのマスも false", () => {
   for (let y = 0; y < level.rows; y++) {
     for (let x = 0; x < level.cols; x++) {
       assert.equal(isObstacle(level, { x, y }), false);
+    }
+  }
+});
+
+test("includesCoord: 座標のリストにその座標があるときだけ true（x と y を入れ替えたマスは別のマス・空のリストは常に false）", () => {
+  const list = [
+    { x: 1, y: 0 },
+    { x: 2, y: 3 },
+  ];
+  assert.equal(includesCoord(list, { x: 1, y: 0 }), true);
+  assert.equal(includesCoord(list, { x: 2, y: 3 }), true);
+  assert.equal(includesCoord(list, { x: 0, y: 1 }), false); // (1,0) の x と y を入れ替え
+  assert.equal(includesCoord(list, { x: 3, y: 2 }), false);
+  assert.equal(includesCoord(list, { x: 1, y: 3 }), false); // x は片方・y はもう片方に一致
+  assert.equal(includesCoord([], { x: 0, y: 0 }), false);
+});
+
+test("includesCoord と isObstacle: 障害物の判定は、障害物のリストの includesCoord と同じ", () => {
+  const level = makeLevel({
+    cols: 3,
+    rows: 3,
+    obstacles: [
+      { x: 1, y: 1 },
+      { x: 2, y: 0 },
+    ],
+  });
+  for (let y = 0; y < 3; y++) {
+    for (let x = 0; x < 3; x++) {
+      assert.equal(
+        isObstacle(level, { x, y }),
+        includesCoord(level.obstacles, { x, y }),
+        `${x},${y}`,
+      );
     }
   }
 });

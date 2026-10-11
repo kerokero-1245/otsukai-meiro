@@ -11,6 +11,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  BOARD_BORDER,
   FRAME_MAX_W,
   FRAME_MAX_W_WIDE,
   FRAME_PAD_BOTTOM,
@@ -69,4 +70,8 @@ test("枠の寸法: 最大幅 480・横向きの広い枠 960・余白は上 28 
   assert.equal(FRAME_PAD_TOP, 28);
   assert.equal(FRAME_PAD_BOTTOM, 20);
   assert.equal(FRAME_PAD_H, 20);
+});
+
+test("盤の枠線の太さ 3（MazeGrid の描画と、PlayScreen のマスの計算が同じ値を使う）", () => {
+  assert.equal(BOARD_BORDER, 3);
 });

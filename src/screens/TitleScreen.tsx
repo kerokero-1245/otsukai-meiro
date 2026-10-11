@@ -23,6 +23,7 @@ import TownLink, { SHOW_TOWN, TOWN_LINK_HEIGHT } from "../components/TownLink";
 import { playSound } from "../audio/sounds";
 import { sayPhrase, warmUpVoice } from "../audio/voice";
 import { startMeiroBgm } from "../audio/bgm";
+import { TITLE_LETTER_SPACING, titleFontSize } from "../game/textFit";
 
 interface Props {
   onPlay: () => void;
@@ -31,22 +32,7 @@ interface Props {
 
 const HOLD_MS = 3000;
 
-// 題字を1行に収める文字の大きさ。題字は枠の左右の余白（space.md）まで使い、画面の端から TITLE_EDGE だけ離す。
-// 1字 = 1em（7字）＋字間 1×7 で見積もる（保守的。ぴよぴよさんすう・ことばと同じ式。字間はこのアプリの題字の 1）。
-// Mac のヒラギノの UI 用書体はかなが約 0.92em と狭いが、かなが全角（1em）の書体（Android の Noto Sans CJK JP など）
-// でも2行に折り返さないよう、狭い方には寄せない。390 幅・360 幅で 44（従来どおり）、320 幅で 42
-// （従来は 44 のまま「ろ」だけ2行目に折り返していた）。
-const TITLE_CHARS = 7; // 「おつかいめいろ」
-const TITLE_LETTER_SPACING = 1;
-const TITLE_EDGE = 8;
-const FRAME_MAX_W = 480; // App.tsx の frame の最大幅
-function titleFontSize(windowW: number): number {
-  const avail = Math.min(windowW, FRAME_MAX_W) - TITLE_EDGE * 2;
-  return Math.min(
-    font.huge,
-    Math.floor((avail - TITLE_LETTER_SPACING * TITLE_CHARS) / TITLE_CHARS),
-  );
-}
+// 題字の大きさは src/game/textFit.ts の titleFontSize（枠の幅から見積もる）。
 
 export default function TitleScreen({ onPlay, onOtona }: Props) {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);

@@ -28,6 +28,10 @@ import { Coord, Template } from "../types";
 import { playSound } from "../audio/sounds";
 import { allCleared, isCleared } from "../progress";
 import PiyoArt from "../components/PiyoArt";
+import { includesCoord, sameCoord } from "../game/maze";
+import { previewObstacles } from "../game/preview";
+import { promptFontSize } from "../game/textFit";
+import { tileColor } from "../game/tileColor";
 
 interface Props {
   onPick: (levelId: string) => void;
@@ -41,41 +45,7 @@ const CARD_MAX = 240; // カードの最大幅（大きすぎ防止）
 const CARD_MIN = 188; // ミニめいろ＋左右余白が収まる最小幅
 const PREVIEW_MAX = 132; // ミニめいろ（プレビュー）の最大辺
 
-// 見出し「どれで あそぶ?」（👑つき）を見出し行の1行に収める文字の大きさ。
-// 見出し行 = ◀（52）＋ 見出し ＋ 右の空き（52。見出しを中央に置くための重し）。見出しに使える幅は
-// 画面幅 − 左右の余白 − 52×2。以前は文字の大きさが固定 34 で、👑が付くと 360 幅で見出し行が
-// 画面の右へ約 10px はみ出していた（320 幅では👑なしでもはみ出す）。
-// 実測（Chrome / ヒラギノ）で 34px のとき幅 214.4px ≒ 6.31×大きさ。👑は 26＋すき間 6。
-// 右の空きは見えない重しなので、少しだけ（RIGHT_GIVE）縮んでよいことにする。こうすると
-// 390 幅の👑つき（見出しに使える幅 246・必要 246.4）は従来どおり 34 のまま収まり、
-// 文字の幅が端末で少し違っても、右の空きが縮んで受け止める（はみ出す前に中央が少しずれるだけ）。
-const BACK_W = 52;
-const CROWN_W = 26 + space.xs;
-const PROMPT_PER_PX = 6.31;
-const RIGHT_GIVE = 4;
-function promptFontSize(winW: number, crowned: boolean): number {
-  const room =
-    winW - space.md * 2 - BACK_W * 2 + RIGHT_GIVE - (crowned ? CROWN_W : 0);
-  return Math.max(18, Math.min(font.title, Math.floor(room / PROMPT_PER_PX)));
-}
-
-// カードのプレビュー用の障害物マスを決める（見た目のヒント。実際に遊ぶ迷路は毎回生成される）。
-// スタート(0,0)とゴール(cols-1,rows-1)は避け、内側から count 個を等間隔にサンプルする。
-function previewObstacles(cols: number, rows: number, count: number): Coord[] {
-  const avail: Coord[] = [];
-  for (let y = 0; y < rows; y++) {
-    for (let x = 0; x < cols; x++) {
-      if (x === 0 && y === 0) continue;
-      if (x === cols - 1 && y === rows - 1) continue;
-      avail.push({ x, y });
-    }
-  }
-  const chosen: Coord[] = [];
-  for (let i = 0; i < count && i < avail.length; i++) {
-    chosen.push(avail[Math.floor(((i + 1) * avail.length) / (count + 1))]);
-  }
-  return chosen;
-}
+// 見出し「どれで あそぶ?」（👑つき）の文字の大きさの見積もりは src/game/textFit.ts の promptFontSize。
 
 // カードの「ミニめいろ」。マス目の大きさ＝むずかしさ、🌳＝障害物、🐥→🎁 の位置関係で
 // 「どこから どこまで」を4歳にも一目で伝える（実プレイのゴール絵文字は毎回ランダム）。
@@ -86,18 +56,18 @@ function MazePreview({ template }: { template: Template }) {
     Math.min(38, Math.floor(PREVIEW_MAX / Math.max(cols, rows))),
   );
   const obstacles = previewObstacles(cols, rows, obstacleMax);
-  const isTree = (x: number, y: number) =>
-    obstacles.some((o) => o.x === x && o.y === y);
+  const startCell: Coord = { x: 0, y: 0 };
+  const goalCell: Coord = { x: cols - 1, y: rows - 1 };
 
   const rowEls: React.ReactNode[] = [];
   for (let y = 0; y < rows; y++) {
     const cellEls: React.ReactNode[] = [];
     for (let x = 0; x < cols; x++) {
-      const start = x === 0 && y === 0;
-      const goal = x === cols - 1 && y === rows - 1;
-      const tree = isTree(x, y);
-      const base = (x + y) % 2 === 0 ? colors.tileLight : colors.tileDark;
-      const bg = goal ? colors.goalTile : tree ? colors.obstacleTile : base;
+      const at = { x, y };
+      const start = sameCoord(at, startCell);
+      const goal = sameCoord(at, goalCell);
+      const tree = includesCoord(obstacles, at);
+      const bg = tileColor(x, y, goal, tree);
       cellEls.push(
         <View
           key={x}
