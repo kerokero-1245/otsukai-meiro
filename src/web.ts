@@ -4,7 +4,8 @@
 // 例外は null）の関数を 15 か所で別々に書いていた。その形をここに 1 つだけ置く（二重キャストもここだけ）。
 //
 // 各モジュールは、使う API の「必要な形だけの最小の型」を自分で宣言して webGlobal<T> に渡す
-// （DOM lib の型には直接依存しない）。3 つのアプリ共通の写し bgm/engine.ts はここを使わない（触らない）。
+// （DOM lib の型には直接依存しない。ただし audio/sounds.ts だけは AudioContext・OscillatorType の DOM の型を直接使う）。
+// 3 つのアプリ共通の写し bgm/engine.ts はここを使わない（触らない）。
 
 import { Platform } from "react-native";
 

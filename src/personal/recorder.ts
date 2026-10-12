@@ -11,7 +11,7 @@
 //   録音インジケータを消す（ブラウザのタブに赤丸が残らないように）。
 // - 外部送信ゼロ: 音声は端末内。ネットワークは使わない。
 //
-// DOM lib に依存しないよう、必要な形だけ最小宣言して globalThis から取り出す。
+// DOM の型には直接依存しないよう、必要な形だけ最小宣言し、web のグローバルは src/web.ts の webGlobal で取り出す。
 
 import { BlobLike } from "./idb";
 import { webGlobal } from "../web";

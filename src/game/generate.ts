@@ -124,7 +124,6 @@ export function generateLevelDebug(template: Template): GenResult {
 
   const build = (start: Coord, goal: Coord, obstacles: Coord[]): Level => ({
     id: template.id, // 進捗⭐はテンプレート単位。生成迷路が変わっても⭐のキーは同じ。
-    title: template.label,
     cols,
     rows,
     start,
@@ -134,7 +133,6 @@ export function generateLevelDebug(template: Template): GenResult {
     // 暫定値。実際の最短手数が分かった時点で finish() が queueCapacity() で入れ直す。
     maxSteps: queueCapacity(minSteps),
     goalImage: null,
-    goalVoice: null,
     goalEmoji,
     avatarEmoji: AVATAR_GLYPH,
   });

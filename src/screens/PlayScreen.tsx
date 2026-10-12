@@ -31,7 +31,7 @@ import {
 import { colors, font, radius, space } from "../theme";
 import { getTemplate, getNextTemplateId } from "../data/templates";
 import { generateLevel, QUEUE_MIN_CAPACITY } from "../game/generate";
-import { Coord, Direction, Level, LevelMode } from "../types";
+import { Coord, Direction, Level, PlayMode } from "../types";
 import { canMove, isGoal, move } from "../game/maze";
 import { playSound } from "../audio/sounds";
 import {
@@ -56,7 +56,7 @@ interface Props {
   templateId: string;
   onHome: () => void;
   onNext: (nextTemplateId: string) => void;
-  onCelebrateAll: () => void; // 全5レベルの⭐が初めて揃った → がんばりカードへ
+  onCelebrateAll: () => void; // 全レベルの⭐が初めて揃った → がんばりカードへ
 }
 
 // ②の1歩の見え方。1つずつ実行しているのが目で追えるよう、①（240ms・押した直後）より
@@ -87,7 +87,7 @@ export default function PlayScreen({
 
   // あそびかたは画面に入った時点の設定で固定する（遊んでいる最中に切り替わらない）。
   // おとなモードで変えたあとは タイトル→レベルえらび→プレイ と入り直すので必ず反映される。
-  const [playMode] = useState<LevelMode>(() => getPlayMode());
+  const [playMode] = useState<PlayMode>(() => getPlayMode());
   const isQueue = playMode === "queue";
   const reduceMotion = useReducedMotion();
 
@@ -128,7 +128,7 @@ export default function PlayScreen({
   const avatarTilt = useRef(new Animated.Value(0)).current;
   const animatingRef = useRef(false);
   const [arrived, setArrived] = useState(false);
-  // このクリアで全5レベルの⭐が初めて揃ったか（＝がんばりカードへ自動で進む）。
+  // このクリアで全レベルの⭐が初めて揃ったか（＝がんばりカードへ自動で進む）。
   const [completedAll, setCompletedAll] = useState(false);
 
   // 実行中にリサイズされてもマス寸法を追えるよう、いつも最新の cell を持っておく。
@@ -519,7 +519,6 @@ export default function PlayScreen({
             cell={cell}
             avatarPos={avatarPos}
             avatarTilt={avatarTilt}
-            goalEmoji={level.goalEmoji}
           />
         </View>
       </View>

@@ -39,7 +39,6 @@ export const colors = {
   // 祝福の紙吹雪
   confetti: ["#FF6B6B", "#FFD93D", "#6BCB77", "#4D96FF", "#FF9F45", "#C77DFF"],
 
-  primary: "#FF9F45",
   overlay: "rgba(43, 26, 12, 0.45)", // 祝福オーバーレイの背後を少し暗く
 };
 
@@ -54,7 +53,6 @@ export const shadowRaised = {
 
 // 大きめのフォント。ひらがなは「読める子には嬉しい」装飾程度に留める。
 export const font = {
-  jumbo: 72, // ゴール絵文字などの主役
   huge: 44,
   title: 34,
   big: 26,

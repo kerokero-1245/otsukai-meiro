@@ -22,7 +22,7 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import { colors, font, space } from "../theme";
+import { colors, font, radius, space } from "../theme";
 import { FRAME_PAD_BOTTOM, FRAME_PAD_TOP } from "../layout";
 import { playSound } from "../audio/sounds";
 import { sayPhrase, cancelVoice } from "../audio/voice";
@@ -51,7 +51,7 @@ interface Props {
   onReplay: () => void;
   onNext?: () => void; // 次のレベルが無ければ undefined（ボタンを出さない）
   onHome: () => void;
-  justCompletedAll?: boolean; // このクリアで全5レベルの⭐が初めて揃った
+  justCompletedAll?: boolean; // このクリアで全レベルの⭐が初めて揃った
   onCelebrateAll?: () => void; // ↑のとき「がんばりカード」へ進む
 }
 
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
   },
   // 写真のときだけ角丸の四角い台紙に（丸く切ると人や家が欠けるため）。寸法は同じ180。
   zoomPhoto: {
-    borderRadius: 28,
+    borderRadius: radius.lg,
     backgroundColor: colors.white,
   },
   starStamp: {
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     marginTop: space.xs,
     fontSize: font.big,
     fontWeight: "900",
-    color: "#FFE270",
+    color: colors.goalHalo,
     textShadowColor: "#00000088",
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 5,

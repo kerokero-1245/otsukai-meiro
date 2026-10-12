@@ -12,7 +12,7 @@
 //   speechSynthesis（tier2）へフォールバックする。
 // - 外部送信ゼロ: 同梱アセットのみ。ネットワークは使わない。
 //
-// DOM lib に依存しないよう、必要な形だけ最小宣言して globalThis から取り出す。
+// DOM の型には直接依存しないよう、必要な形だけ最小宣言し、web のグローバルは src/web.ts の webGlobal で取り出す。
 
 import { CLIP_URLS, hasClip } from "./voiceClips";
 import { once } from "../once";
@@ -26,6 +26,11 @@ interface AudioEl {
   addEventListener?: (type: string, cb: () => void) => void;
 }
 type AudioCtor = new (src?: string) => AudioEl;
+
+// play() の戻り値が Promise のときだけ取り出す（古い環境では void を返す）。
+function playPromise(result: Promise<void> | void): Promise<void> | null {
+  return result instanceof Promise ? result : null;
+}
 
 function getAudioCtor(): AudioCtor | null {
   return webGlobal<AudioCtor>("Audio");
@@ -99,11 +104,8 @@ function playSrc(src: string, onEnd?: () => void): boolean {
     } else {
       currentOnEnd = null;
     }
-    const p = a.play();
     // play() の Promise 拒否（ユーザー操作前など）は握りつぶす（遊びは壊さない）。
-    if (p && typeof (p as Promise<void>).catch === "function") {
-      (p as Promise<void>).catch(() => {});
-    }
+    playPromise(a.play())?.catch(() => {});
     return true;
   } catch {
     return false;
@@ -123,19 +125,16 @@ export function warmUpClips(): void {
   try {
     const a = new A(CLIP_URLS[first]);
     a.muted = true;
-    const p = a.play();
-    if (p && typeof (p as Promise<void>).then === "function") {
-      (p as Promise<void>)
-        .then(() => {
-          try {
-            a.pause();
-            a.currentTime = 0;
-          } catch {
-            // 無視
-          }
-        })
-        .catch(() => {});
-    }
+    playPromise(a.play())
+      ?.then(() => {
+        try {
+          a.pause();
+          a.currentTime = 0;
+        } catch {
+          // 無視
+        }
+      })
+      .catch(() => {});
   } catch {
     // アンロックできなくても遊びは壊さない
   }

@@ -98,6 +98,3 @@ export function unduckForVoice(): void {
     // no-op
   }
 }
-
-// 検証・デバッグ用（getBgmState を素通し）。
-export { getBgmState };

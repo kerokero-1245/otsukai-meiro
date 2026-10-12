@@ -19,7 +19,6 @@ interface Props {
   cell: number; // 1マスのピクセルサイズ
   avatarPos: Animated.ValueXY; // アバターの左上ピクセル位置
   avatarTilt: Animated.Value; // -1..1（首かしげ）
-  goalEmoji: string;
 }
 
 export default function MazeGrid({
@@ -27,7 +26,6 @@ export default function MazeGrid({
   cell,
   avatarPos,
   avatarTilt,
-  goalEmoji,
 }: Props) {
   // 外寸（枠線こみ）。枠線の内側がちょうどマス目全体になる。
   const boardW = cell * level.cols + BOARD_BORDER * 2;
@@ -137,7 +135,7 @@ export default function MazeGrid({
           ]}
         >
           <GoalArt
-            glyph={goalEmoji}
+            glyph={level.goalEmoji}
             photoUri={level.goalImage}
             size={cell * 0.66}
             emojiSize={cell * 0.54}

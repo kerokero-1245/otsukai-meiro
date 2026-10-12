@@ -1,4 +1,4 @@
-// レベルえらび。ゴール絵文字つきの大きなカードを横スクロールで並べる（DESIGN §6）。
+// レベルえらび。ミニめいろ（🐥→🎁）つきの大きなカードを横スクロールで並べる（DESIGN §6）。
 // 文字は最小限。タップでプレイへ。前をクリアしなくても全レベル自由に選べる（進捗ロック無し）。
 //
 // 視認性の工夫（4歳児は「見えないもの＝存在しない」と認識するため）:
@@ -30,7 +30,7 @@ import { allCleared, isCleared } from "../progress";
 import PiyoArt from "../components/PiyoArt";
 import { includesCoord, sameCoord } from "../game/maze";
 import { previewObstacles } from "../game/preview";
-import { promptFontSize } from "../game/textFit";
+import { BACK_W, CROWN_SIZE, promptFontSize } from "../game/textFit";
 import { tileColor } from "../game/tileColor";
 import { AVATAR_GLYPH, OBSTACLE_GLYPH } from "../art";
 
@@ -322,8 +322,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.md, // フルブリードなので横の余白は画面側で持つ
   },
   backBtn: {
-    width: 52,
-    height: 52,
+    width: BACK_W,
+    height: BACK_W,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   crown: {
-    fontSize: 26,
+    fontSize: CROWN_SIZE,
   },
   prompt: {
     fontSize: font.title,

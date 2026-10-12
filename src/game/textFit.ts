@@ -34,7 +34,8 @@ export function titleFontSize(windowW: number): number {
 // 390 幅の👑つき（見出しに使える幅 246・必要 246.4）は従来どおり 34 のまま収まり、
 // 文字の幅が端末で少し違っても、右の空きが縮んで受け止める（はみ出す前に中央が少しずれるだけ）。
 export const BACK_W = 52;
-export const CROWN_W = 26 + space.xs;
+export const CROWN_SIZE = 26; // 見出しの王冠（👑）の文字の大きさ
+export const CROWN_W = CROWN_SIZE + space.xs;
 const PROMPT_PER_PX = 6.31;
 const RIGHT_GIVE = 4;
 

@@ -89,7 +89,7 @@ export function bumpTotalStars(): number {
   return next;
 }
 
-// 全カード（同梱の全5テンプレート）に⭐が揃っているか。
+// 全カード（同梱の全テンプレート）に⭐が揃っているか。
 export function allCleared(): boolean {
   const set = loadStars();
   return TEMPLATES.length > 0 && TEMPLATES.every((t) => set.has(t.id));

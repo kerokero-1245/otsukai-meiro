@@ -14,7 +14,7 @@
 //
 // 外部送信ゼロ: Blob は端末内の IndexedDB にだけ入る。ネットワークは一切使わない。
 //
-// DOM lib に依存しないよう、必要な形だけ最小宣言して globalThis から取り出す（progress.ts / speech.ts と同じ流儀）。
+// DOM の型には直接依存しないよう、必要な形だけ最小宣言し、web のグローバルは src/web.ts の webGlobal で取り出す。
 
 import { webGlobal } from "../web";
 import { once } from "../once";
@@ -219,10 +219,6 @@ export function idbGetAll<T>(store: string): Promise<T[]> {
   return readOp<T[]>(store, (s) => s.getAll()).then((v) =>
     Array.isArray(v) ? v : [],
   );
-}
-
-export function idbGet<T>(store: string, key: unknown): Promise<T | null> {
-  return readOp<T>(store, (s) => s.get(key));
 }
 
 export function idbPut(store: string, value: unknown): Promise<boolean> {

@@ -24,8 +24,7 @@ import {
   warmUpClips,
   cancelClip,
 } from "./clips";
-import { CLIP_URLS } from "./voiceClips";
-import { speak, warmUpSpeech, cancelSpeech, isSpeechAvailable } from "./speech";
+import { speak, warmUpSpeech, cancelSpeech } from "./speech";
 import { duckForVoice, unduckForVoice } from "./bgm";
 import { VoiceSlot, voiceUrl } from "../personal/store";
 import { once } from "../once";
@@ -89,26 +88,24 @@ function beginDuck(): () => void {
 }
 
 // ── 再生（4段構えの解決）─────────────────────────────────────────────
-// enabled=false なら何もしない（将来おとなモードで読み上げオフにする時の対応点）。
-export function playVoice(spec: VoiceSpec, opts?: { enabled?: boolean }): void {
-  if (opts && opts.enabled === false) return;
+export function playVoice(spec: VoiceSpec): void {
   // 声が鳴っている間だけ BGM を沈める。鳴らせた tier の終了で finish（＝解除）が呼ばれる。
   const finish = beginDuck();
   // ⓪ おじの声（おとなモードの録音。あれば同梱クリップより優先）
   const personal = spec.slot ? voiceUrl(spec.slot) : null;
   if (personal && playAudioUrl(personal, finish)) return;
   // ① 同梱クリップ
-  if (isClipAvailable(spec.clip) && playClip(spec.clip as string, finish))
+  if (spec.clip && isClipAvailable(spec.clip) && playClip(spec.clip, finish))
     return;
   // ② speechSynthesis
-  if (speak(spec.text, { enabled: true }, finish)) return;
+  if (speak(spec.text, finish)) return;
   // ③ 無音（どれも鳴らせない）: ダッキングを即解除
   finish();
 }
 
 // 定型フレーズを読む（タイトル「おつかいめいろ」・ゴール「ついたね」・全制覇「ぜんぶ できたね」）。
-export function sayPhrase(key: PhraseKey, opts?: { enabled?: boolean }): void {
-  playVoice(PHRASE_VOICE[key], opts);
+export function sayPhrase(key: PhraseKey): void {
+  playVoice(PHRASE_VOICE[key]);
 }
 
 // タイトルの操作で1回呼ぶ。tier1（クリップ）と tier2（TTS）両方をアンロックする。
@@ -126,11 +123,4 @@ export function cancelVoice(): void {
     pendingUnduck = null;
     f();
   }
-}
-
-// 読み上げが1つでも使えるか（同梱クリップが1つでもある or TTS が使える）。
-// 両方無い環境のみ false ＝ 文字なしで成立（tier3）。
-export function isVoiceAvailable(): boolean {
-  const anyClip = Object.keys(CLIP_URLS).some((name) => isClipAvailable(name));
-  return anyClip || isSpeechAvailable();
 }

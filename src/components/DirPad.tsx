@@ -66,9 +66,7 @@ export default function DirPad({ onDir, size, center, disabled }: Props) {
       </View>
       <View style={[styles.row, { marginBottom: gap }]}>
         <DirButton dir="left" size={size} onDir={onDir} disabled={disabled} />
-        <View style={[styles.centerGap, { width: size, height: size }]}>
-          {center}
-        </View>
+        <View style={{ width: size, height: size }}>{center}</View>
         <DirButton dir="right" size={size} onDir={onDir} disabled={disabled} />
       </View>
       <View style={styles.row}>
@@ -87,7 +85,6 @@ const styles = StyleSheet.create({
     // ボタン間の左右の間隔（押し間違い防止に少しあける）。
     columnGap: DIRPAD_COL_GAP,
   },
-  centerGap: {},
   btn: {
     borderRadius: radius.md,
     alignItems: "center",

@@ -4,7 +4,6 @@ import type { Level } from "../../src/types";
 export function makeLevel(overrides: Partial<Level> = {}): Level {
   return {
     id: "level-test",
-    title: "テスト",
     cols: 3,
     rows: 3,
     start: { x: 0, y: 0 },
@@ -12,7 +11,6 @@ export function makeLevel(overrides: Partial<Level> = {}): Level {
     obstacles: [],
     maxSteps: 8,
     goalImage: null,
-    goalVoice: null,
     goalEmoji: "🍎",
     avatarEmoji: "🐥",
     ...overrides,

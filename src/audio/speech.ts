@@ -13,7 +13,7 @@
 // - フォールバック: speechSynthesis が無い／声が無い でも、ゲームは完全に成立する（③無音）。
 // - 外部送信ゼロ: 合成は端末内。ネットワークを一切使わない。
 //
-// DOM lib に依存しないよう、必要な形だけを最小宣言して globalThis から取り出す。
+// DOM の型には直接依存しないよう、必要な形だけ最小宣言し、web のグローバルは src/web.ts の webGlobal で取り出す。
 
 import { webGlobal } from "../web";
 import { once } from "../once";
@@ -118,15 +118,10 @@ export function warmUpSpeech(): void {
   }
 }
 
-// text を ja-JP で少しゆっくり読み上げる。enabled=false / 非対応 では何もしない。
+// text を ja-JP で少しゆっくり読み上げる。非対応では何もしない。
 // 発声を開始できたら true を返す（呼び出し側の tier 判定・BGM ダッキングに使う）。
 // onEnd を渡すと end/error/停止のいずれか最初の一度だけ呼ぶ（BGM ダッキング解除に使う）。
-export function speak(
-  text: string,
-  opts?: { enabled?: boolean },
-  onEnd?: () => void,
-): boolean {
-  if (opts && opts.enabled === false) return false;
+export function speak(text: string, onEnd?: () => void): boolean {
   const s = getSynth();
   const U = getUtteranceCtor();
   if (!s || !U) return false;

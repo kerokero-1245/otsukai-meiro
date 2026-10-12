@@ -35,10 +35,15 @@ export const MAX_PHOTOS = 6;
 // 写真が1枚以上あるとき、ゴールに写真が出る確率。
 // 1.0（写真だけ）にしないのは、12種のシールポップ絵も「毎回ちがう」楽しさの一部だから（DESIGN §7）。
 // 逆に低すぎると「おばあちゃんの家をゴールにした」という差別化の核が埋もれる。→ 2/3 を既定にする。
-export const PHOTO_GOAL_CHANCE = 2 / 3;
+const PHOTO_GOAL_CHANCE = 2 / 3;
 
 export type VoiceSlot = "tsuita" | "zenbu";
 export const VOICE_SLOTS: VoiceSlot[] = ["tsuita", "zenbu"];
+
+// 保存された値が、録音スロットの名前か（IndexedDB の中身は信用せず、読み込み時に確かめる）。
+export function isVoiceSlot(value: unknown): value is VoiceSlot {
+  return VOICE_SLOTS.some((slot) => slot === value);
+}
 
 // IndexedDB に入るレコード（そのまま構造化複製される）。
 interface PhotoRecord {
@@ -64,7 +69,7 @@ export interface PhotoItem {
   height: number;
   createdAt: number;
 }
-export interface VoiceItem {
+interface VoiceItem {
   slot: VoiceSlot;
   url: string;
   mime: string;
@@ -174,8 +179,8 @@ async function reloadVoices(): Promise<void> {
   voices.clear();
   for (const r of rows) {
     if (!r || !r.blob) continue;
-    const slot = r.slot as VoiceSlot;
-    if (VOICE_SLOTS.indexOf(slot) < 0) continue;
+    if (!isVoiceSlot(r.slot)) continue;
+    const slot = r.slot;
     const url = makeUrl(r.blob);
     if (!url) continue;
     voices.set(slot, {
@@ -197,12 +202,6 @@ export function isPersonalReady(): boolean {
 export function listPhotos(): PhotoItem[] {
   return photos;
 }
-export function photoCount(): number {
-  return photos.length;
-}
-export function getVoice(slot: VoiceSlot): VoiceItem | null {
-  return voices.get(slot) ?? null;
-}
 export function voiceUrl(slot: VoiceSlot): string | null {
   return voices.get(slot)?.url ?? null;
 }
@@ -217,10 +216,10 @@ export function pickGoalPhotoUrl(): string | null {
 
 // ── 追加・削除 ───────────────────────────────────────────────────────
 
-export type AddPhotoResult = "ok" | "full" | "unavailable" | "failed";
+type AddPhotoResult = "ok" | "full" | "unavailable" | "failed";
 
 // 選ばれた画像ファイルを縮小して保存する（長辺512px・JPEG 0.8 / image.ts）。
-export async function addPhotoFile(file: unknown): Promise<AddPhotoResult> {
+async function addPhotoFile(file: unknown): Promise<AddPhotoResult> {
   await initPersonal();
   if (!available) return "unavailable";
   if (photos.length >= MAX_PHOTOS) return "full";

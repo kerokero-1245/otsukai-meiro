@@ -14,7 +14,7 @@
 
 import { webGlobal } from "../web";
 
-export const PHOTO_INPUT_ID = "meiro-photo-input";
+const PHOTO_INPUT_ID = "meiro-photo-input";
 
 interface FileListLike {
   length: number;

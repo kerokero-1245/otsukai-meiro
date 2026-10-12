@@ -43,7 +43,6 @@ function assertPlayable(
 
   // 生成元をそのまま引き継ぐ（⭐のキーは id。変わると進捗が別物になる）
   assert.equal(level.id, template.id, where);
-  assert.equal(level.title, template.label, where);
   assert.equal(level.cols, cols, where);
   assert.equal(level.rows, rows, where);
 
@@ -90,11 +89,10 @@ function assertPlayable(
     assert.equal(shortest, cols - 1 + (rows - 1), where);
   }
 
-  // 生成のたびに決まる見た目まわり（写真・声はおとなモードで後から入れるので、生成直後は null）
+  // 生成のたびに決まる見た目まわり（写真はおとなモードで後から入れるので、生成直後は null。声は personal/store の録音が正本）
   assert.ok(GOAL_EMOJIS.includes(level.goalEmoji), `ゴール絵が不明: ${where}`);
   assert.equal(level.avatarEmoji, "🐥", where);
   assert.equal(level.goalImage, null, where);
-  assert.equal(level.goalVoice, null, where);
 }
 
 test("テンプレートが 1 件以上読めている（0 件だと下の検査が空回りする）", () => {

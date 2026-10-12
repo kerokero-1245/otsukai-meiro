@@ -10,13 +10,13 @@
 //   「ふやせませんでした」を出して既定動作（絵文字ゴール）を続ける。クラッシュさせない。
 // - 外部送信ゼロ: 読み込み・縮小はすべて端末内。ネットワークは使わない。
 //
-// DOM lib に依存しないよう、必要な形だけ最小宣言して globalThis から取り出す。
+// DOM の型には直接依存しないよう、必要な形だけ最小宣言し、web のグローバルは src/web.ts の webGlobal で取り出す。
 
 import { webGlobal } from "../web";
 import { BlobLike } from "./idb";
 
-export const MAX_EDGE = 512; // 長辺の上限(px)
-export const JPEG_QUALITY = 0.8;
+const MAX_EDGE = 512; // 長辺の上限(px)
+const JPEG_QUALITY = 0.8;
 
 // ── 最小型宣言 ───────────────────────────────────────────────────────
 interface Sized {

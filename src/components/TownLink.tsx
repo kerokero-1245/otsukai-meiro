@@ -22,7 +22,7 @@ import {
 } from "react-native";
 import { colors, radius, space } from "../theme";
 
-export const TOWN_URL = "/";
+const TOWN_URL = "/";
 export const SHOW_TOWN = Platform.OS === "web";
 
 // 行の高さ（押せる大きさ 44 を確保）。タイトル画面はこの高さの行を上に取り、題字以下はその下に流す。

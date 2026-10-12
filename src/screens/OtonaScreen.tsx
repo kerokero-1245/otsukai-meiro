@@ -59,6 +59,9 @@ interface Props {
 // 読み込み中の表示（写真の追加中・在庫の読み込み前の注記）。
 const LOADING_TEXT = "よみこみちゅう…";
 
+// 写真のサムネイルの一辺。
+const THUMB_SIZE = 76;
+
 // 録音スロットの見出し（子どもに聞こえるフレーズそのもの）。
 const SLOT_LABEL: Record<VoiceSlot, string> = {
   tsuita: "ついたね!",
@@ -598,14 +601,14 @@ const styles = StyleSheet.create({
     marginTop: space.sm,
   },
   thumbWrap: {
-    width: 76,
-    height: 76,
+    width: THUMB_SIZE,
+    height: THUMB_SIZE,
     marginRight: space.sm,
     marginBottom: space.sm,
   },
   thumb: {
-    width: 76,
-    height: 76,
+    width: THUMB_SIZE,
+    height: THUMB_SIZE,
     borderRadius: radius.sm,
     borderWidth: 3,
     borderColor: colors.white,
