@@ -1,5 +1,5 @@
 // 画面の枠（App.tsx の frame）の寸法と、画面の向きに応じたレイアウトの判定（DESIGN §8）。
-// App.tsx・PlayScreen・ClearOverlay で共有する（ぴよぴよさんすうの src/layout.ts と同じ作り）。
+// App.tsx・ClearOverlay と、プレイ画面の配分計算（game/playLayout.ts）で共有する（ぴよぴよさんすうの src/layout.ts と同じ作り）。
 // ClearOverlay のスクロールの入れ物は枠の上下の余白まで広げて画面の上端〜下端を使うので、
 // 余白の値をここ1か所に置き、枠と入れ物が食い違わないようにする。
 

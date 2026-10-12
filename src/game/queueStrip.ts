@@ -1,5 +1,5 @@
 // ②ならべてゴー の「命令の列」の帯の寸法（純粋関数・react-native 非依存）。
-// 画面（PlayScreen の高さバジェット）と部品（CommandQueue の描画）の両方が同じ値を使う。
+// プレイ画面の配分計算（game/playLayout.ts の高さバジェット）と部品（CommandQueue の描画）の両方が同じ値を使う。
 // 帯の見た目と仕様は components/CommandQueue.tsx の冒頭と DESIGN §16.2 を参照。
 
 export const CHIP_GAP = 8; // マスとマスのすきま
@@ -19,7 +19,7 @@ export interface QueueStripMetrics {
   height: number; // 帯全体の高さ
 }
 
-// 帯の寸法を決める（PlayScreen の高さバジェット用の純粋関数）。
+// 帯の寸法を決める（game/playLayout.ts の高さバジェット用の純粋関数）。
 // 高さは常に BAND_H。上限本数（capacity）は迷路ごとに変わる（generate.ts の queueCapacity）ので、
 // **その一定の高さと横幅の両方に収まる中でいちばん大きくなる並べ方** を選ぶ。
 // 1行に収まるなら1行（並べた順が左から右に素直に読める）、幅が足りなければ折り返す。
