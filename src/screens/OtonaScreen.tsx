@@ -100,6 +100,15 @@ export default function OtonaScreen({ onBack }: Props) {
   const [voiceMsg, setVoiceMsg] = useState<string | null>(null);
   const [voiceToDelete, setVoiceToDelete] = useState<VoiceSlot | null>(null);
   const recRef = useRef<ActiveRecording | null>(null);
+  // 画面が開いているか。録音の準備中（getUserMedia の許可・デバイスを待っている間）に「もどる」で離れると、
+  // 離れたあとで録音が解決する。そのままだと、マイクが開いたまま 6 秒後に既存の録音を上書きして保存してしまう。
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   // 在庫の初期化＋購読。画面を出入りしても在庫はモジュール側に残る。
   useEffect(() => {
@@ -213,6 +222,11 @@ export default function OtonaScreen({ onBack }: Props) {
       void finishRecording(slot);
     })
       .then((rec) => {
+        if (!mountedRef.current) {
+          // 画面が閉じたあとに解決した録音は、止めて捨てる（マイクを解放し、保存しない）。
+          rec?.cancel();
+          return;
+        }
         if (!rec) {
           setRecordingSlot(null);
           setVoiceMsg(

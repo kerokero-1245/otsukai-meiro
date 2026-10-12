@@ -389,6 +389,9 @@ export default function PlayScreen({
         playSound("blocked");
         await tiltAsync(reduceMotion);
         if (!alive()) return;
+        // 首かしげの終わりは「動いていない」に戻すが、実行はまだ続く。実行中のままにしておかないと、
+        // 次の 1 歩の最中のリサイズで、アバターが 1 マス前の位置へ合わせ直されて跳ぶ（走っている移動も止まる）。
+        animatingRef.current = true;
       }
       await sleep(STEP_GAP_MS);
       if (!alive()) return;
@@ -396,6 +399,11 @@ export default function PlayScreen({
 
     setStepIndex(-1);
     animatingRef.current = false;
+    // 実行中は、リサイズでのアバターの合わせ直しを止めている（上の animatingRef）。最後のマスの寸法で位置を取り直す。
+    avatarPos.setValue({
+      x: pos.x * cellRef.current,
+      y: pos.y * cellRef.current,
+    });
 
     if (reached) {
       setQueue([]); // 残りの命令は捨てる
@@ -427,6 +435,7 @@ export default function PlayScreen({
     celebrate,
     reduceMotion,
     avatarTilt,
+    avatarPos,
   ]);
 
   // データ不整合の保険（通常は到達しない）。

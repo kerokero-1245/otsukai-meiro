@@ -7,7 +7,7 @@
 // ときは全体をスクロールして全部に届く。並びの順がそのまま Tab の順（まちへ もどる → 題字 → あそぶ → 歯車）になる。
 // ぴよぴよさんすうのタイトルと同じ作り。
 
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Pressable,
   ScrollView,
@@ -52,6 +52,9 @@ export default function TitleScreen({ onPlay, onOtona }: Props) {
       onOtona();
     }, HOLD_MS);
   };
+  // 画面を離れたら長押しのタイマーも止める。⚙️を押したまま別の操作（別の指で「あそぶ」など）で画面が移ると、
+  // 3 秒後に おとなモードへ飛んでしまう（親ゲートの意図に反する）。
+  useEffect(() => clearHold, []);
 
   return (
     <View style={styles.root}>
