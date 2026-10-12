@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
   },
   starGlyph: {
     fontSize: 64,
-    textShadowColor: "#00000055",
+    textShadowColor: colors.shadow,
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
   },

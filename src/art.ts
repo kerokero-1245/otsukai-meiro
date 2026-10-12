@@ -11,6 +11,11 @@
 
 import { ImageSourcePropType } from "react-native";
 
+// 役者の絵の識別子（グリフ）。アバター・障害物は、盤（MazeGrid）・タイトル・レベルえらびの見本・生成（game/generate.ts）が
+// 同じものを使う（絵を替えるときはここだけ）。
+export const AVATAR_GLYPH = "🐥";
+export const OBSTACLE_GLYPH = "🌳";
+
 const GLYPH_ART: Record<string, ImageSourcePropType> = {
   // ゴール絵文字プール（src/game/generate.ts の GOAL_EMOJIS 12種と1対1）
   "🍎": require("../assets/piyo/ringo.svg"),
@@ -27,10 +32,10 @@ const GLYPH_ART: Record<string, ImageSourcePropType> = {
   "🍩": require("../assets/piyo/doonatsu.svg"),
 
   // アバター（言われた順にしか歩けないおともだち）＝相棒ぴよ
-  "🐥": require("../assets/piyo/piyo.svg"),
+  [AVATAR_GLYPH]: require("../assets/piyo/piyo.svg"),
 
   // 障害物（通れないマス）＝き
-  "🌳": require("../assets/piyo/ki.svg"),
+  [OBSTACLE_GLYPH]: require("../assets/piyo/ki.svg"),
 };
 
 // グリフに対応するSVG素材を返す。無ければ undefined（呼び出し側で絵文字フォールバック）。

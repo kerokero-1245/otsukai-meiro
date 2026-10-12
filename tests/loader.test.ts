@@ -12,7 +12,7 @@ import { readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { CLIP_URLS } from "../src/audio/voiceClips";
-import { artForGlyph } from "../src/art";
+import { AVATAR_GLYPH, OBSTACLE_GLYPH, artForGlyph } from "../src/art";
 import { GOAL_EMOJIS } from "../src/game/generate";
 import { importFresh } from "./helpers/importFresh";
 import { Platform } from "./stubs/react-native";
@@ -66,8 +66,11 @@ test("画像・音声の require は、ファイルの場所を示す文字列�
   assert.equal(artForGlyph("🍎"), "/assets/piyo/ringo.svg");
   assert.equal(artForGlyph("🐥"), "/assets/piyo/piyo.svg");
   assert.equal(artForGlyph("?"), undefined, "素材の無いグリフは undefined");
+  // アバター・障害物の識別子（盤・タイトル・レベルえらびの見本・生成が同じ定数を使う）の値
+  assert.equal(AVATAR_GLYPH, "🐥");
+  assert.equal(OBSTACLE_GLYPH, "🌳");
   // ゴールの絵 12 種・アバター・木のすべてに素材がある（art.ts の require が全部読めている）
-  for (const glyph of [...GOAL_EMOJIS, "🐥", "🌳"]) {
+  for (const glyph of [...GOAL_EMOJIS, AVATAR_GLYPH, OBSTACLE_GLYPH]) {
     assert.equal(typeof artForGlyph(glyph), "string", glyph);
   }
   assert.equal(CLIP_URLS.p_tsuita, "/assets/voice/p_tsuita.m4a");

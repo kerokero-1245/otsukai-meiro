@@ -10,14 +10,13 @@
 
 import {
   BOARD_BORDER,
-  FRAME_MAX_W,
-  FRAME_MAX_W_WIDE,
   FRAME_PAD_BOTTOM,
-  FRAME_PAD_H,
   FRAME_PAD_TOP,
+  frameInnerWidth,
   isCompactLandscape,
 } from "../layout";
 import { space } from "../theme";
+import { DIRPAD_COL_GAP, DIRPAD_H_PER_SIZE, DIRPAD_W_PER_SIZE } from "./dirPad";
 import { BAND_H, QueueStripMetrics, measureQueueStrip } from "./queueStrip";
 
 export const HEADER_H = 64; // 上段（おうち＋ゴール案内）にみておく高さ
@@ -30,7 +29,7 @@ const PAD_BUDGET_RATIO = 0.42; // 方向パッド帯に割り当てる高さ ＝
 const PAD_BUDGET_MAX = 340;
 // 背の低い横向き: 左の列に上段（🏠＋ゴール案内。実測 320）が収まる幅。
 const MAIN_MIN_W = 320;
-const DIR_GAP_W = 10 * 2; // DirPad の列間（columnGap 10）×2
+const DIR_GAP_W = DIRPAD_COL_GAP * 2; // 方向パッドの列間 × 2（1 行に 3 つのボタン）
 
 export interface PlayLayoutInput {
   width: number; // 窓の幅
@@ -65,8 +64,7 @@ export function computePlayLayout({
   capacity,
 }: PlayLayoutInput): PlayLayout {
   const side = isCompactLandscape(width, height); // 背の低い横向き＝盤と方向パッドを左右に並べる
-  const frameW =
-    Math.min(width, side ? FRAME_MAX_W_WIDE : FRAME_MAX_W) - FRAME_PAD_H * 2; // 枠の内側の幅
+  const frameW = frameInnerWidth(width, side); // 枠の内側の幅
   // 縦に使える高さ（frame の上下パディングぶん）。縦持ちは従来どおり下限 320（横向きは実寸で組む）。
   const availH = side
     ? height - (FRAME_PAD_TOP + FRAME_PAD_BOTTOM)
@@ -83,7 +81,7 @@ export function computePlayLayout({
     ? Math.max(
         DIR_MIN,
         Math.min(
-          Math.floor((availH - sideStripH - space.md) / 3.3),
+          Math.floor((availH - sideStripH - space.md) / DIRPAD_H_PER_SIZE),
           Math.floor((frameW - GAP - MAIN_MIN_W - DIR_GAP_W) / 3),
           DIR_MAX,
         ),
@@ -112,16 +110,16 @@ export function computePlayLayout({
     const padRoom = bodyH - stripH - GAP - (rows * CELL_MIN + frameLine);
     padBudget = Math.min(
       padBudget,
-      Math.max(padRoom, DIR_MIN * 3.3 + space.md),
+      Math.max(padRoom, DIR_MIN * DIRPAD_H_PER_SIZE + space.md),
     );
   }
-  const dirByH = Math.floor((padBudget - space.md) / 3.3); // 3行＋行間＋下パディングぶん
-  const dirByW = Math.floor(contentW / 3.4);
+  const dirByH = Math.floor((padBudget - space.md) / DIRPAD_H_PER_SIZE); // 3行＋行間＋下パディングぶん
+  const dirByW = Math.floor(contentW / DIRPAD_W_PER_SIZE);
   const dirSize = side
     ? sideDir
     : Math.max(DIR_MIN, Math.min(dirByH, dirByW, DIR_MAX));
   // 実際に方向パッド帯が占める高さの見積り（横向きは右の列なので盤の高さからは引かない）。
-  const padAreaH = side ? 0 : Math.ceil(dirSize * 3.3) + space.md;
+  const padAreaH = side ? 0 : Math.ceil(dirSize * DIRPAD_H_PER_SIZE) + space.md;
 
   // めいろのマス: 残り高さと幅の小さいほうに収める。下限も小さめにして絶対にあふれさせない。
   // 盤の外寸はマス目全体＋枠線（BOARD_BORDER）なので、枠線のぶんを引いてから割る。

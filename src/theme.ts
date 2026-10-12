@@ -33,11 +33,23 @@ export const colors = {
   subtext: "#9B7B57",
   white: "#FFFFFF",
 
+  // 影の色（shadowColor / textShadowColor）。濃さは各所の shadowOpacity・アルファ値で決める。
+  shadow: "#00000055",
+
   // 祝福の紙吹雪
   confetti: ["#FF6B6B", "#FFD93D", "#6BCB77", "#4D96FF", "#FF9F45", "#C77DFF"],
 
   primary: "#FF9F45",
   overlay: "rgba(43, 26, 12, 0.45)", // 祝福オーバーレイの背後を少し暗く
+};
+
+// 押せるボタンの影（方向ボタンと「ゴー!」は 5 つの値がすべて同じ）。
+export const shadowRaised = {
+  shadowColor: colors.shadow,
+  shadowOffset: { width: 0, height: 3 },
+  shadowOpacity: 0.25,
+  shadowRadius: 4,
+  elevation: 3,
 };
 
 // 大きめのフォント。ひらがなは「読める子には嬉しい」装飾程度に留める。

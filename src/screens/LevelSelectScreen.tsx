@@ -32,6 +32,7 @@ import { includesCoord, sameCoord } from "../game/maze";
 import { previewObstacles } from "../game/preview";
 import { promptFontSize } from "../game/textFit";
 import { tileColor } from "../game/tileColor";
+import { AVATAR_GLYPH, OBSTACLE_GLYPH } from "../art";
 
 interface Props {
   onPick: (levelId: string) => void;
@@ -78,7 +79,7 @@ function MazePreview({ template }: { template: Template }) {
         >
           {start || goal || tree ? (
             <PiyoArt
-              glyph={start ? "🐥" : goal ? "🎁" : "🌳"}
+              glyph={start ? AVATAR_GLYPH : goal ? "🎁" : OBSTACLE_GLYPH}
               size={cellPx * 0.86}
               emojiSize={cellPx * 0.6}
             />
@@ -392,7 +393,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderWidth: 2,
     borderColor: colors.tileBorder,
-    shadowColor: "#00000055",
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -411,7 +412,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 2,
     borderColor: colors.tileBorder,
-    shadowColor: "#00000055",
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.18,
     shadowRadius: 6,
@@ -433,7 +434,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderWidth: 3,
     borderColor: colors.white,
-    shadowColor: "#00000055",
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,

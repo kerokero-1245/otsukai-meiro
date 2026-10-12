@@ -9,11 +9,10 @@ import { colors, radius } from "../theme";
 import { BOARD_BORDER } from "../layout";
 import { isGoal, isObstacle } from "../game/maze";
 import { tileColor } from "../game/tileColor";
+import { OBSTACLE_GLYPH } from "../art";
 import Avatar from "./Avatar";
 import PiyoArt from "./PiyoArt";
 import GoalArt from "./GoalArt";
-
-const OBSTACLE_EMOJI = "🌳";
 
 interface Props {
   level: Level;
@@ -106,7 +105,7 @@ export default function MazeGrid({
           pointerEvents="none"
         >
           <PiyoArt
-            glyph={OBSTACLE_EMOJI}
+            glyph={OBSTACLE_GLYPH}
             size={cell * 0.78}
             emojiSize={cell * 0.58}
           />
@@ -175,7 +174,7 @@ const styles = StyleSheet.create({
     borderWidth: BOARD_BORDER,
     borderColor: colors.tileBorder,
     position: "relative",
-    shadowColor: "#00000055",
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,

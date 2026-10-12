@@ -29,3 +29,14 @@ const COMPACT_LANDSCAPE_MAX_H = 600;
 export function isCompactLandscape(windowW: number, windowH: number): boolean {
   return windowW > windowH && windowH < COMPACT_LANDSCAPE_MAX_H;
 }
+
+// 枠の外寸の幅: 窓の幅と枠の最大幅の小さいほう。wide=true は背の低い横向きのめいろ画面（広い枠 FRAME_MAX_W_WIDE）。
+export function frameWidth(windowW: number, wide = false): number {
+  return Math.min(windowW, wide ? FRAME_MAX_W_WIDE : FRAME_MAX_W);
+}
+
+// 枠の内側の幅: 外寸から左右の余白（FRAME_PAD_H）を引いた、中身が使える幅。
+// めいろ画面の配分（game/playLayout.ts）とがんばりカードの⭐の大きさ（GanbariScreen）が使う。
+export function frameInnerWidth(windowW: number, wide = false): number {
+  return frameWidth(windowW, wide) - FRAME_PAD_H * 2;
+}

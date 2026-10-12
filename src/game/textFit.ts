@@ -1,7 +1,7 @@
 // 題字・見出しを1行に収める文字の大きさの見積もり（純粋関数・react-native 非依存）。
 // タイトル画面（TitleScreen）とレベルえらび（LevelSelectScreen）が使う。
 
-import { FRAME_MAX_W } from "../layout";
+import { frameWidth } from "../layout";
 import { font, space } from "../theme";
 
 // ── タイトルの題字 ───────────────────────────────────────────────
@@ -16,7 +16,7 @@ export const TITLE_LETTER_SPACING = 1;
 const TITLE_EDGE = 8;
 
 export function titleFontSize(windowW: number): number {
-  const avail = Math.min(windowW, FRAME_MAX_W) - TITLE_EDGE * 2;
+  const avail = frameWidth(windowW) - TITLE_EDGE * 2;
   return Math.min(
     font.huge,
     Math.floor((avail - TITLE_LETTER_SPACING * TITLE_CHARS) / TITLE_CHARS),

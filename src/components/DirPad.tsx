@@ -5,7 +5,8 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Direction } from "../types";
-import { colors, radius } from "../theme";
+import { colors, radius, shadowRaised } from "../theme";
+import { DIRPAD_COL_GAP, dirPadRowGap } from "../game/dirPad";
 
 interface Props {
   onDir: (d: Direction) => void;
@@ -67,7 +68,7 @@ function DirButton({
 }
 
 export default function DirPad({ onDir, size, center, disabled }: Props) {
-  const gap = Math.round(size * 0.14);
+  const gap = dirPadRowGap(size);
   const Spacer = () => <View style={{ width: size, height: size }} />;
   return (
     <View style={{ alignItems: "center" }}>
@@ -97,18 +98,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     // ボタン間の左右の間隔（押し間違い防止に少しあける）。
-    columnGap: 10,
+    columnGap: DIRPAD_COL_GAP,
   },
   centerGap: {},
   btn: {
     borderRadius: radius.md,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#00000055",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 3,
+    ...shadowRaised,
   },
   glyph: {
     color: colors.buttonGlyph,

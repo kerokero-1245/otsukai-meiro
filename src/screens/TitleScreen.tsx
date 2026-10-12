@@ -24,6 +24,7 @@ import { playSound } from "../audio/sounds";
 import { sayPhrase, warmUpVoice } from "../audio/voice";
 import { startMeiroBgm } from "../audio/bgm";
 import { TITLE_LETTER_SPACING, titleFontSize } from "../game/textFit";
+import { AVATAR_GLYPH } from "../art";
 
 interface Props {
   onPlay: () => void;
@@ -89,7 +90,7 @@ export default function TitleScreen({ onPlay, onOtona }: Props) {
               </Text>
 
               <View style={styles.concept}>
-                <PiyoArt glyph="🐥" size={82} emojiSize={64} />
+                <PiyoArt glyph={AVATAR_GLYPH} size={82} emojiSize={64} />
                 <Text style={styles.conceptArrow}>➡️</Text>
                 <PiyoArt glyph="🍎" size={82} emojiSize={64} />
               </View>

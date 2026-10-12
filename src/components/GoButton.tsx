@@ -11,7 +11,7 @@
 
 import React from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
-import { colors } from "../theme";
+import { colors, shadowRaised } from "../theme";
 
 interface Props {
   size: number; // 一辺（＝方向ボタンと同じ）
@@ -54,11 +54,7 @@ const styles = StyleSheet.create({
   btn: {
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#00000055",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 3,
+    ...shadowRaised,
   },
   label: {
     color: colors.white,

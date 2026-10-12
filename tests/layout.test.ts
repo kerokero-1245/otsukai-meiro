@@ -17,6 +17,8 @@ import {
   FRAME_PAD_BOTTOM,
   FRAME_PAD_H,
   FRAME_PAD_TOP,
+  frameInnerWidth,
+  frameWidth,
   isCompactLandscape,
 } from "../src/layout";
 
@@ -74,4 +76,34 @@ test("枠の寸法: 最大幅 480・横向きの広い枠 960・余白は上 28 
 
 test("盤の枠線の太さ 3（MazeGrid の描画と、PlayScreen のマスの計算が同じ値を使う）", () => {
   assert.equal(BOARD_BORDER, 3);
+});
+
+// 枠の外寸・内側の幅。以前は 480 と左右の余白を、がんばりカード（Math.min(幅, 480) − 余白×2）・タイトル（FRAME_MAX_W を再定義）・
+// 配分計算が別々に書いていた。layout.ts の値を変えたとき、一部の画面だけ旧い値で計算される事故の元。
+test("frameWidth: 窓の幅と枠の最大幅（480。背の低い横向きのめいろ画面は 960）の小さいほう", () => {
+  assert.equal(frameWidth(320), 320);
+  assert.equal(frameWidth(390), 390);
+  assert.equal(frameWidth(480), 480);
+  assert.equal(frameWidth(481), 480);
+  assert.equal(frameWidth(1280), 480);
+  assert.equal(frameWidth(1280, true), 960);
+  assert.equal(frameWidth(844, true), 844);
+  assert.equal(frameWidth(960, true), 960);
+  assert.equal(frameWidth(961, true), 960);
+  assert.equal(frameWidth(320, false), 320, "wide を省いたときと false は同じ");
+  assert.equal(frameWidth(1280), frameWidth(1280, false));
+});
+
+test("frameInnerWidth: 外寸から左右の余白（20 × 2）を引く。がんばりカードが直書きしていた Math.min(幅, 480) − 40 と同じ値", () => {
+  for (const w of [0, 100, 320, 360, 390, 480, 481, 800, 1280, 5000]) {
+    assert.equal(frameInnerWidth(w), Math.min(w, 480) - 40, `窓 ${w}`);
+    assert.equal(
+      frameInnerWidth(w, true),
+      Math.min(w, 960) - 40,
+      `窓 ${w}（広い枠）`,
+    );
+  }
+  assert.equal(frameInnerWidth(390), 350);
+  assert.equal(frameInnerWidth(1280), 440);
+  assert.equal(frameInnerWidth(1280, true), 920);
 });

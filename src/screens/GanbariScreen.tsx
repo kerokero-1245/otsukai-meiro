@@ -12,6 +12,8 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { colors, font, space } from "../theme";
+import { frameInnerWidth } from "../layout";
+import { TEMPLATES } from "../data/templates";
 import { playSound } from "../audio/sounds";
 import { sayPhrase, cancelVoice } from "../audio/voice";
 import BigButton from "../components/BigButton";
@@ -21,13 +23,14 @@ interface Props {
   onDone: () => void; // レベルえらびへ（王冠つきで戻る）
 }
 
-const STAR_COUNT = 5;
+// ⭐の数 = 全レベル（むずかしさテンプレート）の数。templates.json にカードを足すと、がんばりカードの⭐も増える（DESIGN §11）。
+const STAR_COUNT = TEMPLATES.length;
 
 export default function GanbariScreen({ onDone }: Props) {
   const { width, height } = useWindowDimensions();
 
   // 背の低い画面でもはみ出さないよう、星と間隔を幅・高さから決める。
-  const inner = Math.min(width, 480) - space.md * 2;
+  const inner = frameInnerWidth(width);
   const starSize = Math.max(
     40,
     Math.min(

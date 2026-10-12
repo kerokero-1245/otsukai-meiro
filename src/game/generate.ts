@@ -11,6 +11,7 @@
 //
 // 乱数は Math.random でよい（アプリ実行時コード）。
 
+import { AVATAR_GLYPH } from "../art";
 import { Coord, Direction, Level, Template } from "../types";
 import { canMove, isGoal, isObstacle, move, sameCoord } from "./maze";
 
@@ -30,9 +31,6 @@ export const GOAL_EMOJIS = [
   "🚗",
   "🍩",
 ];
-
-// アバター（言われた順にしか歩けないおともだち）の既定絵文字。
-const AVATAR_EMOJI = "🐥";
 
 // 1テンプレートあたりの作り直し上限。これを超えたらフォールバックへ。
 const MAX_ATTEMPTS = 50;
@@ -138,7 +136,7 @@ export function generateLevelDebug(template: Template): GenResult {
     goalImage: null,
     goalVoice: null,
     goalEmoji,
-    avatarEmoji: AVATAR_EMOJI,
+    avatarEmoji: AVATAR_GLYPH,
   });
 
   // 障害物 obstacleCount 個で1回だけ試す。条件を満たせば Level、駄目なら null。
