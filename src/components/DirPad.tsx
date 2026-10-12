@@ -59,10 +59,11 @@ export default function DirPad({ onDir, size, center, disabled }: Props) {
   const Spacer = () => <View style={{ width: size, height: size }} />;
   return (
     <View style={{ alignItems: "center" }}>
-      {/* eslint-disable react-hooks/static-components -- Spacer は描画のたびに作り直される関数（そのたびに空の View が作り直される）。外へ出すと部品の構造が変わるので、このままにしている */}
       <View style={[styles.row, { marginBottom: gap }]}>
+        {/* eslint-disable-next-line react-hooks/static-components -- Spacer は描画のたびに作り直される関数（そのたびに空の View が作り直される）。外へ出すと部品の構造が変わるので、このままにしている */}
         <Spacer />
         <DirButton dir="up" size={size} onDir={onDir} disabled={disabled} />
+        {/* eslint-disable-next-line react-hooks/static-components -- Spacer は描画のたびに作り直される関数（そのたびに空の View が作り直される）。外へ出すと部品の構造が変わるので、このままにしている */}
         <Spacer />
       </View>
       <View style={[styles.row, { marginBottom: gap }]}>
@@ -71,11 +72,12 @@ export default function DirPad({ onDir, size, center, disabled }: Props) {
         <DirButton dir="right" size={size} onDir={onDir} disabled={disabled} />
       </View>
       <View style={styles.row}>
+        {/* eslint-disable-next-line react-hooks/static-components -- Spacer は描画のたびに作り直される関数（そのたびに空の View が作り直される）。外へ出すと部品の構造が変わるので、このままにしている */}
         <Spacer />
         <DirButton dir="down" size={size} onDir={onDir} disabled={disabled} />
+        {/* eslint-disable-next-line react-hooks/static-components -- Spacer は描画のたびに作り直される関数（そのたびに空の View が作り直される）。外へ出すと部品の構造が変わるので、このままにしている */}
         <Spacer />
       </View>
-      {/* eslint-enable react-hooks/static-components */}
     </View>
   );
 }

@@ -1,7 +1,7 @@
 name: Web を GitHub Pages へデプロイ
 
-# main への push と PR で typecheck と Web の書き出しを検査し、
-# typecheck と書き出しを通ったときだけ（main の push と手動実行のみ）GitHub Pages へ公開する。
+# main への push と PR で lint（警告も失敗にする）・typecheck と Web の書き出しを検査し、
+# lint・typecheck と書き出しを通ったときだけ（main の push と手動実行のみ）GitHub Pages へ公開する。
 # 権限とデプロイの列（concurrency の pages）は deploy ジョブだけに持たせ、PR の検査には書き込み権限を渡さず、デプロイの列にも並ばせない。
 # ci ジョブは ref ごとの別の列（ci-<ref>）に並べ、同じブランチ・PR に新しい push が来たら古い検査を止める。
 on:

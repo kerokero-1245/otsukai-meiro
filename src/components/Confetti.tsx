@@ -94,15 +94,17 @@ export default function Confetti({ count = 18 }: { count?: number }) {
   const specs = useMemo<PieceSpec[]>(() => {
     if (width <= 0) return [];
     const palette = colors.confetti;
-    /* eslint-disable react-hooks/purity -- Math.random() で小片ごとの大きさ・位置・揺れ・遅れ・時間・回転を決めるのがこの部品の役目。count か width が変わったときだけ決め直す。乱数の置き場を変えると挙動が変わるので、このままにしている */
     return Array.from({ length: count }, (_, i) => {
+      // eslint-disable-next-line react-hooks/purity -- 紙吹雪の配置を決める乱数。useMemo の依存が変わるまで同じ配置を保つため、ここでの Math.random() は意図した非純粋
       const size = 10 + Math.random() * 10;
       // 小片の左端は inset..(枠の幅−大きさ−inset)。inset は回転で角が出る分。左右の揺れ（drift）も同じ範囲に収める。
       const inset = size * ROTATE_OVERHANG;
       const minX = inset;
       const maxX = Math.max(minX, width - size - inset);
+      // eslint-disable-next-line react-hooks/purity -- 紙吹雪の配置を決める乱数。useMemo の依存が変わるまで同じ配置を保つため、ここでの Math.random() は意図した非純粋
       const x = minX + Math.random() * (maxX - minX);
       const drift = Math.min(
+        // eslint-disable-next-line react-hooks/purity -- 紙吹雪の配置を決める乱数。useMemo の依存が変わるまで同じ配置を保つため、ここでの Math.random() は意図した非純粋
         Math.max((Math.random() - 0.5) * 90, minX - x),
         maxX - x,
       );
@@ -110,13 +112,15 @@ export default function Confetti({ count = 18 }: { count?: number }) {
         x,
         size,
         color: palette[i % palette.length],
+        // eslint-disable-next-line react-hooks/purity -- 紙吹雪の配置を決める乱数。useMemo の依存が変わるまで同じ配置を保つため、ここでの Math.random() は意図した非純粋
         delay: Math.random() * 500,
+        // eslint-disable-next-line react-hooks/purity -- 紙吹雪の配置を決める乱数。useMemo の依存が変わるまで同じ配置を保つため、ここでの Math.random() は意図した非純粋
         duration: 1500 + Math.random() * 1200,
         drift,
+        // eslint-disable-next-line react-hooks/purity -- 紙吹雪の配置を決める乱数。useMemo の依存が変わるまで同じ配置を保つため、ここでの Math.random() は意図した非純粋
         spin: 360 + Math.random() * 360,
       };
     });
-    /* eslint-enable react-hooks/purity */
   }, [count, width]);
 
   return (
