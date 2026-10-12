@@ -1,7 +1,18 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true,
-    "types": ["node"]
-  }
+    "strict": true
+  },
+  // アプリ本体の型検査。tests/ は Node の型（@types/node）が要るので、ここでは除き、tests/tsconfig.json で検査する
+  // （npm run typecheck が 2 つを順に通す）。exclude は親（expo/tsconfig.base）の一覧を置き換えるので、
+  // 親の 6 つを写して tests を足している。
+  "exclude": [
+    "${configDir}/node_modules",
+    "${configDir}/babel.config.js",
+    "${configDir}/metro.config.js",
+    "${configDir}/jest.config.js",
+    "${configDir}/android",
+    "${configDir}/ios",
+    "${configDir}/tests"
+  ]
 }
