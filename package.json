@@ -14,6 +14,9 @@
   "devDependencies": {
     "@types/node": "26.1.1",
     "@types/react": "~19.2.2",
+    "eslint": "10.12.0",
+    "eslint-config-expo": "57.0.2",
+    "eslint-import-resolver-typescript": "3.10.1",
     "prettier": "3.9.9",
     "typescript": "~6.0.3"
   },
@@ -22,6 +25,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tests/tsconfig.json",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "node --test --import ./tests/register.mjs \"tests/**/*.test.ts\"",
