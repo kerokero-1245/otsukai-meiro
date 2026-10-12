@@ -52,8 +52,10 @@ export default function TitleScreen({ onPlay, onOtona }: Props) {
       onOtona();
     }, HOLD_MS);
   };
-  // 画面を離れたら長押しのタイマーも止める。⚙️を押したまま別の操作（別の指で「あそぶ」など）で画面が移ると、
-  // 3 秒後に おとなモードへ飛んでしまう（親ゲートの意図に反する）。
+  // 画面を離れたら長押しのタイマーも止める（防御）。残ると、⚙️を押したまま別の操作（別の指で「あそぶ」など）で
+  // 画面が移った 3 秒後に おとなモードへ飛び、親ゲートの意図に反する。Web ビルド（react-native-web）の Pressable は
+  // 外れるときに onPressOut を呼ぶので、この後始末が無くてもタイマーは消える。ネイティブ（RN の Pressability）で
+  // 呼ばれない場合に備える。
   useEffect(() => clearHold, []);
 
   return (
