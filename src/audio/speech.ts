@@ -15,7 +15,7 @@
 //
 // DOM lib に依存しないよう、必要な形だけを最小宣言して globalThis から取り出す。
 
-import { Platform } from "react-native";
+import { webGlobal } from "../web";
 
 interface SSVoice {
   lang: string;
@@ -40,25 +40,11 @@ interface SS {
 }
 
 function getSynth(): SS | null {
-  if (Platform.OS !== "web") return null;
-  try {
-    const g = globalThis as unknown as { speechSynthesis?: SS };
-    return g.speechSynthesis ?? null;
-  } catch {
-    return null;
-  }
+  return webGlobal<SS>("speechSynthesis");
 }
 
 function getUtteranceCtor(): UtteranceCtor | null {
-  if (Platform.OS !== "web") return null;
-  try {
-    const g = globalThis as unknown as {
-      SpeechSynthesisUtterance?: UtteranceCtor;
-    };
-    return g.SpeechSynthesisUtterance ?? null;
-  } catch {
-    return null;
-  }
+  return webGlobal<UtteranceCtor>("SpeechSynthesisUtterance");
 }
 
 let jaVoice: SSVoice | null = null;

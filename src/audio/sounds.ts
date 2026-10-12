@@ -7,7 +7,7 @@
 //   に差し替える際は playSound() の中身だけ置き換えればよい（呼び出し側は変更不要）。
 // - おじの声（掛け声「ついたね!」等）の差し替えもフェーズ2。ここに voice 種別を足して繋ぐ。
 
-import { Platform } from "react-native";
+import { webGlobal } from "../web";
 
 export type SoundName =
   | "tap" // ボタン反応「ぽん」
@@ -55,14 +55,11 @@ const TONES: Record<SoundName, Note[]> = {
 let ctx: AudioContext | null = null;
 
 function getCtx(): AudioContext | null {
-  if (Platform.OS !== "web") return null;
   try {
     if (!ctx) {
-      const g = globalThis as unknown as {
-        AudioContext?: typeof AudioContext;
-        webkitAudioContext?: typeof AudioContext;
-      };
-      const AC = g.AudioContext ?? g.webkitAudioContext;
+      const AC =
+        webGlobal<typeof AudioContext>("AudioContext") ??
+        webGlobal<typeof AudioContext>("webkitAudioContext");
       if (!AC) return null;
       ctx = new AC();
     }

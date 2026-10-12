@@ -16,7 +16,7 @@
 //
 // DOM lib に依存しないよう、必要な形だけ最小宣言して globalThis から取り出す（progress.ts / speech.ts と同じ流儀）。
 
-import { Platform } from "react-native";
+import { webGlobal } from "../web";
 
 // ── 最小型宣言 ───────────────────────────────────────────────────────
 // Blob をそのままは持たない（RN と DOM の型が衝突しうる）。必要な形だけ。
@@ -73,10 +73,8 @@ export const STORE_VOICES = "voices"; // keyPath 'slot' … おじの声（ス�
 const OPEN_TIMEOUT_MS = 4000; // open が返ってこない環境（壊れたプロファイル等）で固まらないための保険
 
 function getFactory(): IdbFactory | null {
-  if (Platform.OS !== "web") return null;
+  const f = webGlobal<IdbFactory>("indexedDB");
   try {
-    const g = globalThis as unknown as { indexedDB?: IdbFactory | null };
-    const f = g.indexedDB;
     // 「undefined を差し込んで潰す」テストも通す: 関数として使えなければ無しとみなす。
     if (!f || typeof f.open !== "function") return null;
     return f;

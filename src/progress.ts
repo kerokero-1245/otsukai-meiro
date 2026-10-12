@@ -6,29 +6,12 @@
 // - 取得失敗時は「まだ何も無い」状態にフォールバック。消えても遊びは壊れない（進捗ロック無し）。
 // - settings.ts（piyopiyo-sansu）の localStorage パターンを移植。
 
-import { Platform } from "react-native";
 import { TEMPLATES } from "./data/templates";
+import { readKey, removeKey, webStorage, writeKey } from "./storage";
 
 const KEY_STARS = "meiro.stars"; // クリア済みレベルidの配列（JSON）
 const KEY_CELEBRATED = "meiro.celebratedAll"; // 「ぜんぶ できたね!」を一度見せたか（'1'）
 const KEY_TOTAL = "meiro.totalStars"; // 累計クリア回数（再クリアも+1）。街（ランチャー）の燃料。DESIGN §7。
-
-// 型の都合で最小限だけ宣言（DOM lib に依存しない）。
-interface WebStorage {
-  getItem(key: string): string | null;
-  setItem(key: string, value: string): void;
-  removeItem(key: string): void;
-}
-function ls(): WebStorage | null {
-  if (Platform.OS !== "web") return null;
-  try {
-    const s = (globalThis as unknown as { localStorage?: WebStorage })
-      .localStorage;
-    return s ?? null;
-  } catch {
-    return null;
-  }
-}
 
 // セッション内キャッシュ（native の永続化が無くても同一起動中は保持される）。
 let starsCache: Set<string> | null = null;
@@ -37,16 +20,13 @@ let totalCache: number | null = null;
 
 function loadStars(): Set<string> {
   if (starsCache) return starsCache;
-  const store = ls();
   const set = new Set<string>();
-  if (store) {
+  const raw = readKey(KEY_STARS);
+  if (raw) {
     try {
-      const raw = store.getItem(KEY_STARS);
-      if (raw) {
-        const arr = JSON.parse(raw);
-        if (Array.isArray(arr)) {
-          for (const id of arr) if (typeof id === "string") set.add(id);
-        }
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) {
+        for (const id of arr) if (typeof id === "string") set.add(id);
       }
     } catch {
       // 壊れていたら「まだ何も無い」として扱う
@@ -56,13 +36,7 @@ function loadStars(): Set<string> {
 }
 
 function persistStars(set: Set<string>): void {
-  const store = ls();
-  if (!store) return;
-  try {
-    store.setItem(KEY_STARS, JSON.stringify([...set]));
-  } catch {
-    // 保存できなくても遊びは壊さない
-  }
+  writeKey(KEY_STARS, JSON.stringify([...set]));
 }
 
 // このレベルに⭐が付いているか。
@@ -90,7 +64,7 @@ export function clearedCount(): number {
 // 読めない/壊れている場合も必ず 0 扱いにフォールバックし、遊びは壊さない。
 export function totalStars(): number {
   if (totalCache !== null) return totalCache;
-  const store = ls();
+  const store = webStorage();
   if (!store) return (totalCache = 0); // native はセッション内カウントのみ（0 起点）。
   try {
     const raw = store.getItem(KEY_TOTAL);
@@ -111,14 +85,7 @@ export function totalStars(): number {
 export function bumpTotalStars(): number {
   const next = totalStars() + 1; // 先に読むことでマイグレーションも確実に済ませる。
   totalCache = next;
-  const store = ls();
-  if (store) {
-    try {
-      store.setItem(KEY_TOTAL, String(next));
-    } catch {
-      // 保存できなくても遊びは壊さない。
-    }
-  }
+  writeKey(KEY_TOTAL, String(next)); // 保存できなくても遊びは壊さない
   return next;
 }
 
@@ -131,28 +98,14 @@ export function allCleared(): boolean {
 // 「ぜんぶ できたね! がんばりカード」を既に一度見せたか。
 export function hasCelebratedAll(): boolean {
   if (celebratedCache !== null) return celebratedCache;
-  const store = ls();
-  if (store) {
-    try {
-      return (celebratedCache = store.getItem(KEY_CELEBRATED) === "1");
-    } catch {
-      // 無視して未祝福へ
-    }
-  }
-  return (celebratedCache = false);
+  // 読めない・保存が無いときは未祝福へ
+  return (celebratedCache = readKey(KEY_CELEBRATED) === "1");
 }
 
 export function setCelebratedAll(v: boolean): void {
   celebratedCache = v;
-  const store = ls();
-  if (store) {
-    try {
-      if (v) store.setItem(KEY_CELEBRATED, "1");
-      else store.removeItem(KEY_CELEBRATED);
-    } catch {
-      // 保存できなくても遊びは壊さない
-    }
-  }
+  if (v) writeKey(KEY_CELEBRATED, "1");
+  else removeKey(KEY_CELEBRATED);
 }
 
 // おとなモードの「⭐をリセット」。バッジ（meiro.stars）と祝福フラグ（meiro.celebratedAll）を消す。
@@ -160,7 +113,7 @@ export function setCelebratedAll(v: boolean): void {
 export function resetProgress(): void {
   starsCache = new Set<string>();
   celebratedCache = false;
-  const store = ls();
+  const store = webStorage();
   if (store) {
     try {
       store.removeItem(KEY_STARS);

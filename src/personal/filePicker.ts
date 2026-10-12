@@ -12,7 +12,7 @@
 //
 // 外部送信ゼロ: 選ばれた File はメモリ上で縮小して IndexedDB に入るだけ。どこにも送らない。
 
-import { Platform } from "react-native";
+import { webGlobal } from "../web";
 
 export const PHOTO_INPUT_ID = "meiro-photo-input";
 
@@ -38,10 +38,8 @@ interface DocLike {
 }
 
 function doc(): DocLike | null {
-  if (Platform.OS !== "web") return null;
+  const d = webGlobal<DocLike>("document");
   try {
-    const g = globalThis as unknown as { document?: DocLike };
-    const d = g.document;
     if (!d || typeof d.createElement !== "function" || !d.body) return null;
     return d;
   } catch {

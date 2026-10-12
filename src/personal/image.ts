@@ -12,7 +12,7 @@
 //
 // DOM lib に依存しないよう、必要な形だけ最小宣言して globalThis から取り出す。
 
-import { Platform } from "react-native";
+import { webGlobal } from "../web";
 import { BlobLike } from "./idb";
 
 export const MAX_EDGE = 512; // 長辺の上限(px)
@@ -55,20 +55,12 @@ interface UrlLike {
 }
 
 function doc(): DocLike | null {
-  if (Platform.OS !== "web") return null;
-  try {
-    const g = globalThis as unknown as { document?: DocLike };
-    return g.document ?? null;
-  } catch {
-    return null;
-  }
+  return webGlobal<DocLike>("document");
 }
 
 export function objectUrl(): UrlLike | null {
-  if (Platform.OS !== "web") return null;
+  const u = webGlobal<UrlLike>("URL");
   try {
-    const g = globalThis as unknown as { URL?: UrlLike };
-    const u = g.URL;
     if (!u || typeof u.createObjectURL !== "function") return null;
     return u;
   } catch {
@@ -77,23 +69,13 @@ export function objectUrl(): UrlLike | null {
 }
 
 // createImageBitmap（あれば）。EXIF 向きを画像どおりに適用する。
-function bitmapFactory():
-  | ((blob: unknown, opts?: { imageOrientation?: string }) => Promise<Sized>)
-  | null {
-  if (Platform.OS !== "web") return null;
-  try {
-    const g = globalThis as unknown as {
-      createImageBitmap?: (
-        blob: unknown,
-        opts?: { imageOrientation?: string },
-      ) => Promise<Sized>;
-    };
-    return typeof g.createImageBitmap === "function"
-      ? g.createImageBitmap
-      : null;
-  } catch {
-    return null;
-  }
+type BitmapFactory = (
+  blob: unknown,
+  opts?: { imageOrientation?: string },
+) => Promise<Sized>;
+function bitmapFactory(): BitmapFactory | null {
+  const f = webGlobal<BitmapFactory>("createImageBitmap");
+  return typeof f === "function" ? f : null;
 }
 
 // <img> 経由の読み込み（createImageBitmap が無い／失敗したとき）。

@@ -14,8 +14,8 @@
 //
 // DOM lib に依存しないよう、必要な形だけ最小宣言して globalThis から取り出す。
 
-import { Platform } from "react-native";
 import { CLIP_URLS, hasClip } from "./voiceClips";
+import { webGlobal } from "../web";
 
 interface AudioEl {
   play(): Promise<void> | void;
@@ -27,13 +27,7 @@ interface AudioEl {
 type AudioCtor = new (src?: string) => AudioEl;
 
 function getAudioCtor(): AudioCtor | null {
-  if (Platform.OS !== "web") return null;
-  try {
-    const g = globalThis as unknown as { Audio?: AudioCtor };
-    return g.Audio ?? null;
-  } catch {
-    return null;
-  }
+  return webGlobal<AudioCtor>("Audio");
 }
 
 // この基名のクリップを tier1 で鳴らせるか（native/非対応/登録の無い基名では false）。

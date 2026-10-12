@@ -13,8 +13,8 @@
 //
 // DOM lib に依存しないよう、必要な形だけ最小宣言して globalThis から取り出す。
 
-import { Platform } from "react-native";
 import { BlobLike } from "./idb";
+import { webGlobal } from "../web";
 
 export const MAX_MS = 6000; // 「ついたね！」は数秒。長すぎる録音を防ぐ自動停止。
 
@@ -52,22 +52,13 @@ interface MediaDevicesLike {
 }
 
 function getRecorderCtor(): RecorderCtor | null {
-  if (Platform.OS !== "web") return null;
-  try {
-    const g = globalThis as unknown as { MediaRecorder?: RecorderCtor };
-    return g.MediaRecorder ?? null;
-  } catch {
-    return null;
-  }
+  return webGlobal<RecorderCtor>("MediaRecorder");
 }
 
 function getMediaDevices(): MediaDevicesLike | null {
-  if (Platform.OS !== "web") return null;
+  const nav = webGlobal<{ mediaDevices?: MediaDevicesLike }>("navigator");
   try {
-    const g = globalThis as unknown as {
-      navigator?: { mediaDevices?: MediaDevicesLike };
-    };
-    const md = g.navigator?.mediaDevices;
+    const md = nav?.mediaDevices;
     if (!md || typeof md.getUserMedia !== "function") return null;
     return md;
   } catch {
@@ -77,14 +68,9 @@ function getMediaDevices(): MediaDevicesLike | null {
 
 function getBlobCtor():
   (new (parts: unknown[], opts?: { type?: string }) => BlobLike) | null {
-  try {
-    const g = globalThis as unknown as {
-      Blob?: new (parts: unknown[], opts?: { type?: string }) => BlobLike;
-    };
-    return g.Blob ?? null;
-  } catch {
-    return null;
-  }
+  return webGlobal<
+    new (parts: unknown[], opts?: { type?: string }) => BlobLike
+  >("Blob");
 }
 
 // この環境で録音できそうか（実際の権限は start してみるまで分からない）。
