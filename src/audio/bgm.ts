@@ -18,7 +18,6 @@ import {
   setBgmEnabled,
   duckBgm,
   unduckBgm,
-  getBgmState,
 } from "./bgm/engine";
 import { getSharedAudioContext } from "./sounds";
 import { readKey, writeKey } from "../storage";

@@ -5,7 +5,6 @@
 import React, { useEffect, useRef } from "react";
 import {
   Animated,
-  Easing,
   StyleSheet,
   Text,
   View,

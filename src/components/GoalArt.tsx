@@ -34,6 +34,7 @@ export default function GoalArt({
   // 写真が読めなかったら（消えた blob URL など）絵に戻す。
   const [failed, setFailed] = useState(false);
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- photoUri が変わったら読み込み失敗の記録を戻す。key で作り直す形に変えると挙動が変わるので、このままにしている
     setFailed(false);
   }, [photoUri]);
 
