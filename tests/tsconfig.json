@@ -1,8 +1,8 @@
 {
-  // テスト用の型検査（npm run typecheck の 2 段目）。テストは Node の標準モジュール（node:test・node:assert など）と
-  // process を使うので、Node の型（@types/node）をここだけで有効にする。アプリ本体（ルートの tsconfig.json）には入れない。
-  // 親の exclude の ${configDir} は「いま検査している tsconfig のあるフォルダ」なので、ここでは tests/ の外の名前を除くだけで、
-  // tests/ 自身は除かれない。
+  // テスト用の型検査（npm run typecheck の 2 段目）。テストは Node の標準モジュール（node:test・node:assert・node:fs など）を
+  // 使うので、Node の型（@types/node）をここだけで有効にする。アプリ本体（ルートの tsconfig.json）には入れない。
+  // 親の exclude の ${configDir} は「いま検査している tsconfig のあるフォルダ」（ここでは tests/）に読み替わるので、
+  // 親の "${configDir}/tests" は tests/tests を指すだけで、tests/ 自身は除かれない（tsc --showConfig で確認した）。
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "types": ["node"]
