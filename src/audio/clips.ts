@@ -15,6 +15,7 @@
 // DOM lib に依存しないよう、必要な形だけ最小宣言して globalThis から取り出す。
 
 import { CLIP_URLS, hasClip } from "./voiceClips";
+import { once } from "../once";
 import { webGlobal } from "../web";
 
 interface AudioEl {
@@ -86,12 +87,7 @@ function playSrc(src: string, onEnd?: () => void): boolean {
     const a = new A(src);
     current = a;
     if (onEnd) {
-      let fired = false;
-      const fire = () => {
-        if (fired) return;
-        fired = true;
-        onEnd();
-      };
+      const fire = once(onEnd);
       currentOnEnd = fire;
       // 自然終了・読み込み失敗で終了通知（停止は cancelClip 側で通知）。
       try {

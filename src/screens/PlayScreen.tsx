@@ -224,6 +224,21 @@ export default function PlayScreen({
     void tiltAsync();
   }, [tiltAsync]);
 
+  // ゴールに着いたときの共通処理（①・②のどちらも通る）。順序は変えない:
+  //  1) 街（ランチャー）の燃料。クリアのたび +1（再クリアも +1。バッジとは独立）。
+  //     先に積む: markCleared が今回の⭐を足す前に読むことで、初回マイグレーション
+  //     （totalStars 未存在時に meiro.stars 件数を初期値化）が今回の1クリアを二重計上しない。
+  //  2) クリア=⭐（何手で着いたかは問わない）。既にクリア済みなら剥奪・変化なし。
+  //  3) このクリアで全部そろい、まだ大祝福を見せていなければ「がんばりカード」へ。
+  //  4) clear の効果音 → 5) 到着の表示（ClearOverlay）。
+  const celebrate = useCallback((lv: Level) => {
+    bumpTotalStars();
+    markCleared(lv.id);
+    setCompletedAll(allCleared() && !hasCelebratedAll());
+    playSound("clear");
+    setArrived(true);
+  }, []);
+
   const onDir = useCallback(
     (dir: Direction) => {
       if (!level || arrived || animatingRef.current) return;
@@ -245,33 +260,13 @@ export default function PlayScreen({
       }).start(() => {
         animatingRef.current = false;
         posRef.current = next;
-        if (isGoal(level, next)) {
-          // 街（ランチャー）の燃料。クリアのたび +1（再クリアも +1。バッジとは独立）。
-          // 先に積む: markCleared が今回の⭐を足す前に読むことで、初回マイグレーション
-          // （totalStars 未存在時に meiro.stars 件数を初期値化）が今回の1クリアを二重計上しない。
-          bumpTotalStars();
-          // クリア=⭐（何手で着いたかは問わない）。既にクリア済みなら剥奪・変化なし。
-          markCleared(level.id);
-          // このクリアで全部そろい、まだ大祝福を見せていなければ「がんばりカード」へ。
-          setCompletedAll(allCleared() && !hasCelebratedAll());
-          playSound("clear");
-          setArrived(true);
-        }
+        if (isGoal(level, next)) celebrate(level);
       });
     },
-    [level, arrived, cell, avatarPos, wiggle],
+    [level, arrived, cell, avatarPos, wiggle, celebrate],
   );
 
   // ── ②ならべてゴー ───────────────────────────────────────────────
-  // ゴールに着いたときの共通処理（①と同じ順序で⭐を積む）。
-  const celebrate = useCallback((lv: Level) => {
-    bumpTotalStars();
-    markCleared(lv.id);
-    setCompletedAll(allCleared() && !hasCelebratedAll());
-    playSound("clear");
-    setArrived(true);
-  }, []);
-
   // 矢印を1つ積む。上限に達していたら **静かに** 受け付けない（エラー表現なし / §4）。
   const onArrow = useCallback(
     (dir: Direction) => {

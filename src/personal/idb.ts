@@ -17,6 +17,7 @@
 // DOM lib に依存しないよう、必要な形だけ最小宣言して globalThis から取り出す（progress.ts / speech.ts と同じ流儀）。
 
 import { webGlobal } from "../web";
+import { once } from "../once";
 
 // ── 最小型宣言 ───────────────────────────────────────────────────────
 // Blob をそのままは持たない（RN と DOM の型が衝突しうる）。必要な形だけ。
@@ -100,16 +101,13 @@ function openDb(): Promise<IdbDatabase | null> {
     return Promise.resolve(null);
   }
   dbPromise = new Promise<IdbDatabase | null>((resolve) => {
-    let settled = false;
-    const done = (db: IdbDatabase | null) => {
-      if (settled) return;
-      settled = true;
+    const done = once((db: IdbDatabase | null) => {
       if (!db) {
         broken = true;
         dbPromise = null; // 次回また試せるようにはしない（broken で止まる）が、参照は落としておく
       }
       resolve(db);
-    };
+    });
     let timer: ReturnType<typeof setTimeout> | null = null;
     try {
       const req = factory.open(DB_NAME, DB_VERSION);
@@ -173,12 +171,7 @@ function readOp<T>(
           resolve(null);
           return;
         }
-        let settled = false;
-        const done = (v: T | null) => {
-          if (settled) return;
-          settled = true;
-          resolve(v);
-        };
+        const done = once((v: T | null) => resolve(v));
         try {
           const tx = db.transaction(store, "readonly");
           tx.onerror = () => done(null);
@@ -206,12 +199,7 @@ function writeOp(
           resolve(false);
           return;
         }
-        let settled = false;
-        const done = (v: boolean) => {
-          if (settled) return;
-          settled = true;
-          resolve(v);
-        };
+        const done = once((v: boolean) => resolve(v));
         try {
           const tx = db.transaction(store, "readwrite");
           tx.oncomplete = () => done(true);

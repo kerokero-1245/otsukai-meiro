@@ -16,20 +16,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Direction } from "../types";
 import { colors, radius } from "../theme";
 import { CHIP_GAP, QueueStripMetrics, UNDO_SIZE } from "../game/queueStrip";
-
-const GLYPH: Record<Direction, string> = {
-  up: "▲",
-  down: "▼",
-  left: "◀",
-  right: "▶",
-};
-
-const LABEL: Record<Direction, string> = {
-  up: "うえ",
-  down: "した",
-  left: "ひだり",
-  right: "みぎ",
-};
+import { DIR_GLYPH, DIR_LABEL } from "../game/directions";
 
 interface Props {
   queue: Direction[]; // 積まれた命令
@@ -73,7 +60,7 @@ export default function CommandQueue({
         >
           {dir ? (
             <Text style={[styles.glyph, { fontSize: glyphSize }]}>
-              {GLYPH[dir]}
+              {DIR_GLYPH[dir]}
             </Text>
           ) : null}
         </View>,
@@ -90,7 +77,7 @@ export default function CommandQueue({
   const readOut =
     queue.length === 0
       ? "めいれいの れつ: まだ ありません"
-      : `めいれいの れつ: ${queue.map((d) => LABEL[d]).join("、")}`;
+      : `めいれいの れつ: ${queue.map((d) => DIR_LABEL[d]).join("、")}`;
 
   const undoOff = disabled || queue.length === 0;
 

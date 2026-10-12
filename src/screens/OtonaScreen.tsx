@@ -22,6 +22,7 @@ import {
 } from "react-native";
 import { colors, font, radius, space } from "../theme";
 import BigButton from "../components/BigButton";
+import ConfirmBox from "../components/ConfirmBox";
 import { clearedCount, resetProgress } from "../progress";
 import { getPlayMode, setPlayMode } from "../settings";
 import { isBgmOn, setBgmOn } from "../audio/bgm";
@@ -54,6 +55,9 @@ import {
 interface Props {
   onBack: () => void;
 }
+
+// 読み込み中の表示（写真の追加中・在庫の読み込み前の注記）。
+const LOADING_TEXT = "よみこみちゅう…";
 
 // 録音スロットの見出し（子どもに聞こえるフレーズそのもの）。
 const SLOT_LABEL: Record<VoiceSlot, string> = {
@@ -146,12 +150,10 @@ export default function OtonaScreen({ onBack }: Props) {
     setPhotoMsg(null);
     const opened = pickPhotoFiles((files) => {
       setBusy(true);
-      setPhotoMsg("よみこみちゅう…");
+      setPhotoMsg(LOADING_TEXT);
       void addPhotoFiles(files)
         .then((r) => {
-          if (r.added > 0 && !r.full && r.failed === 0) {
-            setPhotoMsg(`${r.added}まい ふやしました。`);
-          } else if (r.full) {
+          if (r.full) {
             setPhotoMsg(`しゃしんは ${MAX_PHOTOS}まいまでです。`);
           } else if (r.failed > 0 && r.added === 0) {
             setPhotoMsg("この しゃしんは つかえませんでした。");
@@ -268,7 +270,7 @@ export default function OtonaScreen({ onBack }: Props) {
         </Text>
 
         {!storageReady ? (
-          <Text style={styles.note}>よみこみちゅう…</Text>
+          <Text style={styles.note}>{LOADING_TEXT}</Text>
         ) : !canUsePhotos ? (
           <Text style={styles.warn}>
             この ブラウザでは しゃしんを
@@ -303,53 +305,27 @@ export default function OtonaScreen({ onBack }: Props) {
             )}
 
             {photoToDelete ? (
-              <View style={styles.confirmRow}>
-                <Text style={styles.confirmText}>
-                  この しゃしんを けしますか?
-                </Text>
-                <View style={styles.confirmButtons}>
-                  <BigButton
-                    size="small"
-                    emoji="🗑️"
-                    label="けす"
-                    onPress={() => doRemovePhoto(photoToDelete)}
-                    color={colors.button}
-                  />
-                  <BigButton
-                    size="small"
-                    emoji="↩️"
-                    label="やめる"
-                    onPress={() => setPhotoToDelete(null)}
-                  />
-                </View>
-              </View>
+              <ConfirmBox
+                size="small"
+                question="この しゃしんを けしますか?"
+                confirmLabel="けす"
+                onConfirm={() => doRemovePhoto(photoToDelete)}
+                onCancel={() => setPhotoToDelete(null)}
+              />
             ) : confirmClearPhotos ? (
-              <View style={styles.confirmRow}>
-                <Text style={styles.confirmText}>
-                  しゃしんを ぜんぶ けしますか?
-                </Text>
-                <View style={styles.confirmButtons}>
-                  <BigButton
-                    size="small"
-                    emoji="🗑️"
-                    label="ぜんぶ けす"
-                    onPress={doClearPhotos}
-                    color={colors.button}
-                  />
-                  <BigButton
-                    size="small"
-                    emoji="↩️"
-                    label="やめる"
-                    onPress={() => setConfirmClearPhotos(false)}
-                  />
-                </View>
-              </View>
+              <ConfirmBox
+                size="small"
+                question="しゃしんを ぜんぶ けしますか?"
+                confirmLabel="ぜんぶ けす"
+                onConfirm={doClearPhotos}
+                onCancel={() => setConfirmClearPhotos(false)}
+              />
             ) : (
               <View style={styles.actionCol}>
                 <BigButton
                   size="small"
                   emoji="🖼️"
-                  label={busy ? "よみこみちゅう…" : "しゃしんを ふやす"}
+                  label={busy ? LOADING_TEXT : "しゃしんを ふやす"}
                   onPress={
                     busy || photos.length >= MAX_PHOTOS ? () => {} : onAddPhotos
                   }
@@ -389,7 +365,7 @@ export default function OtonaScreen({ onBack }: Props) {
         </Text>
 
         {!storageReady ? (
-          <Text style={styles.note}>よみこみちゅう…</Text>
+          <Text style={styles.note}>{LOADING_TEXT}</Text>
         ) : !canUseVoice ? (
           <Text style={styles.warn}>
             この ブラウザでは ろくおんできません。めいろは これまでどおり
@@ -409,26 +385,13 @@ export default function OtonaScreen({ onBack }: Props) {
                   </Text>
 
                   {voiceToDelete === slot ? (
-                    <View style={styles.confirmRow}>
-                      <Text style={styles.confirmText}>
-                        この ろくおんを けしますか?
-                      </Text>
-                      <View style={styles.confirmButtons}>
-                        <BigButton
-                          size="small"
-                          emoji="🗑️"
-                          label="けす"
-                          onPress={() => doRemoveVoice(slot)}
-                          color={colors.button}
-                        />
-                        <BigButton
-                          size="small"
-                          emoji="↩️"
-                          label="やめる"
-                          onPress={() => setVoiceToDelete(null)}
-                        />
-                      </View>
-                    </View>
+                    <ConfirmBox
+                      size="small"
+                      question="この ろくおんを けしますか?"
+                      confirmLabel="けす"
+                      onConfirm={() => doRemoveVoice(slot)}
+                      onCancel={() => setVoiceToDelete(null)}
+                    />
                   ) : (
                     <View style={styles.actionCol}>
                       {recording && recPhase === "recording" ? (
@@ -531,22 +494,12 @@ export default function OtonaScreen({ onBack }: Props) {
         </Text>
 
         {confirming ? (
-          <View style={styles.confirmRow}>
-            <Text style={styles.confirmText}>ぜんぶ けしても いい?</Text>
-            <View style={styles.confirmButtons}>
-              <BigButton
-                emoji="🗑️"
-                label="けす"
-                onPress={doReset}
-                color={colors.button}
-              />
-              <BigButton
-                emoji="↩️"
-                label="やめる"
-                onPress={() => setConfirming(false)}
-              />
-            </View>
-          </View>
+          <ConfirmBox
+            question="ぜんぶ けしても いい?"
+            confirmLabel="けす"
+            onConfirm={doReset}
+            onCancel={() => setConfirming(false)}
+          />
         ) : (
           <View style={styles.resetWrap}>
             <BigButton
@@ -697,18 +650,6 @@ const styles = StyleSheet.create({
   },
   resetWrap: {
     marginTop: space.md,
-  },
-  confirmRow: {
-    marginTop: space.md,
-  },
-  confirmText: {
-    fontSize: font.body,
-    fontWeight: "800",
-    color: colors.text,
-    marginBottom: space.sm,
-  },
-  confirmButtons: {
-    rowGap: space.sm,
   },
   credit: {
     fontSize: font.small,

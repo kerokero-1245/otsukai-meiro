@@ -16,6 +16,7 @@
 // DOM lib に依存しないよう、必要な形だけを最小宣言して globalThis から取り出す。
 
 import { webGlobal } from "../web";
+import { once } from "../once";
 
 interface SSVoice {
   lang: string;
@@ -140,12 +141,7 @@ export function speak(
     u.volume = 1;
     if (jaVoice) u.voice = jaVoice;
     if (onEnd) {
-      let fired = false;
-      const fire = () => {
-        if (fired) return;
-        fired = true;
-        onEnd();
-      };
+      const fire = once(onEnd);
       currentOnEnd = fire;
       u.onend = fire;
       u.onerror = fire;

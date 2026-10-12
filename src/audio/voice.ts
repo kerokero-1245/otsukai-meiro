@@ -28,6 +28,7 @@ import { CLIP_URLS } from "./voiceClips";
 import { speak, warmUpSpeech, cancelSpeech, isSpeechAvailable } from "./speech";
 import { duckForVoice, unduckForVoice } from "./bgm";
 import { VoiceSlot, voiceUrl } from "../personal/store";
+import { once } from "../once";
 
 // 読み上げ1回ぶんの指定。
 //   slot … おとなモードの録音スロット（tier0）。録音があればここが最優先。
@@ -69,18 +70,15 @@ function beginDuck(): () => void {
     prev();
   }
   duckForVoice();
-  let done = false;
   let safety: ReturnType<typeof setTimeout> | null = null;
-  const finish = () => {
-    if (done) return;
-    done = true;
+  const finish: () => void = once(() => {
     if (safety) {
       clearTimeout(safety);
       safety = null;
     }
     if (pendingUnduck === finish) pendingUnduck = null;
     unduckForVoice();
-  };
+  });
   try {
     safety = setTimeout(finish, DUCK_SAFETY_MS);
   } catch {

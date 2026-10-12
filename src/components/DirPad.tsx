@@ -7,6 +7,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Direction } from "../types";
 import { colors, radius, shadowRaised } from "../theme";
 import { DIRPAD_COL_GAP, dirPadRowGap } from "../game/dirPad";
+import { DIR_GLYPH, DIR_LABEL } from "../game/directions";
 
 interface Props {
   onDir: (d: Direction) => void;
@@ -18,20 +19,6 @@ interface Props {
   // 省略時は undefined のまま Pressable に渡すので、①の描画は従来と完全に同じ。
   disabled?: boolean;
 }
-
-const GLYPH: Record<Direction, string> = {
-  up: "▲",
-  down: "▼",
-  left: "◀",
-  right: "▶",
-};
-
-const LABEL: Record<Direction, string> = {
-  up: "うえ",
-  down: "した",
-  left: "ひだり",
-  right: "みぎ",
-};
 
 function DirButton({
   dir,
@@ -49,7 +36,7 @@ function DirButton({
       onPress={() => onDir(dir)}
       disabled={disabled}
       accessibilityRole="button"
-      accessibilityLabel={LABEL[dir]}
+      accessibilityLabel={DIR_LABEL[dir]}
       hitSlop={8}
       style={({ pressed }) => [
         styles.btn,
@@ -61,7 +48,7 @@ function DirButton({
       ]}
     >
       <Text style={[styles.glyph, { fontSize: size * 0.46 }]}>
-        {GLYPH[dir]}
+        {DIR_GLYPH[dir]}
       </Text>
     </Pressable>
   );
