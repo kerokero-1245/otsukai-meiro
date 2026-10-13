@@ -6,12 +6,13 @@
 // - 取得失敗時は「まだ何も無い」状態にフォールバック。消えても遊びは壊れない（進捗ロック無し）。
 // - settings.ts（piyopiyo-sansu）の localStorage パターンを移植。
 
+import { TOTAL_STARS } from "@kerokero-1245/piyo-assets/keys";
 import { TEMPLATES } from "./data/templates";
 import { readKey, removeKey, webStorage, writeKey } from "./storage";
 
 const KEY_STARS = "meiro.stars"; // クリア済みレベルidの配列（JSON）
 const KEY_CELEBRATED = "meiro.celebratedAll"; // 「ぜんぶ できたね!」を一度見せたか（'1'）
-const KEY_TOTAL = "meiro.totalStars"; // 累計クリア回数（再クリアも+1）。街（ランチャー）の燃料。DESIGN §7。
+const KEY_TOTAL = TOTAL_STARS.meiro; // 累計クリア回数（再クリアも+1）。街（ランチャー）の燃料。DESIGN §7。
 
 // セッション内キャッシュ（native の永続化が無くても同一起動中は保持される）。
 let starsCache: Set<string> | null = null;
