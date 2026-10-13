@@ -322,7 +322,7 @@ Expo は同一コードを web でも動かせるが、ブラウザ特有の制�
 
 ### 開発環境メモ
 
-- Node は **v22（.nvmrc: 22.23.3）**。macOS 既定の v16 では Expo が動かない。
+- Node は **v24（.nvmrc: 24.21.0）**。macOS 既定の v16 では Expo が動かない。
 - 整形は Prettier の既定設定（`.prettierrc.json` は `{}`）。`npm run format` で整形し、CI は `npm run format:check` で検査する。
 - リポジトリ名は `otsukai-meiro`（アプリ名「おつかいめいろ」確定に伴いリネーム済み）。
 
