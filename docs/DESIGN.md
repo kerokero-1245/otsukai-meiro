@@ -278,27 +278,27 @@ MVPは**この端末1台・姪っ子1人**が主役。将来「離れたおじ�
 
 ## 8. 技術構成
 
-1本目 kore-daijobu と**同じスタックを再利用**（Expo SDK 57 / React Native / TypeScript、`src/screens`・`src/components`・`src/data` 構成、Node 22.23.3）。バックエンド（Supabase）は**使わない**。
+1本目 kore-daijobu と**同じスタックを再利用**（Expo SDK 57 / React Native / TypeScript、`src/screens`・`src/components`・`src/data` 構成、Node 24.21.0）。バックエンド（Supabase）は**使わない**。
 
-**npm の依存は `package.json` の dependencies にある7つだけ**（`expo` / `expo-status-bar` / `@expo/metro-runtime` /
-`react` / `react-dom` / `react-native` / `react-native-web`。devDependencies は `typescript` と `@types/react`）。
+**npm の依存は `package.json` の dependencies にある8つだけ**（`expo` / `expo-status-bar` / `@expo/metro-runtime` /
+`react` / `react-dom` / `react-native` / `react-native-web` / `@kerokero-1245/piyo-assets`（git 依存。`#v0.2.0` のタグで固定）。devDependencies は `typescript` / `@types/react` / `@types/node` / `eslint` / `eslint-config-expo` / `eslint-import-resolver-typescript` / `prettier` の7つ）。
 当初は下の表の右の列のライブラリを入れる計画だったが、Webファースト（§0）にしたことで、どれも
 React Native の標準 API かブラウザ標準 API で足りたため、**追加のライブラリは入れていない**。
 
-| 役割             | 実装（いま使っているもの）                                                                        | 用途                                                                          | 当初の計画（入れていない）                |
-| ---------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------- |
-| アプリ基盤       | **Expo SDK 57 / React Native / TypeScript**（`expo`・`react-native`・`react-native-web`）         | kore-daijobu と同一。Web に書き出して配る                                     | —                                         |
-| 画面遷移         | `App.tsx` の**最小ステートルーター**（`useState` で画面を切り替える）                             | タイトル→レベルえらび→プレイ→クリア／おとなモード。文字ヘッダ無しの全画面遷移 | @react-navigation/native + native-stack   |
-| アニメーション   | React Native 標準の **`Animated`**                                                                | アバターのマス移動・首かしげ・ぴょん、紙吹雪・ズームの祝福演出                | react-native-reanimated                   |
-| 効果音・BGM      | **Web Audio API** でその場合成（`audio/sounds.ts`・`audio/bgm/`）                                 | タップ・移動・首かしげ・クリアの効果音、オルゴール風 BGM                      | expo-audio                                |
-| 声の再生         | **`HTMLAudioElement`**（同梱クリップ・おじの録音）→ **Web Speech API**（`speechSynthesis`）       | 「おつかいめいろ」「ついたね」「ぜんぶ できたね」                             | expo-audio                                |
-| 声の録音         | **`getUserMedia` + `MediaRecorder`**（`personal/recorder.ts`）                                    | おじの声の録音（§15.3）                                                       | expo-audio                                |
-| 写真取り込み     | 隠し **`<input type=file>`** + **canvas** で縮小（`personal/filePicker.ts`・`personal/image.ts`） | ゴール写真の差し替え（§15.2）                                                 | expo-image-picker                         |
-| 写真・録音の保存 | **IndexedDB**（`personal/idb.ts`。DB名 `meiro-personal`）                                         | 端末内に保存（§15.4）                                                         | expo-file-system                          |
-| 進捗・設定の保存 | **`localStorage`**（`progress.ts`・`settings.ts`・`audio/bgm.ts`）                                | ⭐・累計・あそびかた・BGM の ON/OFF                                           | @react-native-async-storage/async-storage |
-| 画像表示         | React Native 標準の **`Image`**（SVG 素材・写真）                                                 | シールポップ絵・写真の表示                                                    | expo-image                                |
-| ハプティクス     | 使っていない                                                                                      | —                                                                             | expo-haptics（任意）                      |
-| ステータスバー   | `expo-status-bar`                                                                                 | 文字色を暗くする                                                              | —                                         |
+| 役割             | 実装（いま使っているもの）                                                                                              | 用途                                                                          | 当初の計画（入れていない）                |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------- |
+| アプリ基盤       | **Expo SDK 57 / React Native / TypeScript**（`expo`・`react-native`・`react-native-web`）                               | kore-daijobu と同一。Web に書き出して配る                                     | —                                         |
+| 画面遷移         | `App.tsx` の**最小ステートルーター**（`useState` で画面を切り替える）                                                   | タイトル→レベルえらび→プレイ→クリア／おとなモード。文字ヘッダ無しの全画面遷移 | @react-navigation/native + native-stack   |
+| アニメーション   | React Native 標準の **`Animated`**                                                                                      | アバターのマス移動・首かしげ・ぴょん、紙吹雪・ズームの祝福演出                | react-native-reanimated                   |
+| 効果音・BGM      | **Web Audio API** でその場合成（`audio/sounds.ts`・`audio/bgm.ts`（配線）・共有パッケージ piyo-assets の `bgm/engine`） | タップ・移動・首かしげ・クリアの効果音、オルゴール風 BGM                      | expo-audio                                |
+| 声の再生         | **`HTMLAudioElement`**（同梱クリップ・おじの録音）→ **Web Speech API**（`speechSynthesis`）                             | 「おつかいめいろ」「ついたね」「ぜんぶ できたね」                             | expo-audio                                |
+| 声の録音         | **`getUserMedia` + `MediaRecorder`**（`personal/recorder.ts`）                                                          | おじの声の録音（§15.3）                                                       | expo-audio                                |
+| 写真取り込み     | 隠し **`<input type=file>`** + **canvas** で縮小（`personal/filePicker.ts`・`personal/image.ts`）                       | ゴール写真の差し替え（§15.2）                                                 | expo-image-picker                         |
+| 写真・録音の保存 | **IndexedDB**（`personal/idb.ts`。DB名 `meiro-personal`）                                                               | 端末内に保存（§15.4）                                                         | expo-file-system                          |
+| 進捗・設定の保存 | **`localStorage`**（`progress.ts`・`settings.ts`・`audio/bgm.ts`）                                                      | ⭐・累計・あそびかた・BGM の ON/OFF                                           | @react-native-async-storage/async-storage |
+| 画像表示         | React Native 標準の **`Image`**（SVG 素材・写真）                                                                       | シールポップ絵・写真の表示                                                    | expo-image                                |
+| ハプティクス     | 使っていない                                                                                                            | —                                                                             | expo-haptics（任意）                      |
+| ステータスバー   | `expo-status-bar`                                                                                                       | 文字色を暗くする                                                              | —                                         |
 
 ネイティブ（iOS/Android）では、上のブラウザ API の部分は `Platform` 分岐で「つかえない」「無音」を返すスタブになる
 （こども側の遊びは壊れない）。ネイティブで写真・録音を使えるようにするときに、右の列のライブラリを検討する。

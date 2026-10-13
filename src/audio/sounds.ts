@@ -71,7 +71,7 @@ function getCtx(): AudioContext | null {
   }
 }
 
-// BGM エンジン（bgm/engine.ts）と AudioContext を共有するための getter。
+// BGM エンジン（piyo-assets の bgm/engine）と AudioContext を共有するための getter。
 // bgm.ts が configureBgm({ getCtx }) で注入する。ユーザー操作起点でのみ呼ばれる（startBgm 内）。
 // native / 非対応環境では null（BGM も無音）。
 export function getSharedAudioContext(): AudioContext | null {
