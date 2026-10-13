@@ -7,11 +7,14 @@
  * この保存の規則を先に固定しておく（まとめたあとも同じ値で緑のまま、が条件）。
  *
  * bgm.ts は モジュールの中に初期化済みの旗を持つので、テストごとに読み込み直した別の実体を使う。
- * エンジン（bgm/engine.ts。3 つのアプリ共通の写し）は読み込み直しても同じ実体なので、各テストの前に ON に戻す。
+ * エンジン（共有パッケージ piyo-assets の bgm/engine）は読み込み直しても同じ実体なので、各テストの前に ON に戻す。
  */
 import { afterEach, beforeEach, test } from "node:test";
 import assert from "node:assert/strict";
-import { getBgmState, setBgmEnabled } from "../src/audio/bgm/engine";
+import {
+  getBgmState,
+  setBgmEnabled,
+} from "@kerokero-1245/piyo-assets/bgm/engine";
 import { importFresh } from "./helpers/importFresh";
 import {
   FakeStorage,

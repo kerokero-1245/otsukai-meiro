@@ -40,7 +40,12 @@ function isFile(file) {
 }
 
 // このリポジトリのファイルだけを変換の対象にする（node_modules の中の CommonJS などには触れない）。
+// ただし共有パッケージ piyo-assets は .ts のまま配られ、Node は node_modules の中の .ts の型を除去しない
+// （ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING）ので、このパッケージの中だけは変換する。
+const SHARED =
+  path.join(ROOT, "node_modules", "@kerokero-1245", "piyo-assets") + path.sep;
 function inProject(file) {
+  if (file.startsWith(SHARED)) return true;
   return file.startsWith(ROOT + path.sep) && !file.includes(NODE_MODULES);
 }
 

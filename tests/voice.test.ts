@@ -8,7 +8,11 @@
  */
 import { afterEach, beforeEach, mock, test } from "node:test";
 import assert from "node:assert/strict";
-import { getBgmState, setBgmEnabled, unduckBgm } from "../src/audio/bgm/engine";
+import {
+  getBgmState,
+  setBgmEnabled,
+  unduckBgm,
+} from "@kerokero-1245/piyo-assets/bgm/engine";
 import { CLIP_URLS } from "../src/audio/voiceClips";
 import { cancelVoice, playVoice, sayPhrase } from "../src/audio/voice";
 import { Platform } from "./stubs/react-native";

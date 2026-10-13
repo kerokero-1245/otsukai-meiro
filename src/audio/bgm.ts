@@ -1,5 +1,5 @@
 // おつかいめいろの BGM 配線（オルゴール風の手続き生成ループ / piyo-assets 共通エンジン）。
-// 画面はこのモジュールだけを呼ぶ。内部で bgm/engine.ts（依存ゼロの Web Audio エンジン）に橋渡しする。
+// 画面はこのモジュールだけを呼ぶ。内部で piyo-assets の bgm/engine（依存ゼロの Web Audio エンジン）に橋渡しする。
 //
 // 方針（ぴよぴよランド 共通ルール）:
 //   - 曲は 'meiro'（すこしわくわく・G メジャーペンタ・84BPM・16小節シームレスループ）。
@@ -18,7 +18,7 @@ import {
   setBgmEnabled,
   duckBgm,
   unduckBgm,
-} from "./bgm/engine";
+} from "@kerokero-1245/piyo-assets/bgm/engine";
 import { getSharedAudioContext } from "./sounds";
 import { readKey, writeKey } from "../storage";
 

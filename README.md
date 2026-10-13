@@ -97,9 +97,7 @@ src/
   audio/clips.ts            tier0/1: クリップ・録音の再生（HTMLAudioElement / native 無音）
   audio/voiceClips.ts       tier1: 同梱クリップ登録表（VOICEVOX ずんだもん 3個）
   audio/speech.ts           tier2: 端末の音声合成（Web Speech API / native 無音）
-  audio/bgm.ts              BGM 配線の入口（曲=meiro / トグル meiro.bgm / ダッキング / ctx共有）
-  audio/bgm/engine.ts       BGM エンジン（オルゴール風の手続き生成ループ・piyo-assets 共通）
-  audio/bgm/songs.ts        BGM スコアデータ（4曲。meiro を再生）
+  audio/bgm.ts              BGM 配線の入口（曲=meiro / トグル meiro.bgm / ダッキング / ctx共有）。エンジンと曲のデータは src/ に置かず、共有パッケージ piyo-assets（`@kerokero-1245/piyo-assets/bgm/engine`）から読む
   personal/                 パーソナライズ（ゴール写真・おじの声。web のみ・完全端末内）
     idb.ts                  IndexedDB 最小ラッパ（DB名 meiro-personal。例外を投げない）
     image.ts                canvas で長辺512px・JPEG0.8 に縮小（EXIF向き対応）
@@ -187,7 +185,7 @@ DESIGN §3 の「②ならべてゴー」。**けいかく → じっこう → 
 
 ## BGM（おんがく）
 
-姉妹アプリ共通のオルゴール風 BGM を配線（`audio/bgm.ts` → `audio/bgm/engine.ts`）。曲は **meiro**（すこしわくわく・
+姉妹アプリ共通のオルゴール風 BGM を配線（`audio/bgm.ts` → 共有パッケージ [piyo-assets](https://github.com/kerokero-1245/piyo-assets) の `bgm/engine`。`package.json` の git 依存で、タグで固定した版を読む）。曲は **meiro**（すこしわくわく・
 G メジャーペンタ・84BPM・16小節シームレスループ）。音源ファイルは同梱せず **Web Audio API でその場合成**する
 手続き生成ループ（効果音・声と同じく外部送信ゼロ・完全オフライン）。
 

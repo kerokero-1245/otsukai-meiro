@@ -5,7 +5,7 @@
 //
 // 各モジュールは、使う API の「必要な形だけの最小の型」を自分で宣言して webGlobal<T> に渡す
 // （DOM lib の型には直接依存しない。ただし audio/sounds.ts だけは AudioContext・OscillatorType の DOM の型を直接使う）。
-// 3 つのアプリ共通の写し bgm/engine.ts はここを使わない（触らない）。
+// 共有パッケージ piyo-assets の bgm/engine は、アプリの src を import できないので、ここを使わない。
 
 import { Platform } from "react-native";
 
