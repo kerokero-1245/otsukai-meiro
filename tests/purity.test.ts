@@ -41,7 +41,9 @@ function forbidden(spec: string): boolean {
     spec.startsWith("react-native/") ||
     spec === "expo" ||
     spec.startsWith("expo-") ||
-    /(^|\/)(components|screens)\//.test(spec)
+    /(^|\/)(components|screens)\//.test(spec) ||
+    spec === "@kerokero-1245/piyo-assets/ui" ||
+    spec.startsWith("@kerokero-1245/piyo-assets/ui/")
   );
 }
 
