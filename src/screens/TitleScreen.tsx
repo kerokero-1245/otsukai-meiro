@@ -16,10 +16,14 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
+import {
+  SHOW_TOWN,
+  TOWN_LINK_HEIGHT,
+  TownLink,
+} from "@kerokero-1245/piyo-assets/ui";
 import { colors, font, space } from "../theme";
 import BigButton from "../components/BigButton";
 import PiyoArt from "../components/PiyoArt";
-import TownLink, { SHOW_TOWN, TOWN_LINK_HEIGHT } from "../components/TownLink";
 import { playSound } from "../audio/sounds";
 import { sayPhrase, warmUpVoice } from "../audio/voice";
 import { startMeiroBgm } from "../audio/bgm";
