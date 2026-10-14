@@ -32,7 +32,7 @@ import { initPersonal } from "./src/personal/store";
 // 街へのリンクの枠と押下の色は、盤のタイルの枠（tileBorder）とカード色のボタンの押下（surfacePressed）の色。
 // 白い大ボタンの押下色は theme に無く、元の部品の直書きの値をそのまま渡す。
 // 進捗の星（ProgressStar）は使わないので、その色は渡さない。
-// モジュールの定数にして、描画のたびに作り直さない（作り直すと紙吹雪の配置まで変わる）。
+// モジュールの定数にして、描画のたびに作り直さない（作り直すと、部品が style を毎回作り直す。confetti の配列まで作り直すと、紙吹雪の配置も変わる）。
 const UI_TOKENS: PiyoUiTokens = {
   colors: {
     surface: colors.surface,

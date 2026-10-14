@@ -112,6 +112,7 @@ src/
     GoButton.tsx            ②の「ゴー!」（緑のまる。矢印が0本ならうすく押せない）
     Avatar.tsx              アバター（丸いバッジにシールポップのぴよ）
     ClearOverlay.tsx        ゴール祝福オーバーレイ（写真ならズーム表示）
+    ConfirmBox.tsx          おとなモードの確認ボックス（問い ＋ けす ＋ やめる。写真・録音・⭐の削除の前に 1 枚はさむ）
     GoalArt.tsx             ゴールの見た目（写真 or シールポップSVG or 絵文字）
     PiyoArt.tsx             絵文字グリフ → シールポップSVG の差し替え
   screens/
