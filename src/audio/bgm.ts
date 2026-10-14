@@ -22,14 +22,32 @@ import {
 import { getSharedAudioContext } from "./sounds";
 import { readKey, writeKey } from "../storage";
 
-const BGM_KEY = "meiro.bgm"; // localStorage: '0'=OFF / それ以外（未設定含む）=ON（既定）
+const BGM_KEY = "meiro.bgm"; // localStorage: 'on' / 'off'（旧値 '1' / '0' は読んだときに書き直す）。未設定・壊れ値は ON（既定）
+const BGM_ON = "on";
+const BGM_OFF = "off";
 
-// 保存された ON/OFF を読む（未設定・例外は既定 ON）。
+// meiro.bgm の読み方（ランドの land.bgm の parseBgm と同じ規則。さんすう・ことばと同じ on/off の形に揃える）。
+// "off" と旧値 "0" → OFF、"on" と旧値 "1" → ON、それ以外（未設定 null・壊れ値）→ 既定 ON。
+// rewrite は旧値を読んだときだけ新しい値（"on" / "off"）。新しい値・未設定・壊れ値は null（書き直さない）。
+export function parseBgmValue(raw: string | null): {
+  on: boolean;
+  rewrite: string | null;
+} {
+  if (raw === BGM_OFF) return { on: false, rewrite: null };
+  if (raw === BGM_ON) return { on: true, rewrite: null };
+  if (raw === "0") return { on: false, rewrite: BGM_OFF };
+  if (raw === "1") return { on: true, rewrite: BGM_ON };
+  return { on: true, rewrite: null };
+}
+
+// 保存された ON/OFF を読む（未設定・例外は既定 ON）。旧値ならその場で新しい値に書き直す（書けなくても遊びは壊さない）。
 function readEnabled(): boolean {
-  return readKey(BGM_KEY) !== "0";
+  const { on, rewrite } = parseBgmValue(readKey(BGM_KEY));
+  if (rewrite !== null) writeKey(BGM_KEY, rewrite);
+  return on;
 }
 function writeEnabled(on: boolean): void {
-  writeKey(BGM_KEY, on ? "1" : "0"); // 保存できなくても遊びは壊さない
+  writeKey(BGM_KEY, on ? BGM_ON : BGM_OFF); // 保存できなくても遊びは壊さない
 }
 
 let initialized = false;

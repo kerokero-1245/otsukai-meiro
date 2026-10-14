@@ -193,7 +193,8 @@ G メジャーペンタ・84BPM・16小節シームレスループ）。音源�
   必ずタップ起点。以降は画面遷移でも途切れず流し続ける（クリア演出中も継続）。
 - **ダッキング**: 声（タイトル・ついたね・ぜんぶ できたね）の再生中だけ BGM を約35%へ沈め、終了で戻す
   （`audio/voice.ts` が `duckForVoice` / `unduckForVoice` を呼ぶ。ended/error/停止/無音のいずれでも確実に復帰）。
-- **トグル**: おとなモードに「BGM: ながす／ながさない」（既定 **ON**・`localStorage` キー `meiro.bgm`）。OFF で即停止、
+- **トグル**: おとなモードに「BGM: ながす／ながさない」（既定 **ON**・`localStorage` キー `meiro.bgm` に `"on"`／`"off"`。
+  旧版の値 `"1"`／`"0"` は読んだときに `"on"`／`"off"` に書き直す）。OFF で即停止、
   ON で（ジェスチャ文脈なら）即再開。リロードしても設定は保持。
 - **AudioContext 共有**: 効果音（`audio/sounds.ts`）と同じ `AudioContext` を共有（`configureBgm({ getCtx })`）。
 - 非対応環境（native・AudioContext 無し）・`localStorage` 例外でも全て無害な no-op（遊びは壊さない）。
