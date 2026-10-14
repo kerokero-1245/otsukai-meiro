@@ -10,13 +10,12 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import { Confetti } from "@kerokero-1245/piyo-assets/ui";
+import { BigButton, Confetti } from "@kerokero-1245/piyo-assets/ui";
 import { colors, font, space } from "../theme";
 import { frameInnerWidth } from "../layout";
 import { TEMPLATES } from "../data/templates";
 import { playSound } from "../audio/sounds";
 import { sayPhrase, cancelVoice } from "../audio/voice";
-import BigButton from "../components/BigButton";
 
 interface Props {
   onDone: () => void; // レベルえらびへ（王冠つきで戻る）

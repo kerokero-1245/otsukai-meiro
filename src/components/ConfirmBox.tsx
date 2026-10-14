@@ -4,15 +4,15 @@
 
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { BigButton, type BigButtonSize } from "@kerokero-1245/piyo-assets/ui";
 import { colors, font, space } from "../theme";
-import BigButton from "./BigButton";
 
 interface Props {
   question: string; // 「この しゃしんを けしますか?」など
   confirmLabel: string; // 🗑️ のボタンの文言（「けす」「ぜんぶ けす」）
   onConfirm: () => void;
   onCancel: () => void;
-  size?: "small" | "big" | "huge"; // BigButton の大きさ。省くと BigButton の既定（big）
+  size?: BigButtonSize; // BigButton の大きさ。省くと BigButton の既定（big）
 }
 
 export default function ConfirmBox({

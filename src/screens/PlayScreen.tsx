@@ -28,6 +28,7 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+import { BigButton } from "@kerokero-1245/piyo-assets/ui";
 import { colors, font, radius, space } from "../theme";
 import { getTemplate, getNextTemplateId } from "../data/templates";
 import { generateLevel, QUEUE_MIN_CAPACITY } from "../game/generate";
@@ -46,7 +47,6 @@ import MazeGrid from "../components/MazeGrid";
 import { computePlayLayout } from "../game/playLayout";
 import DirPad from "../components/DirPad";
 import ClearOverlay from "../components/ClearOverlay";
-import BigButton from "../components/BigButton";
 import GoalArt from "../components/GoalArt";
 import GoButton from "../components/GoButton";
 import CommandQueue from "../components/CommandQueue";
