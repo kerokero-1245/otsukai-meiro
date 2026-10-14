@@ -22,12 +22,12 @@ import {
   View,
   ViewStyle,
 } from "react-native";
+import { Confetti } from "@kerokero-1245/piyo-assets/ui";
 import { colors, font, radius, space } from "../theme";
 import { FRAME_PAD_BOTTOM, FRAME_PAD_TOP } from "../layout";
 import { playSound } from "../audio/sounds";
 import { sayPhrase, cancelVoice } from "../audio/voice";
 import BigButton from "./BigButton";
-import Confetti from "./Confetti";
 import PiyoArt from "./PiyoArt";
 import GoalArt from "./GoalArt";
 
