@@ -11,10 +11,11 @@
 ブラウザで開いてそのまま遊べる。スマホなら「ホーム画面に追加」で全画面起動。
 `main` に push すると GitHub Actions（[.github/workflows/deploy.yml](.github/workflows/deploy.yml)）が Web を書き出して自動デプロイする。
 
-typecheck（`npm run typecheck`）と Web の書き出しが通ったときだけ公開し、PR でも同じ検査を回す。
+整形の検査（Prettier）・静的解析（ESLint）・型チェック・テストが通り、Web の書き出しができたときだけ公開し、PR でも同じ検査を回す。
 
 - 企画（厳選5案の比較）: [docs/IDEAS.md](docs/IDEAS.md)
 - 設計（画面・データモデル・ロードマップ）: [docs/DESIGN.md](docs/DESIGN.md)
+- 作り方の規則と、この repo で違うこと: [docs/DESIGN.md](docs/DESIGN.md#この-repo-での適用)
 
 ## 状態
 
@@ -30,11 +31,11 @@ typecheck（`npm run typecheck`）と Web の書き出しが通ったときだ�
 - 作り手（おじ/おば）は遠方在住 — 離れていても関われる要素を重視
 - MVPはコア機能1つに絞る。まず姪っ子1人が喜べばOK、ストア公開は二の次
 - 完全オフライン: バックエンド・アカウント・通信なし。データは端末内のみ
-- 技術: Expo SDK 57 (React Native + TypeScript)、Node 22.23.3
+- 技術: Expo SDK 57 (React Native + TypeScript)、Node 24.21.0
 
 ## 動かし方
 
-前提: **Node 22.23.3**（macOS 既定の v16 では Expo が動かない）。nvm なら `nvm use`（`.nvmrc` に 22.23.3）。
+前提: **Node の版は `.nvmrc` に従う**（macOS 既定の v16 では Expo が動かない。nvm なら `nvm use`）。
 
 ```sh
 npm install          # 初回のみ
