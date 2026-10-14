@@ -7,7 +7,7 @@
 // ときは全体をスクロールして全部に届く。並びの順がそのまま Tab の順（まちへ もどる → 題字 → あそぶ → 歯車）になる。
 // ぴよぴよさんすうのタイトルと同じ作り。
 
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import {
   Pressable,
   ScrollView,
@@ -21,6 +21,7 @@ import {
   SHOW_TOWN,
   TOWN_LINK_HEIGHT,
   TownLink,
+  useLongPress,
 } from "@kerokero-1245/piyo-assets/ui";
 import { colors, font, space } from "../theme";
 import PiyoArt from "../components/PiyoArt";
@@ -35,32 +36,12 @@ interface Props {
   onOtona: () => void;
 }
 
-const HOLD_MS = 3000;
-
 // 題字の大きさは src/game/textFit.ts の titleFontSize（枠の幅から見積もる）。
 
 export default function TitleScreen({ onPlay, onOtona }: Props) {
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { width: windowW } = useWindowDimensions();
-
-  const clearHold = () => {
-    if (timer.current) {
-      clearTimeout(timer.current);
-      timer.current = null;
-    }
-  };
-  const startHold = () => {
-    clearHold();
-    timer.current = setTimeout(() => {
-      timer.current = null;
-      onOtona();
-    }, HOLD_MS);
-  };
-  // 画面を離れたら長押しのタイマーも止める（防御）。残ると、⚙️を押したまま別の操作（別の指で「あそぶ」など）で
-  // 画面が移った 3 秒後に おとなモードへ飛び、親ゲートの意図に反する。Web ビルド（react-native-web）の Pressable は
-  // 外れるときに onPressOut を呼ぶので、この後始末が無くてもタイマーは消える。ネイティブ（RN の Pressability）で
-  // 呼ばれない場合に備える。
-  useEffect(() => clearHold, []);
+  // 歯車の長押し（既定の 3 秒）。画面を離れたときのタイマーの後始末は useLongPress が持つ。
+  const gearHold = useLongPress(onOtona);
 
   return (
     <View style={styles.root}>
@@ -129,8 +110,8 @@ export default function TitleScreen({ onPlay, onOtona }: Props) {
         {/* 親ゲート: 3秒長押しでおとなモード（右下。ほかの要素と重ならないよう行として置く） */}
         <View style={styles.gearRow}>
           <Pressable
-            onPressIn={startHold}
-            onPressOut={clearHold}
+            onPressIn={gearHold.onPressIn}
+            onPressOut={gearHold.onPressOut}
             accessibilityRole="button"
             accessibilityLabel="おとなモード（長押し）"
             hitSlop={12}
