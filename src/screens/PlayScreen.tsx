@@ -28,7 +28,7 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import { BigButton } from "@kerokero-1245/piyo-assets/ui";
+import { BigButton } from "@kerokero-1245/piyo-assets/ui/BigButton";
 import { colors, font, radius, space } from "../theme";
 import { getTemplate, getNextTemplateId } from "../data/templates";
 import { generateLevel, QUEUE_MIN_CAPACITY } from "../game/generate";

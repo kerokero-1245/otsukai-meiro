@@ -4,7 +4,10 @@
 
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { BigButton, type BigButtonSize } from "@kerokero-1245/piyo-assets/ui";
+import {
+  BigButton,
+  type BigButtonSize,
+} from "@kerokero-1245/piyo-assets/ui/BigButton";
 import { colors, font, space } from "../theme";
 
 interface Props {

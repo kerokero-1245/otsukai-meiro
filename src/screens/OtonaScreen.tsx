@@ -20,7 +20,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { BigButton } from "@kerokero-1245/piyo-assets/ui";
+import { BigButton } from "@kerokero-1245/piyo-assets/ui/BigButton";
 import { colors, font, radius, space } from "../theme";
 import ConfirmBox from "../components/ConfirmBox";
 import { clearedCount, resetProgress } from "../progress";

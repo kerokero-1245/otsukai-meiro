@@ -16,13 +16,13 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
+import { BigButton } from "@kerokero-1245/piyo-assets/ui/BigButton";
 import {
-  BigButton,
   SHOW_TOWN,
   TOWN_LINK_HEIGHT,
   TownLink,
-  useLongPress,
-} from "@kerokero-1245/piyo-assets/ui";
+} from "@kerokero-1245/piyo-assets/ui/TownLink";
+import { useLongPress } from "@kerokero-1245/piyo-assets/ui/useLongPress";
 import { colors, font, space } from "../theme";
 import PiyoArt from "../components/PiyoArt";
 import { playSound } from "../audio/sounds";
