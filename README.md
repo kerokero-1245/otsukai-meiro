@@ -49,6 +49,7 @@ npm start            # Expo を起動 → ターミナルで w を押すと Web 
 ショートカット: `npm run web`（`w` を押さず直接 Web 起動）。型の確認は `npm run typecheck`（`tsc --noEmit`）。
 
 テスト: `npm test`（Node 組み込みの `node --test`。新しい依存なし）。迷路の生成・移動・⭐の保存など、画面に依らないロジックと保存の規則を確かめる。
+読み込みの仕組み（.ts の変換・react-native と expo の差し替え）と偽の localStorage・乱数は piyo-assets の `testing/` のものを使い、`tests/register.mjs`・`tests/stubs/`・`tests/helpers/` にはこのアプリの差分だけを置く。
 
 ### Web ビルド（配布用の静的サイト書き出し）
 
@@ -124,7 +125,7 @@ src/
 public/                     Web 書き出しの HTML の型・manifest・アイコン・OGP 画像
 ```
 
-大ボタン（small / big / huge）・紙吹雪・「まちへ もどる」（街へのリンク）・おとなモードの長押しは src/ に置かず、共有パッケージ piyo-assets の `@kerokero-1245/piyo-assets/ui` から読む（見た目の値は App.tsx の `PiyoUiProvider` で `src/theme.ts` から渡す）。
+大ボタン（small / big / huge）・紙吹雪・「まちへ もどる」（街へのリンク）・おとなモードの長押しは src/ に置かず、共有パッケージ piyo-assets の部品ごとの入口 `@kerokero-1245/piyo-assets/ui/<部品名>`（`ui/BigButton`・`ui/Confetti`・`ui/TownLink`・`ui/useLongPress`）から読む（見た目の値は App.tsx の `PiyoUiProvider`（`ui/tokens`）で `src/theme.ts` から渡す）。まとめての入口 `@kerokero-1245/piyo-assets/ui` からは読まない（使わない部品の絵まで書き出されるため）。
 
 ## やじるしモード（ならべてゴー）
 

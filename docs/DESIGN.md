@@ -4,7 +4,7 @@
 > マスの上でアバターを動かし、りんごや「おばあちゃんの家（実写真）」に届ける。届いたら**おじの声**で「ついたね!」。
 > 絵本『ルビィのぼうけん』の延長として、**順序立て（アルゴリズム）**と**うまくいかない→直す（試行錯誤・デバッグ）**の下地をつくる。
 
-最終更新: 2026-10-15
+最終更新: 2026-10-16
 
 企画の全体像・案の比較は [IDEAS.md](IDEAS.md) を参照（本アプリは「案1 ○○ちゃんのおつかいめいろ」を第1作にしたもの）。
 
@@ -304,7 +304,7 @@ MVPは**この端末1台・姪っ子1人**が主役。将来「離れたおじ�
 1本目 kore-daijobu と**同じスタックを再利用**（Expo SDK 57 / React Native / TypeScript、`src/screens`・`src/components`・`src/data` 構成、Node 24.21.0）。バックエンド（Supabase）は**使わない**。
 
 **npm の依存は `package.json` の dependencies にある8つだけ**（`expo` / `expo-status-bar` / `@expo/metro-runtime` /
-`react` / `react-dom` / `react-native` / `react-native-web` / `@kerokero-1245/piyo-assets`（git 依存。`#v0.3.1` のタグで固定）。devDependencies は `typescript` / `@types/react` / `@types/node` / `eslint` / `eslint-config-expo` / `eslint-import-resolver-typescript` / `prettier` の7つ）。
+`react` / `react-dom` / `react-native` / `react-native-web` / `@kerokero-1245/piyo-assets`（git 依存。`#v0.4.0` のタグで固定。部品は部品ごとの入口 `@kerokero-1245/piyo-assets/ui/<部品名>` から読み、テストの読み込みの仕組みは `testing/` を使う）。devDependencies は `typescript` / `@types/react` / `@types/node` / `eslint` / `eslint-config-expo` / `eslint-import-resolver-typescript` / `prettier` の7つ）。
 当初は下の表の右の列のライブラリを入れる計画だったが、Webファースト（§0）にしたことで、どれも
 React Native の標準 API かブラウザ標準 API で足りたため、**追加のライブラリは入れていない**。
 
