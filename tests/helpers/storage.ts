@@ -1,69 +1,45 @@
 // localStorage の偽物。Node には localStorage が無いので、progress.ts・settings.ts が見る
-// `globalThis.localStorage` の場所へ置く。中身・書き込みの記録・失敗のさせ方をテストから操作できる。
+// `globalThis.localStorage` の場所へ置く。本体は piyo-assets の testing/storage で、ここではこのアプリの
+// テストが使う呼び名だけを足す（read・written・removed・contents・removeLocalStorage）。
+import {
+  FakeStorage as SharedFakeStorage,
+  installLocalStorage as installShared,
+} from "@kerokero-1245/piyo-assets/testing/storage";
 
-export class FakeStorage {
-  readonly data = new Map<string, string>();
-  /** getItem / setItem / removeItem が呼ばれたキー（呼ばれた順）。「このキーには触っていない」を確かめるのに使う。 */
-  readonly read: string[] = [];
-  readonly written: string[] = [];
-  readonly removed: string[] = [];
-  /** true にすると、その操作が例外を投げる（容量超過・プライベートブラウズなどの再現）。 */
-  failGet = false;
-  failSet = false;
-  failRemove = false;
+export { installThrowingLocalStorage } from "@kerokero-1245/piyo-assets/testing/storage";
 
-  constructor(initial: Record<string, string> = {}) {
-    for (const [key, value] of Object.entries(initial)) {
-      this.data.set(key, value);
-    }
+export class FakeStorage extends SharedFakeStorage {
+  /** getItem が呼ばれたキー（呼ばれた順。読めなかった呼び出しも含む）。 */
+  get read(): string[] {
+    return this.log.flatMap((call) => (call.op === "get" ? [call.key] : []));
   }
 
-  getItem(key: string): string | null {
-    this.read.push(key);
-    if (this.failGet) throw new Error("getItem: 読めません");
-    return this.data.get(key) ?? null;
+  /** 書けたキー（呼ばれた順）。「このキーには触っていない」を確かめるのに使う。 */
+  get written(): string[] {
+    return this.succeeded().flatMap((call) =>
+      call.op === "set" ? [call.key] : [],
+    );
   }
 
-  setItem(key: string, value: string): void {
-    if (this.failSet) throw new Error("setItem: 書けません");
-    this.written.push(key);
-    this.data.set(key, String(value));
-  }
-
-  removeItem(key: string): void {
-    if (this.failRemove) throw new Error("removeItem: 消せません");
-    this.removed.push(key);
-    this.data.delete(key);
+  /** 消せたキー（呼ばれた順）。 */
+  get removed(): string[] {
+    return this.succeeded().flatMap((call) =>
+      call.op === "remove" ? [call.key] : [],
+    );
   }
 
   /** 保存されている中身を、キー順の普通のオブジェクトにして返す（deepEqual で比べやすくする）。 */
   contents(): Record<string, string> {
-    return Object.fromEntries(
-      [...this.data].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)),
-    );
+    return this.snapshot();
   }
 }
 
 /** globalThis.localStorage に偽物を置く。 */
 export function installLocalStorage(storage: FakeStorage): void {
-  Object.defineProperty(globalThis, "localStorage", {
-    value: storage,
-    configurable: true,
-    writable: true,
-  });
+  installShared(storage);
 }
 
-/** localStorage を取り出すこと自体が例外になる環境（サンドボックス化された iframe など）。 */
-export function installThrowingLocalStorage(): void {
-  Object.defineProperty(globalThis, "localStorage", {
-    get() {
-      throw new Error("SecurityError: localStorage にアクセスできません");
-    },
-    configurable: true,
-  });
-}
-
-/** localStorage が無い状態（Node の既定）に戻す。 */
+/** localStorage が無い状態にする（localStorage は undefined。src/web.ts の webGlobal は null を返す）。 */
 export function removeLocalStorage(): void {
-  Reflect.deleteProperty(globalThis, "localStorage");
+  installShared(undefined);
 }
