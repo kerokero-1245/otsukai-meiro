@@ -1,4 +1,4 @@
-// ESLint の設定（flat config）。Expo の設定（eslint-config-expo）を使い、規則の追加はしない。
+// ESLint の設定（flat config）。Expo の設定（eslint-config-expo）を使い、追加した規則は no-restricted-imports の 1 つだけ（理由は下）。
 // 無効化は react-hooks/refs の 1 つだけ（理由は下）。
 import { defineConfig, globalIgnores } from "eslint/config";
 // 拡張子なしの "eslint-config-expo/flat" は、同名のフォルダ flat/ があるので ESM からは読めない。
@@ -27,6 +27,25 @@ export default defineConfig([
     // 導入時に 70 件（32 行・6 ファイル）出た。うち 1 件（PlayScreen の cellRef.current = cell）だけは別の形
     // （最新の値を ref に写す）。この repo の書き方に合わない規則なので off にする。
     rules: { "react-hooks/refs": "off" },
+  },
+  {
+    // 共有パッケージ piyo-assets の部品は、部品ごとの入口 "@kerokero-1245/piyo-assets/ui/<部品名>" から読む。
+    // まとめての入口 "@kerokero-1245/piyo-assets/ui" は、使わない部品の絵まで書き出すので読まない。
+    // paths は import の名前が完全に同じものだけを止めるので、ui/<部品名> は止まらない。
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@kerokero-1245/piyo-assets/ui",
+              message:
+                "部品ごとの入口 @kerokero-1245/piyo-assets/ui/<部品名> から読む（まとめての入口は使わない部品の絵まで書き出す）",
+            },
+          ],
+        },
+      ],
+    },
   },
   // 依存・生成物・書き出し先は検査しない（.gitignore の同名の項目と同じ）。
   globalIgnores([
