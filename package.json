@@ -4,7 +4,7 @@
   "main": "index.ts",
   "dependencies": {
     "@expo/metro-runtime": "~57.0.3",
-    "@kerokero-1245/piyo-assets": "github:kerokero-1245/piyo-assets#v0.4.0",
+    "@kerokero-1245/piyo-assets": "github:kerokero-1245/piyo-assets#v0.2.0",
     "expo": "~57.0.30",
     "expo-status-bar": "~57.0.1",
     "react": "19.2.3",
