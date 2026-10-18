@@ -7,8 +7,8 @@
     "@kerokero-1245/piyo-assets": "github:kerokero-1245/piyo-assets#v0.4.0",
     "expo": "~57.0.30",
     "expo-status-bar": "~57.0.1",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "react-native": "0.86.3",
     "react-native-web": "^0.21.4"
   },
