@@ -5,7 +5,7 @@
   "dependencies": {
     "@expo/metro-runtime": "~57.0.3",
     "@kerokero-1245/piyo-assets": "github:kerokero-1245/piyo-assets#v0.4.0",
-    "expo": "~57.0.30",
+    "expo": "~57.0.31",
     "expo-status-bar": "~57.0.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -15,7 +15,7 @@
   "devDependencies": {
     "@types/node": "26.6.5",
     "@types/react": "~19.2.4",
-    "eslint": "10.12.0",
+    "eslint": "10.13.0",
     "eslint-config-expo": "57.0.2",
     "eslint-import-resolver-typescript": "4.4.5",
     "prettier": "3.9.10",
